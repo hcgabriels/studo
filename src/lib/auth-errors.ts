@@ -34,6 +34,10 @@ const PT_BR_MAP: Array<{ match: RegExp | string; pt: string }> = [
     pt: "Cadastros estão temporariamente desativados.",
   },
   {
+    match: /error sending confirmation email/i,
+    pt: "Não foi possível enviar o email de confirmação. Tente novamente em alguns minutos.",
+  },
+  {
     match: /password should be at least/i,
     pt: "A senha precisa ter no mínimo 6 caracteres.",
   },
