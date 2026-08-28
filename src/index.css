@@ -1,0 +1,693 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================================
+   STUDOO · Design System v1
+   Tokens espelham _handoff-code/studoo.css (fonte da verdade).
+   ============================================================================ */
+
+@layer base {
+  /* ── DARK (padrão) ──────────────────────────────────────────────────────── */
+  :root,
+  .dark {
+    /* Studoo native tokens (hex) */
+    --bg-0: #0a0807;
+    --bg-1: #13110e;
+    --bg-2: #1b1814;
+    --bg-3: #23201b;
+    --bg-4: #2d2922;
+    --bg-5: #383229;
+
+    --fg-1: #f5f1ea;
+    --fg-2: #c7bfb1;
+    --fg-3: #8a8275;
+    --fg-4: #5a5347;
+
+    --border-subtle: #1f1c17;
+    --border-default: #2a2620;
+    --border-strong: #3a342b;
+
+    --primary-hex: #e7a13a;
+    --primary-hover-hex: #f1af50;
+    --primary-press-hex: #d18f26;
+    --primary-disabled-hex: #5a4a2c;
+    --primary-soft: rgba(231, 161, 58, 0.12);
+    --primary-soft-hover: rgba(231, 161, 58, 0.18);
+    --primary-ring: rgba(231, 161, 58, 0.28);
+    --primary-fg-hex: #14110d;
+
+    --success-hex: #3ecf6b;
+    --success-soft: rgba(62, 207, 107, 0.14);
+    --warning-hex: #f59b19;
+    --warning-soft: rgba(245, 155, 25, 0.14);
+    --destructive-hex: #eb3f65;
+    --destructive-soft: rgba(235, 63, 101, 0.14);
+    --info-hex: #5a9dee;
+    --info-soft: rgba(90, 157, 238, 0.14);
+
+    /* Radius scale */
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+    --radius-xl: 20px;
+    --radius-2xl: 28px;
+    --radius: 14px;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 6px 16px -4px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 24px 48px -16px rgba(0, 0, 0, 0.55);
+    --glow-primary:
+      0 0 0 1px var(--primary-ring),
+      0 12px 36px -16px rgba(231, 161, 58, 0.4);
+
+    /* Density (.density-compact override) */
+    --row-h: 56px;
+    --section-gap: 24px;
+
+    /* ── shadcn/ui compatibility (HSL sem wrapper, alinhado aos tokens hex acima) ── */
+    --background: 24 12% 3%;
+    --foreground: 40 33% 94%;
+
+    --card: 33 14% 6%;
+    --card-foreground: 40 33% 94%;
+
+    --popover: 31 14% 9%;
+    --popover-foreground: 40 33% 94%;
+
+    --primary: 35 79% 57%;
+    --primary-foreground: 34 18% 7%;
+
+    --secondary: 38 13% 12%;
+    --secondary-foreground: 40 33% 94%;
+
+    --muted: 38 13% 12%;
+    --muted-foreground: 36 9% 50%;
+
+    --accent: 40 14% 15%;
+    --accent-foreground: 40 33% 94%;
+
+    --destructive: 347 81% 58%;
+    --destructive-foreground: 40 33% 94%;
+
+    --success: 142 60% 53%;
+    --warning: 33 92% 53%;
+    --info: 213 80% 64%;
+
+    /* Timing tokens */
+    --t-fast: 120ms;
+    --t-default: 180ms;
+    --t-slow: 280ms;
+    --ease-out: cubic-bezier(0.2, 0, 0, 1);
+
+    --border: 38 14% 13%;
+    /* Borda de campo: 3:1 sobre o card, como manda WCAG 1.4.11 pra UI. */
+    --border-field: 38 12% 40%;
+    --input: 38 13% 12%;
+    --ring: 35 79% 57%;
+
+    --surface: 33 14% 6%;
+    --surface-elevated: 38 13% 12%;
+    --surface-deep: 24 12% 3%;
+
+    --sidebar-background: 33 14% 6%;
+    --sidebar-foreground: 40 33% 94%;
+    --sidebar-primary: 35 79% 57%;
+    --sidebar-primary-foreground: 34 18% 7%;
+    --sidebar-accent: 38 13% 12%;
+    --sidebar-accent-foreground: 40 33% 94%;
+    --sidebar-border: 38 14% 13%;
+    --sidebar-ring: 35 79% 57%;
+  }
+
+  /* ── LIGHT ──────────────────────────────────────────────────────────────── */
+  .light {
+    --bg-0: #f8f4ec;
+    --bg-1: #ffffff;
+    --bg-2: #f2ede2;
+    --bg-3: #ece5d6;
+    --bg-4: #dcd2bd;
+    --bg-5: #c7bba1;
+
+    --fg-1: #14110d;
+    --fg-2: #3a342b;
+    --fg-3: #6e6757;
+    --fg-4: #9c9381;
+
+    --border-subtle: #ebe4d5;
+    --border-default: #d9cfb8;
+    --border-strong: #b6ac93;
+
+    --primary-hex: #a9640f;
+    --primary-hover-hex: #8d530c;
+    --primary-press-hex: #75450a;
+    --primary-disabled-hex: #dbc9a4;
+    --primary-soft: rgba(169, 100, 15, 0.1);
+    --primary-soft-hover: rgba(169, 100, 15, 0.16);
+    --primary-ring: rgba(169, 100, 15, 0.32);
+    --primary-fg-hex: #ffffff;
+
+    --shadow-sm: 0 1px 2px rgba(33, 28, 19, 0.06);
+    --shadow-md: 0 6px 16px -6px rgba(33, 28, 19, 0.1);
+    --shadow-lg: 0 24px 48px -16px rgba(33, 28, 19, 0.18);
+
+    /* shadcn compat HSL */
+    --background: 40 50% 95%;
+    --foreground: 34 18% 7%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 34 18% 7%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 34 18% 7%;
+
+    /* Escurecido pra passar AA (4.5:1) como texto sobre card branco e com
+       branco por cima no botão primário. O 45% original dava 3.29:1. */
+    --primary: 33 84% 36%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 40 38% 92%;
+    --secondary-foreground: 34 18% 7%;
+
+    --muted: 40 38% 92%;
+    --muted-foreground: 34 13% 39%;
+
+    --accent: 40 35% 85%;
+    --accent-foreground: 34 18% 7%;
+
+    --destructive: 347 74% 44%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Semânticas do light escurecidas pro mesmo motivo (todas falhavam AA). */
+    --success: 142 62% 32%;
+    --warning: 30 92% 34%;
+    --info: 213 80% 42%;
+
+    /* Light shares timing tokens; redeclare so .light alone is enough. */
+    --t-fast: 120ms;
+    --t-default: 180ms;
+    --t-slow: 280ms;
+    --ease-out: cubic-bezier(0.2, 0, 0, 1);
+
+    --info-soft: rgba(44, 107, 192, 0.1);
+    --success-soft: rgba(47, 125, 61, 0.1);
+    --warning-soft: rgba(168, 85, 17, 0.1);
+    --destructive-soft: rgba(184, 32, 64, 0.1);
+
+    --border: 38 26% 76%;
+    /* Borda de campo de formulário: WCAG 1.4.11 exige 3:1 pra componente de UI.
+       O --border decorativo de card é mais leve de propósito. */
+    --border-field: 38 20% 54%;
+    --input: 40 38% 92%;
+    --ring: 33 84% 36%;
+
+    --surface: 0 0% 100%;
+    --surface-elevated: 40 38% 92%;
+    --surface-deep: 40 35% 85%;
+
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 34 18% 7%;
+    --sidebar-primary: 33 76% 45%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 40 38% 92%;
+    --sidebar-accent-foreground: 34 18% 7%;
+    --sidebar-border: 39 30% 81%;
+    --sidebar-ring: 33 76% 45%;
+  }
+
+  .density-compact {
+    --row-h: 44px;
+    --section-gap: 16px;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  /* ── Foco visível global (WCAG 2.4.7) ────────────────────────────────────
+     Usa `outline` + `outline-offset` (nunca `box-shadow`, que é recortado por
+     ancestrais com `overflow: hidden` — tabelas, listas, popovers).
+     Os dois `:where()` deixam a regra com especificidade 0, então qualquer
+     componente que já define o próprio foco (ui/* usa `focus-visible:ring-*`
+     junto de `focus-visible:outline-none`) sobrescreve sem `!important`. */
+  :where(
+      a[href],
+      area[href],
+      button,
+      input,
+      select,
+      textarea,
+      summary,
+      [contenteditable="true"],
+      [role="button"],
+      [role="link"],
+      [role="tab"],
+      [role="menuitem"],
+      [role="option"],
+      [role="switch"],
+      [role="checkbox"],
+      [tabindex]:not([tabindex^="-"])
+    ):where(:focus-visible) {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+  }
+  body {
+    color: hsl(var(--foreground));
+    background-color: hsl(var(--background));
+    font-family: "Sora", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+      sans-serif;
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    min-height: 100vh;
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: "Sora", -apple-system, BlinkMacSystemFont, sans-serif;
+    letter-spacing: -0.025em;
+    font-weight: 700;
+  }
+}
+
+@layer utilities {
+  /* Mono pra dados (números, hex, timestamps, eyebrows) */
+  .font-mono,
+  .mono {
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+  .num {
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+
+  /* Type scale Studoo */
+  .t-h1 {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1.15;
+  }
+  .t-h2 {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+  .t-h3 {
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    line-height: 1.3;
+  }
+  .t-body {
+    font-size: 14.5px;
+    font-weight: 400;
+    line-height: 1.55;
+    color: hsl(var(--muted-foreground));
+  }
+  .t-small {
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.45;
+  }
+  .t-caption {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    line-height: 1.3;
+    color: hsl(var(--muted-foreground));
+    font-family: "JetBrains Mono", monospace;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Tipografia das páginas legais (Termos / Privacidade) */
+  .prose-legal h2 {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    line-height: 1.25;
+    margin-top: 2.5rem;
+    margin-bottom: 0.75rem;
+    scroll-margin-top: 5rem;
+  }
+  .prose-legal h2:first-child {
+    margin-top: 0;
+  }
+  .prose-legal h3 {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+  .prose-legal p {
+    font-size: 14.5px;
+    line-height: 1.65;
+    color: hsl(var(--muted-foreground));
+    margin-bottom: 0.85rem;
+  }
+  .prose-legal strong {
+    color: hsl(var(--foreground));
+    font-weight: 600;
+  }
+  .prose-legal ul {
+    list-style: disc;
+    padding-left: 1.25rem;
+    margin-bottom: 0.85rem;
+    font-size: 14.5px;
+    line-height: 1.65;
+    color: hsl(var(--muted-foreground));
+  }
+  .prose-legal ul li {
+    margin-bottom: 0.25rem;
+  }
+  .prose-legal a {
+    color: hsl(var(--primary));
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .prose-legal a:hover {
+    opacity: 0.85;
+  }
+  .prose-legal hr {
+    border-color: hsl(var(--border));
+    margin: 2rem 0;
+  }
+
+  /* ── Landing animations ────────────────────────────────────────────── */
+  @keyframes lp-drift-1 {
+    0%,
+    100% {
+      transform: translate(0, 0) scale(1);
+    }
+    50% {
+      transform: translate(60px, 40px) scale(1.08);
+    }
+  }
+  @keyframes lp-drift-2 {
+    0%,
+    100% {
+      transform: translate(0, 0) scale(1);
+    }
+    50% {
+      transform: translate(-50px, 60px) scale(0.92);
+    }
+  }
+  @keyframes lp-drift-3 {
+    0%,
+    100% {
+      transform: translate(0, 0) scale(1);
+    }
+    50% {
+      transform: translate(40px, -40px) scale(1.05);
+    }
+  }
+  @keyframes lp-bob {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-8px);
+    }
+  }
+  @keyframes lp-pulse-halo {
+    0%,
+    100% {
+      box-shadow: 0 0 0 3px rgba(231, 161, 58, 0.3);
+    }
+    50% {
+      box-shadow: 0 0 0 6px transparent;
+    }
+  }
+  @keyframes lp-line-grow {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
+
+  .lp-blob-1 {
+    animation: lp-drift-1 22s ease-in-out infinite;
+  }
+  .lp-blob-2 {
+    animation: lp-drift-2 28s ease-in-out infinite;
+  }
+  .lp-blob-3 {
+    animation: lp-drift-3 32s ease-in-out infinite;
+  }
+  .lp-bob {
+    animation: lp-bob 6s ease-in-out infinite;
+  }
+  .lp-bob-delayed {
+    animation: lp-bob 6s 1.5s ease-in-out infinite reverse;
+  }
+  .lp-pulse-halo {
+    animation: lp-pulse-halo 2s ease-in-out infinite;
+  }
+  .lp-line-grow {
+    transform-origin: left;
+    animation: lp-line-grow 1.2s 0.6s cubic-bezier(0.2, 0, 0, 1) both;
+  }
+
+  /* Reveal on scroll — class .lp-reveal começa escondido, .in mostra */
+  .lp-reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition:
+      opacity 700ms cubic-bezier(0.2, 0, 0, 1),
+      transform 700ms cubic-bezier(0.2, 0, 0, 1);
+    will-change: opacity, transform;
+  }
+  .lp-reveal.in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* prefers-reduced-motion: ver bloco global no fim do arquivo. */
+
+  /* Onboarding animations */
+  @keyframes onb-ring-pulse {
+    0% {
+      transform: scale(0.85);
+      opacity: 0.7;
+    }
+    100% {
+      transform: scale(1.5);
+      opacity: 0;
+    }
+  }
+  @keyframes onb-check-draw {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+  @keyframes onb-stagger-in {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes onb-confetti-fall {
+    0% {
+      transform: translateY(0) rotate(0);
+      opacity: 0;
+    }
+    10% {
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(110vh) rotate(720deg);
+      opacity: 0;
+    }
+  }
+
+  .onb-ring {
+    position: absolute;
+    inset: -12px;
+    border-radius: 9999px;
+    border: 1px solid hsl(var(--primary));
+    opacity: 0;
+    animation: onb-ring-pulse 2.4s ease-out infinite;
+  }
+  .onb-ring-2 {
+    animation-delay: 1.2s;
+  }
+  .onb-check path {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 60;
+    stroke-dashoffset: 60;
+    animation: onb-check-draw 600ms 220ms cubic-bezier(0.2, 0, 0, 1) forwards;
+  }
+  .onb-stagger {
+    opacity: 0;
+    transform: translateY(6px);
+    animation: onb-stagger-in 360ms cubic-bezier(0.2, 0, 0, 1) forwards;
+  }
+  .onb-confetti-particle {
+    position: absolute;
+    top: -20px;
+    opacity: 0;
+    animation: onb-confetti-fall 2.4s ease-out forwards;
+  }
+
+  /* Skeleton loader — shimmer Studoo */
+  .skeleton {
+    position: relative;
+    overflow: hidden;
+    background: hsl(var(--foreground) / 0.05);
+    border-radius: 6px;
+  }
+  .skeleton::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      hsl(var(--foreground) / 0.06),
+      transparent
+    );
+    animation: skeleton-shimmer 1.8s ease-in-out infinite;
+  }
+  @keyframes skeleton-shimmer {
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  /* Scrollbar custom */
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: hsl(var(--border));
+    border-radius: 9999px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.4);
+  }
+}
+
+/* ============================================================================
+   prefers-reduced-motion — global
+   Fora de @layer de propósito: assim vem depois das utilities do Tailwind e
+   vence sem depender de ordem de geração. Zera duração/iteração/delay em vez
+   de `animation: none` pra que animações com `forwards` fiquem no estado final
+   (o check do onboarding, o stagger, o fade-in-up) em vez de sumirem.
+   ============================================================================ */
+@media (prefers-reduced-motion: reduce) {
+  /* Landing */
+  .lp-blob-1,
+  .lp-blob-2,
+  .lp-blob-3,
+  .lp-bob,
+  .lp-bob-delayed,
+  .lp-pulse-halo,
+  .lp-line-grow,
+  /* Onboarding */
+  .onb-ring,
+  .onb-ring-2,
+  .onb-check path,
+  .onb-stagger,
+  .onb-confetti-particle,
+  /* Skeleton shimmer */
+  .skeleton::before,
+  /* Utilitários Tailwind / tailwindcss-animate */
+  .animate-ping,
+  .animate-pulse,
+  .animate-spin,
+  .animate-bounce,
+  .animate-fade-in-up,
+  .animate-in,
+  .animate-out {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0ms !important;
+  }
+
+  /* Estados finais explícitos pra quem começa escondido. */
+  .lp-reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .lp-line-grow {
+    transform: none !important;
+  }
+  .onb-stagger {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .onb-check path {
+    stroke-dashoffset: 0 !important;
+  }
+
+  /* Puramente decorativos: melhor não renderizar. */
+  .onb-confetti-particle,
+  .onb-ring,
+  .skeleton::before {
+    display: none !important;
+  }
+
+  html {
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Print styles for receipts */
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  body * {
+    visibility: hidden;
+  }
+  .print-area,
+  .print-area * {
+    visibility: visible;
+  }
+  .print-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    padding: 24px;
+    background: white;
+    color: black;
+  }
+  .no-print {
+    display: none !important;
+  }
+}

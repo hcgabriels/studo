@@ -1,0 +1,4 @@
+# Netlify/Cloudflare Pages: rewrite de SPA.
+# Sem isso, dar F5 em /agenda ou abrir /alunos/<id> direto retorna 404 —
+# o servidor procura um arquivo que não existe, porque quem roteia é o React.
+/*    /index.html   200
