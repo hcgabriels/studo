@@ -11,11 +11,13 @@
 
 ## Bloqueadores antes de convidar professores
 
-1. Configurar SMTP próprio no Supabase Auth.
-2. Ativar proteção de senha vazada no Supabase Auth.
-3. Escolher domínio de produção e configurar redirects do Supabase.
-4. Configurar variáveis de ambiente no host.
-5. Rodar QA manual em produção.
+1. Revisar template dos emails de autenticação no Supabase.
+2. Melhorar entregabilidade dos emails enviados pelo Resend.
+3. Revisar onboarding inicial e estados de primeira visita.
+4. Revisar modal de novo aluno.
+5. Criar onboarding guiado com tooltips para o primeiro acesso.
+6. Ativar proteção de senha vazada no Supabase Auth, se disponível no plano.
+7. Rodar QA manual em produção.
 
 ## Supabase Auth
 
@@ -27,15 +29,14 @@ O SMTP padrão do Supabase não serve para produção: envia só para membros da
 
 Campos esperados:
 
-- Sender email: `no-reply@SEU_DOMINIO`
+- Sender email: `no-reply@studoo.com.br`
 - Sender name: `Studoo`
-- Host: fornecido pelo provedor SMTP
-- Port: geralmente `587`
-- Username: fornecido pelo provedor SMTP
-- Password: senha/token SMTP do provedor
-- Secure connection: conforme instrução do provedor
+- Host: `smtp.resend.com`
+- Port: `465`
+- Username: `resend`
+- Password: API key do Resend
 
-Provedores compatíveis: Resend, Postmark, AWS SES, SendGrid, ZeptoMail ou Brevo.
+O domínio `studoo.com.br` precisa estar verificado no Resend antes dos testes.
 
 Depois de salvar, testar:
 
@@ -43,6 +44,67 @@ Depois de salvar, testar:
 - Confirmação de email
 - Reset de senha
 - Login com Google, se continuar ativo
+
+### Templates de email
+
+Editar em:
+
+`Supabase Dashboard -> Authentication -> Email Templates`
+
+Templates prioritários:
+
+- Confirm sign up
+- Reset password
+- Magic link / OTP, se for usado
+
+Assunto sugerido para confirmação:
+
+`Confirme seu email para entrar no Studoo`
+
+O HTML deve usar `{{ .ConfirmationURL }}` no botão principal. O tom precisa ser simples, com marca Studoo, aviso de expiração e instrução para ignorar caso a pessoa não tenha criado conta.
+
+### Entregabilidade
+
+Checar antes do beta:
+
+- Resend Domain: `Verified`
+- SPF/DKIM/DMARC configurados e propagados
+- Remetente com domínio próprio: `no-reply@studoo.com.br`
+- Primeiros envios testados em Gmail e Outlook/Hotmail
+- Se cair em spam, marcar como "não é spam" nas contas de teste e evitar assunto promocional
+
+## Produto
+
+### Onboarding inicial
+
+Revisar antes do beta:
+
+- Alinhamento vertical e responsividade
+- Textos de boas-vindas
+- Passos essenciais versus passos opcionais
+- Estado de pular onboarding
+
+### Onboarding guiado
+
+Implementar depois que dashboard, alunos, agenda e financeiro estiverem estáveis.
+
+Critério:
+
+- Aparecer só no primeiro acesso ao painel
+- Explicar menu, botão de novo aluno, agenda, cobrança e configurações
+- Permitir pular
+- Não reaparecer após conclusão
+- Reabrir manualmente em Configurações ou Ajuda
+
+### Modal de novo aluno
+
+Revisar:
+
+- Hierarquia visual do formulário
+- Campos essenciais primeiro
+- Responsividade
+- Alinhamento de horários semanais
+- Rodapé de ação mais limpo
 
 ### Segurança de senha
 

@@ -383,14 +383,14 @@ const OnboardingWizard = ({ professor }: { professor: Professor }) => {
       {/* Conteúdo */}
       <main
         className={cn(
-          "flex-1 px-4 md:px-8 py-8 md:py-12 overflow-y-auto",
-          "flex items-center justify-center",
+          "flex-1 px-4 md:px-8 py-10 md:py-16 overflow-y-auto",
+          "flex items-start justify-center",
         )}
       >
         <div
           className={cn(
             "w-full mx-auto",
-            semFormulario ? "max-w-2xl text-center" : "max-w-5xl",
+            semFormulario ? "max-w-2xl text-center pt-8 md:pt-14" : "max-w-5xl",
             temPreview &&
               "md:grid md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] md:gap-10 lg:gap-14 md:items-center",
           )}
@@ -528,7 +528,7 @@ const WelcomeStep = ({
   <>
     <StepTitle
       title={`Olá, ${nome.split(" ")[0] || "professor"}. Bom te ter aqui.`}
-      subtitle="Vamos deixar o Studoo prontinho pra você em menos de 2 minutos. Tudo que preencher agora dá pra editar depois nas Configurações."
+      subtitle="Vamos configurar só o básico para você já entrar com agenda, cobranças e recibos no lugar. Depois dá pra editar tudo."
     />
     <div className="space-y-2.5 mb-8">
       {[

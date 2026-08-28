@@ -372,20 +372,28 @@ export const AlunoForm = ({
   return (
     <>
       <Dialog open={open} onOpenChange={(v) => !v && handleClose()}>
-        <DialogContent size="lg" onKeyDown={handleKeyDown}>
+        <DialogContent size="xl" onKeyDown={handleKeyDown}>
           <DialogHeader>
             <DialogTitle>
               {editingAluno ? "Editar aluno" : "Novo aluno"}
             </DialogTitle>
             <DialogDescription>
               {editingAluno
-                ? "Atualize as informações do aluno. Você pode mudar tudo depois."
-                : "Cadastre alguém em menos de 30 segundos. Você pode editar tudo depois."}
+                ? "Atualize cadastro, horários e cobrança."
+                : "Preencha o essencial agora. O restante pode ficar para depois."}
             </DialogDescription>
           </DialogHeader>
 
-          <DialogBody>
+          <DialogBody className="py-5">
             <form id="aluno-form" onSubmit={handleSubmit}>
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <p className="font-mono text-[10px] tracking-[0.16em] uppercase text-muted-foreground">
+                  Dados do aluno
+                </p>
+                <span className="text-[12px] text-muted-foreground">
+                  Campos principais
+                </span>
+              </div>
               <FormGrid cols={1} className="gap-3.5">
                 <Field label="Nome completo" error={errors.nome}>
                   <Input

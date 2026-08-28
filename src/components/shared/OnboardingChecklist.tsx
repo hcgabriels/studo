@@ -79,7 +79,7 @@ export const OnboardingChecklist = ({ professor, alunos }: Props) => {
   if (completos === steps.length) return null;
 
   return (
-    <div className="relative overflow-hidden bg-card border border-border rounded-2xl p-5 md:p-6">
+    <div className="relative overflow-hidden bg-card border border-border rounded-xl p-5 md:p-6">
       {/* Glow ambient sutil */}
       <div
         aria-hidden
@@ -95,9 +95,9 @@ export const OnboardingChecklist = ({ professor, alunos }: Props) => {
             {completos}/{steps.length} · {pct}%
           </p>
         </div>
-        <h2 className="t-h2 mb-1">Quase lá, vamos terminar?</h2>
+        <h2 className="t-h2 mb-1">Complete sua configuração</h2>
         <p className="text-sm text-muted-foreground mb-5">
-          Pontas soltas pra deixar o Studoo trabalhando por você
+          Faltam alguns dados para liberar a experiência completa.
         </p>
 
         <div

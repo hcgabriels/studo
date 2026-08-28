@@ -491,7 +491,7 @@ const Dashboard = () => {
         subtitle="Resumo do seu dia"
       />
 
-      {/* Onboarding checklist (some quando 100%) */}
+      {/* Configuração inicial */}
       {professor && (
         <div className="mb-6 md:mb-8">
           <OnboardingChecklist professor={professor} alunos={alunos ?? []} />
@@ -852,49 +852,45 @@ const Dashboard = () => {
         </SectionCard>
       </div>
 
-      {/* Alertas */}
-      <SectionCard
-        title="Atenção necessária"
-        description="Alunos que merecem um olhar"
-        icon={AlertTriangle}
-        iconTone="destructive"
-      >
-        {loading ? (
-          <Skeleton className="h-12 w-full" />
-        ) : alertas.length === 0 ? (
-          <div className="flex items-center gap-2 text-sm text-muted-foreground py-3">
-            <span className="h-1.5 w-1.5 rounded-full bg-success" />
-            Tudo em ordem — nenhum aluno precisa de atenção.
-          </div>
-        ) : (
-          <div className="-mx-1">
-            {alertas.map(({ aluno, motivos }) => (
-              <div
-                key={aluno.id}
-                className="flex items-center gap-3 px-1 py-3 border-b border-border/40 last:border-0"
-              >
-                <div className="h-9 w-9 rounded-full bg-warning/15 flex items-center justify-center shrink-0">
-                  <span className="font-mono text-xs font-semibold text-warning">
-                    {aluno.nome.charAt(0).toUpperCase()}
-                  </span>
+      {(loading || alertas.length > 0) && (
+        <SectionCard
+          title="Atenção necessária"
+          description="Alunos com pendências ou sinais de baixa frequência"
+          icon={AlertTriangle}
+          iconTone="destructive"
+        >
+          {loading ? (
+            <Skeleton className="h-12 w-full" />
+          ) : (
+            <div className="-mx-1">
+              {alertas.map(({ aluno, motivos }) => (
+                <div
+                  key={aluno.id}
+                  className="flex items-center gap-3 px-1 py-3 border-b border-border/40 last:border-0"
+                >
+                  <div className="h-9 w-9 rounded-full bg-warning/15 flex items-center justify-center shrink-0">
+                    <span className="font-mono text-xs font-semibold text-warning">
+                      {aluno.nome.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold truncate">{aluno.nome}</p>
+                    <p className="text-xs text-muted-foreground">{aluno.instrumento}</p>
+                  </div>
+                  <div className="flex flex-wrap gap-1 justify-end max-w-[60%]">
+                    {motivos.map((m) => (
+                      <Badge key={m} variant="warning">
+                        {m}
+                      </Badge>
+                    ))}
+                  </div>
+                  <ArrowUpRight className="h-4 w-4 text-muted-foreground/60 shrink-0" />
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold truncate">{aluno.nome}</p>
-                  <p className="text-xs text-muted-foreground">{aluno.instrumento}</p>
-                </div>
-                <div className="flex flex-wrap gap-1 justify-end max-w-[60%]">
-                  {motivos.map((m) => (
-                    <Badge key={m} variant="warning">
-                      {m}
-                    </Badge>
-                  ))}
-                </div>
-                <ArrowUpRight className="h-4 w-4 text-muted-foreground/60 shrink-0" />
-              </div>
-            ))}
-          </div>
-        )}
-      </SectionCard>
+              ))}
+            </div>
+          )}
+        </SectionCard>
+      )}
     </div>
   );
 };
