@@ -33,7 +33,7 @@ const SelectTrigger = React.forwardRef<
         aria-describedby={describedBy ?? field?.describedBy}
         aria-invalid={invalid ?? (field?.invalid || undefined)}
         className={cn(
-          "flex h-[38px] w-full items-center justify-between whitespace-nowrap rounded-md border border-[hsl(var(--border-field))] bg-card px-3 py-0 text-[13.5px] tracking-tight ring-offset-background placeholder:text-muted-foreground transition-colors",
+          "flex h-[38px] w-full items-center justify-between whitespace-nowrap rounded-md border border-[hsl(var(--border-field))] bg-background px-3 py-0 text-[13.5px] tracking-tight ring-offset-background placeholder:text-muted-foreground transition-colors",
           "hover:border-[hsl(var(--border-field)/0.7)]",
           "focus:outline-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-[hsl(var(--primary)/0.28)]",
           "aria-[invalid=true]:border-destructive",

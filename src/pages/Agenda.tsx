@@ -870,7 +870,7 @@ const NovaAulaModal = ({
 
         <DialogBody>
         <FormGrid cols={1} className="gap-3.5">
-          <div className="flex items-center justify-between gap-3 px-3.5 py-3 rounded-lg border border-border bg-secondary/40">
+          <div className="flex items-center justify-between gap-3 px-3.5 py-3 rounded-lg border border-border/70 bg-background/45">
             <div className="min-w-0">
               <p className="text-[13.5px] font-medium">Aula experimental</p>
               <p className="text-[12px] text-muted-foreground mt-0.5">

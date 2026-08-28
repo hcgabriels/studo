@@ -25,7 +25,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         aria-describedby={describedBy ?? field?.describedBy}
         aria-invalid={invalid ?? (field?.invalid || undefined)}
         className={cn(
-          "flex h-[38px] w-full rounded-md border border-[hsl(var(--border-field))] bg-card px-3 py-0 text-[13.5px] tracking-tight transition-colors",
+          "flex h-[38px] w-full rounded-md border border-[hsl(var(--border-field))] bg-background px-3 py-0 text-[13.5px] tracking-tight transition-colors",
           "file:border-0 file:bg-transparent file:text-sm file:font-medium",
           "placeholder:text-muted-foreground/70",
           "hover:border-[hsl(var(--border)/0.7)]",

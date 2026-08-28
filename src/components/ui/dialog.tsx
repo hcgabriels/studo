@@ -55,7 +55,7 @@ const DialogContent = React.forwardRef<
           "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
           sizeMap[size],
           variant === "studoo"
-            ? "flex flex-col overflow-hidden bg-[hsl(var(--secondary))] border border-border rounded-xl shadow-lg max-h-[calc(100vh-48px)]"
+            ? "flex flex-col overflow-hidden bg-card border border-border/80 rounded-xl shadow-[0_24px_70px_-28px_rgba(0,0,0,0.9)] max-h-[calc(100vh-48px)]"
             : "grid gap-4 border border-border bg-card p-6 shadow-lg sm:rounded-lg",
           className,
         )}
@@ -107,7 +107,7 @@ const DialogHeader = ({
       {...props}
     >
       <div className="min-w-0 flex-1">{children}</div>
-      <DialogPrimitive.Close className="h-8 w-8 rounded-md flex items-center justify-center text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors shrink-0 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
+      <DialogPrimitive.Close className="h-8 w-8 rounded-md flex items-center justify-center text-muted-foreground hover:bg-accent hover:text-foreground transition-colors shrink-0 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
         <X className="h-4 w-4" />
         <span className="sr-only">Fechar</span>
       </DialogPrimitive.Close>
@@ -163,7 +163,7 @@ const DialogFooter = ({
   return (
     <div
       className={cn(
-        "flex items-center gap-2.5 px-[26px] py-4 border-t border-border/60 bg-[hsl(var(--secondary)/0.6)]",
+        "flex items-center gap-2.5 px-[26px] py-4 border-t border-border/60 bg-background/45",
         className,
       )}
       {...props}

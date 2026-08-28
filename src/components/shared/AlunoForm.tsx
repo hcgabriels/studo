@@ -72,7 +72,7 @@ const CampoNativo = ({
       aria-describedby={field?.describedBy}
       aria-invalid={field?.invalid || undefined}
       className={cn(
-        "flex h-[38px] w-full min-w-0 rounded-md border border-[hsl(var(--border-field))] bg-card px-3 py-0 text-[13.5px] tracking-tight transition-colors",
+        "flex h-[38px] w-full min-w-0 rounded-md border border-[hsl(var(--border-field))] bg-background px-3 py-0 text-[13.5px] tracking-tight transition-colors",
         "hover:border-[hsl(var(--border)/0.7)]",
         "focus-visible:outline-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-[hsl(var(--primary)/0.28)]",
         "aria-[invalid=true]:border-destructive",
