@@ -58,14 +58,17 @@ todas as 8 tabelas precisam vir com `rls_ligado = true`.
 
 ## Deploy
 
-Ainda não definido — roda só local por enquanto.
+O projeto está pronto para deploy estático. A configuração da Vercel fica em
+`vercel.json`; Netlify/Cloudflare Pages usam `public/_redirects`.
 
-Quando for a hora, o host precisa de **rewrite de SPA**: qualquer rota que não
-seja arquivo tem que servir o `index.html`. Sem isso, dar F5 em `/agenda` ou
-abrir `/alunos/<id>` direto retorna 404, porque quem roteia é o React e não o
-servidor. Vale pra qualquer host estático.
+O host precisa de **rewrite de SPA**: qualquer rota que não seja arquivo tem
+que servir o `index.html`. Sem isso, dar F5 em `/agenda` ou abrir
+`/alunos/<id>` direto retorna 404, porque quem roteia é o React e não o
+servidor.
 
 Variáveis de ambiente no host: as mesmas do `.env.example`.
+
+Checklist completo: `docs/LAUNCH.md`.
 
 ---
 
