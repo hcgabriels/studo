@@ -16,8 +16,6 @@ import {
   Repeat,
   Upload,
   Download,
-  AlertCircle,
-  Check,
 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -33,6 +31,8 @@ import {
   Dialog,
   DialogContent,
   DialogHeader,
+  DialogBody,
+  DialogFooter,
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
@@ -68,18 +68,13 @@ import { useDebounced } from "@/hooks/useDebounced";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { formatPhone } from "@/lib/masks";
 import { openWhatsApp, messageTemplates } from "@/lib/whatsapp";
-import {
-  parseCSV,
-  parseAlunoRows,
-  CSV_TEMPLATE,
-  type AlunoImportRow,
-} from "@/lib/csv";
+import { type AlunoImportRow } from "@/lib/csv";
 import { toCSV, downloadCSV } from "@/lib/csvExport";
 import { cn } from "@/lib/utils";
 import type { Aluno, Aula, Cobranca, Professor, AulaRecorrente } from "@/types/supabase";
 import { parseDateOnly, toDateOnly, yearOfDateOnly } from "@/lib/dates";
 import { track } from "@/lib/analytics";
-import { fmtBRL, fmtNumero } from "@/lib/format";
+import { fmtBRL } from "@/lib/format";
 import { nomeDiaSemana, nomeDiaSemanaCurto } from "@/lib/constants";
 
 const AlunoCard = ({
@@ -585,42 +580,17 @@ const ImportarCsvModal = ({
   alunosExistentes: Aluno[];
 }) => {
   const qc = useQueryClient();
-  const [rows, setRows] = useState<AlunoImportRow[]>([]);
-  const [fileName, setFileName] = useState("");
-  /** "colar" é o caminho principal; arquivo virou alternativa. */
-  const [modo, setModo] = useState<"colar" | "arquivo">("colar");
   const [coladas, setColadas] = useState<AlunoImportRow[]>([]);
 
   useEffect(() => {
     if (open) {
       // eslint-disable-next-line react-hooks/set-state-in-effect -- limpa estado do importador CSV quando o modal reabre
-      setRows([]);
-      setFileName("");
+      setColadas([]);
     }
   }, [open]);
 
-  const handleFile = async (file: File) => {
-    const text = await file.text();
-    const parsed = parseCSV(text);
-    const parsedRows = parseAlunoRows(parsed, alunosExistentes);
-    setRows(parsedRows);
-    setFileName(file.name);
-  };
-
-  const downloadTemplate = () => {
-    const blob = new Blob([CSV_TEMPLATE], { type: "text/csv;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "modelo-alunos-studoo.csv";
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  const efetivas = rows.length > 0 ? rows : coladas;
+  const efetivas = coladas;
   const validRows = efetivas.filter((r) => r.errors.length === 0 && !r.duplicado);
-  const invalidRows = efetivas.filter((r) => r.errors.length > 0);
-  const duplicadas = efetivas.filter((r) => r.duplicado && r.errors.length === 0);
 
   const mutation = useMutation({
     mutationFn: async () => {
@@ -689,232 +659,37 @@ const ImportarCsvModal = ({
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent size="xl">
         <DialogHeader>
           <DialogTitle>Trazer seus alunos</DialogTitle>
           <DialogDescription>
-            Já tem a turma numa planilha? Copie as linhas e cole aqui — sem
-            baixar modelo nem formatar nada.
+            Importe um CSV ou cole as linhas da planilha. O Studoo confere tudo
+            antes de salvar.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
-          {rows.length === 0 && modo === "colar" && (
-            <>
-              <ColarAlunos
-                existentes={alunosExistentes}
-                onChange={(linhas) => setColadas(linhas)}
-              />
+        <DialogBody>
+          <ColarAlunos
+            existentes={alunosExistentes}
+            onChange={(linhas) => setColadas(linhas)}
+          />
+        </DialogBody>
 
-              <div className="flex items-center justify-between gap-3 pt-1">
-                <button
-                  type="button"
-                  onClick={() => setModo("arquivo")}
-                  className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-2"
-                >
-                  Prefiro enviar um arquivo .csv
-                </button>
-                <div className="flex gap-2">
-                  <Button variant="ghost" onClick={onClose}>
-                    Cancelar
-                  </Button>
-                  <Button
-                    disabled={validRows.length === 0 || mutation.isPending}
-                    onClick={() => mutation.mutate()}
-                  >
-                    {mutation.isPending
-                      ? "Importando..."
-                      : validRows.length === 0
-                        ? "Importar"
-                        : `Importar ${validRows.length} aluno${validRows.length !== 1 ? "s" : ""}`}
-                  </Button>
-                </div>
-              </div>
-            </>
-          )}
-
-          {rows.length === 0 && modo === "arquivo" && (
-            <>
-              <button
-                type="button"
-                onClick={() => setModo("colar")}
-                className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-2"
-              >
-                ← Voltar pra colar da planilha
-              </button>
-              <button
-                type="button"
-                onClick={downloadTemplate}
-                className="w-full flex items-center gap-3 px-4 py-3 rounded-lg border border-dashed border-border hover:border-border/80 transition-colors text-left"
-              >
-                <div className="h-10 w-10 rounded-lg bg-primary/15 flex items-center justify-center shrink-0">
-                  <Download className="h-4 w-4 text-primary" />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold">Baixar modelo CSV</p>
-                  <p className="text-xs text-muted-foreground">
-                    Planilha vazia com as colunas corretas
-                  </p>
-                </div>
-              </button>
-
-              <label className="block">
-                <input
-                  type="file"
-                  accept=".csv,text/csv"
-                  className="hidden"
-                  onChange={(e) => {
-                    const f = e.target.files?.[0];
-                    if (f) handleFile(f);
-                  }}
-                />
-                <div className="w-full flex flex-col items-center justify-center gap-2 px-4 py-8 rounded-lg border-2 border-dashed border-border hover:border-primary/40 hover:bg-primary/5 transition-colors cursor-pointer">
-                  <div className="h-10 w-10 rounded-lg bg-primary/15 flex items-center justify-center">
-                    <Upload className="h-4 w-4 text-primary" />
-                  </div>
-                  <p className="text-sm font-semibold">
-                    Clique para selecionar o arquivo
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Aceita .csv com separador vírgula ou ponto-e-vírgula
-                  </p>
-                </div>
-              </label>
-            </>
-          )}
-
-          {rows.length > 0 && (
-            <>
-              <div className="flex items-center justify-between bg-muted/40 rounded-lg px-3 py-2">
-                <div className="flex items-center gap-2 text-sm">
-                  <FileText className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-medium truncate">{fileName}</span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setRows([]);
-                    setFileName("");
-                  }}
-                  className="text-xs text-muted-foreground hover:text-foreground"
-                >
-                  Trocar
-                </button>
-              </div>
-
-              <div className="grid grid-cols-3 gap-3">
-                <div className="bg-success/10 rounded-lg px-3 py-2.5">
-                  <p className="font-mono text-[10px] tracking-[0.14em] uppercase text-muted-foreground">
-                    Prontos
-                  </p>
-                  <p className="font-mono text-[22px] font-bold tabular-nums tracking-[-0.02em] text-success mt-0.5">
-                    {validRows.length}
-                  </p>
-                </div>
-                <div
-                  className={cn(
-                    "rounded-lg px-3 py-2.5",
-                    duplicadas.length > 0 ? "bg-warning/10" : "bg-muted/30",
-                  )}
-                >
-                  <p className="font-mono text-[10px] tracking-[0.14em] uppercase text-muted-foreground">
-                    Já existem
-                  </p>
-                  <p
-                    className={cn(
-                      "font-mono text-[22px] font-bold tabular-nums tracking-[-0.02em] mt-0.5",
-                      duplicadas.length > 0 ? "text-warning" : "text-muted-foreground",
-                    )}
-                  >
-                    {duplicadas.length}
-                  </p>
-                </div>
-                <div
-                  className={cn(
-                    "rounded-lg px-3 py-2.5",
-                    invalidRows.length > 0 ? "bg-destructive/10" : "bg-muted/30",
-                  )}
-                >
-                  <p className="font-mono text-[10px] tracking-[0.14em] uppercase text-muted-foreground">
-                    Com erros
-                  </p>
-                  <p
-                    className={cn(
-                      "font-mono text-[22px] font-bold tabular-nums tracking-[-0.02em] mt-0.5",
-                      invalidRows.length > 0 ? "text-destructive" : "text-muted-foreground",
-                    )}
-                  >
-                    {invalidRows.length}
-                  </p>
-                </div>
-              </div>
-
-              <div className="max-h-64 overflow-y-auto border border-border rounded-lg divide-y divide-border/50">
-                {rows.map((r, i) => {
-                  const primeiro = r.horarios[0];
-                  const horariosExtra = r.horarios.length - 1;
-                  return (
-                    <div
-                      key={i}
-                      className={cn(
-                        "px-3 py-2 flex items-center gap-3 text-sm",
-                        r.errors.length > 0 && "bg-destructive/5",
-                        r.duplicado && r.errors.length === 0 && "bg-warning/5 opacity-70"
-                      )}
-                    >
-                      {r.errors.length > 0 ? (
-                        <AlertCircle className="h-4 w-4 text-destructive shrink-0" />
-                      ) : r.duplicado ? (
-                        <AlertCircle className="h-4 w-4 text-warning shrink-0" />
-                      ) : (
-                        <Check className="h-4 w-4 text-success shrink-0" />
-                      )}
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium truncate">
-                          {r.nome || "(sem nome)"}
-                          {r.duplicado && r.errors.length === 0 && (
-                            <span className="text-warning text-xs ml-2">
-                              · já cadastrado
-                            </span>
-                          )}
-                        </p>
-                        <p className="text-xs text-muted-foreground truncate">
-                          {r.instrumento} ·{" "}
-                          {nomeDiaSemanaCurto(primeiro.dia_semana)}{" "}
-                          {primeiro.horario}
-                          {horariosExtra > 0 && (
-                            <span className="text-primary"> +{horariosExtra}</span>
-                          )}{" "}
-                          · R$ {fmtNumero(r.valor_mensalidade)}
-                        </p>
-                        {r.errors.length > 0 && (
-                          <p className="text-xs text-destructive mt-0.5">
-                            {r.errors.join(", ")}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              <div className="flex gap-2">
-                <Button variant="ghost" className="flex-1" onClick={onClose}>
-                  Cancelar
-                </Button>
-                <Button
-                  className="flex-1"
-                  disabled={validRows.length === 0 || mutation.isPending}
-                  onClick={() => mutation.mutate()}
-                >
-                  {mutation.isPending
-                    ? "Importando..."
-                    : `Importar ${validRows.length} aluno${validRows.length !== 1 ? "s" : ""}`}
-                </Button>
-              </div>
-            </>
-          )}
-        </div>
+        <DialogFooter>
+          <Button variant="ghost" onClick={onClose}>
+            Cancelar
+          </Button>
+          <Button
+            disabled={validRows.length === 0 || mutation.isPending}
+            onClick={() => mutation.mutate()}
+          >
+            {mutation.isPending
+              ? "Importando..."
+              : validRows.length === 0
+                ? "Importar"
+                : `Importar ${validRows.length} aluno${validRows.length !== 1 ? "s" : ""}`}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
