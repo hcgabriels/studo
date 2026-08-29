@@ -10,13 +10,19 @@ interface Props {
 interface State {
   hasError: boolean;
   error: Error | null;
+  reloadingChunk: boolean;
 }
 
+const isChunkLoadError = (error: Error) =>
+  /failed to fetch dynamically imported module|importing a module script failed|loading chunk|chunkloaderror/i.test(
+    `${error.name} ${error.message}`,
+  );
+
 export class ErrorBoundary extends Component<Props, State> {
-  state: State = { hasError: false, error: null };
+  state: State = { hasError: false, error: null, reloadingChunk: false };
 
   static getDerivedStateFromError(error: Error): State {
-    return { hasError: true, error };
+    return { hasError: true, error, reloadingChunk: false };
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
@@ -27,10 +33,19 @@ export class ErrorBoundary extends Component<Props, State> {
       componentStack: errorInfo.componentStack?.slice(0, 2000),
       rota: typeof window !== "undefined" ? window.location.pathname : null,
     });
+
+    if (typeof window !== "undefined" && isChunkLoadError(error)) {
+      const key = `studoo:chunk-reload:${window.location.pathname}`;
+      if (!window.sessionStorage.getItem(key)) {
+        window.sessionStorage.setItem(key, "1");
+        this.setState({ reloadingChunk: true });
+        window.location.reload();
+      }
+    }
   }
 
   handleReset = () => {
-    this.setState({ hasError: false, error: null });
+    this.setState({ hasError: false, error: null, reloadingChunk: false });
   };
 
   render() {
@@ -44,10 +59,12 @@ export class ErrorBoundary extends Component<Props, State> {
             <h1
               className="text-xl font-bold mb-2"
 >
-              Algo deu errado
+              {this.state.reloadingChunk ? "Atualizando o Studoo" : "Algo deu errado"}
             </h1>
             <p className="text-sm text-muted-foreground mb-2">
-              Ocorreu um erro inesperado. Tente recarregar a página.
+              {this.state.reloadingChunk
+                ? "Publicamos uma versão nova. A página vai recarregar sozinha."
+                : "Ocorreu um erro inesperado. Tente recarregar a página."}
             </p>
             {/* A mensagem crua do Postgres/JS vazava nome de coluna e de
                 constraint pro professor. Agora fica só no console e na
