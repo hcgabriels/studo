@@ -8,6 +8,7 @@
 - Supabase: projeto `studo` (`xxphlozkuklraitfrwgx`) ativo
 - Banco: RLS ligado nas 8 tabelas principais e hardening aplicado em `sql/2026-08-hardening.sql`
 - Deploy: pronto para Vercel via `vercel.json`; Netlify/Cloudflare Pages continuam cobertos por `public/_redirects`
+- Direcao de produto: definida em `docs/PRODUCT_DIRECTION.md`
 
 ## Bloqueadores antes de convidar professores
 

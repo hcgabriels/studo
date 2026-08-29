@@ -69,6 +69,7 @@ servidor.
 Variáveis de ambiente no host: as mesmas do `.env.example`.
 
 Checklist completo: `docs/LAUNCH.md`.
+Direcao de produto e IA: `docs/PRODUCT_DIRECTION.md`.
 
 ---
 
