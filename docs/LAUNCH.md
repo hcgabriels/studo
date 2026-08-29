@@ -58,6 +58,8 @@ Templates prioritários:
 - Reset password
 - Magic link / OTP, se for usado
 
+Templates prontos: `docs/EMAIL_TEMPLATES.md`
+
 Assunto sugerido para confirmação:
 
 `Confirme seu email para entrar no Studoo`
