@@ -571,10 +571,10 @@ const PrimeiroAlunoStep = ({
   return (
   <>
     <StepTitle
-      title={colando ? "Traga sua turma inteira" : "Cadastre seu primeiro aluno"}
+      title={colando ? "Importe seus alunos" : "Cadastre seu primeiro aluno"}
       subtitle={
         colando
-          ? "Copie as linhas da sua planilha e cole aqui. Eu entendo a ordem das colunas sozinho."
+          ? "Suba um CSV ou cole da planilha. O Studoo detecta as colunas e mostra uma prévia antes de salvar."
           : "Só o essencial — o resto dá pra completar depois no perfil dele. Se preferir, deixa em branco e cadastra pelo painel."
       }
     />
@@ -584,7 +584,7 @@ const PrimeiroAlunoStep = ({
     <div className="inline-flex p-0.5 gap-px rounded-[10px] bg-secondary border border-border mb-4">
       {([
         { v: "um", label: "Cadastrar um" },
-        { v: "lista", label: "Colar minha lista" },
+        { v: "lista", label: "Importar alunos" },
       ] as const).map(({ v, label }) => (
         <button
           key={v}

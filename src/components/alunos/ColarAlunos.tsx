@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
-import { ClipboardPaste, AlertCircle, Copy } from "lucide-react";
+import { ClipboardPaste, AlertCircle, Copy, Download, Upload } from "lucide-react";
 import {
+  CSV_TEMPLATE,
   parseAlunosColados,
   ROTULO_PAPEL,
   type AlunoImportRow,
@@ -52,6 +53,7 @@ export const ColarAlunos = ({
   className,
 }: ColarAlunosProps) => {
   const [texto, setTexto] = useState("");
+  const [arquivoNome, setArquivoNome] = useState("");
   /** Correções manuais de coluna, por índice. */
   const [override, setOverride] = useState<Record<number, PapelColuna>>({});
 
@@ -90,11 +92,31 @@ export const ColarAlunos = ({
   const semNome = linhas.filter((l) => l.errors.length > 0);
   const semHorario = prontas.filter((l) => l.horarios.length === 0).length;
 
-  const atualizar = (novoTexto: string) => {
+  const atualizar = (novoTexto: string, origem: "arquivo" | "manual" = "manual") => {
+    if (origem === "manual") setArquivoNome("");
     setTexto(novoTexto);
     setOverride({});
     const r = parseAlunosColados(novoTexto, existentes);
     onChange(r.linhas.filter((l) => !l.errors.length && !l.duplicado));
+  };
+
+  const importarArquivo = async (file: File | null) => {
+    if (!file) return;
+    const conteudo = await file.text();
+    setArquivoNome(file.name);
+    atualizar(conteudo, "arquivo");
+  };
+
+  const baixarModelo = () => {
+    const blob = new Blob([CSV_TEMPLATE], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "modelo-alunos-studoo.csv";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
   };
 
   const corrigirColuna = (indice: number, papel: PapelColuna) => {
@@ -127,8 +149,45 @@ export const ColarAlunos = ({
           htmlFor="colar-alunos"
           className="block text-[13px] font-medium mb-1.5"
         >
-          Cole aqui a sua lista
+          Importe ou cole sua lista
         </label>
+        <div className="grid gap-2 sm:grid-cols-[1fr_auto] mb-2">
+          <label
+            className={cn(
+              "flex min-h-10 cursor-pointer items-center gap-2 rounded-md border border-dashed border-[hsl(var(--border-field))]",
+              "bg-background px-3 py-2 text-sm text-muted-foreground transition-colors",
+              "hover:border-primary/70 hover:text-foreground",
+              "focus-within:outline-none focus-within:border-primary focus-within:ring-2 focus-within:ring-[hsl(var(--primary)/0.28)]",
+            )}
+          >
+            <Upload className="h-4 w-4 shrink-0 text-primary" />
+            <span className="min-w-0 truncate">
+              {arquivoNome || "Selecionar arquivo CSV"}
+            </span>
+            <input
+              type="file"
+              accept=".csv,text/csv"
+              className="sr-only"
+              onChange={(e) => {
+                void importarArquivo(e.currentTarget.files?.[0] ?? null);
+                e.currentTarget.value = "";
+              }}
+            />
+          </label>
+          <button
+            type="button"
+            onClick={baixarModelo}
+            className={cn(
+              "inline-flex h-10 items-center justify-center gap-2 rounded-md border border-[hsl(var(--border-field))]",
+              "bg-background px-3 text-sm font-medium text-foreground transition-colors",
+              "hover:border-primary/70 hover:bg-secondary",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--primary)/0.28)]",
+            )}
+          >
+            <Download className="h-4 w-4" />
+            Modelo CSV
+          </button>
+        </div>
         <textarea
           id="colar-alunos"
           value={texto}
@@ -141,7 +200,7 @@ export const ColarAlunos = ({
             "João Alves\tPiano\t(11) 98888-7777\tTerça\t15:30\t400"
           }
           className={cn(
-            "w-full rounded-md border border-[hsl(var(--border-field))] bg-card px-3 py-2.5",
+            "w-full rounded-md border border-[hsl(var(--border-field))] bg-background px-3 py-2.5",
             "font-mono text-[12.5px] leading-relaxed placeholder:text-muted-foreground/70",
             "focus-visible:outline-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-[hsl(var(--primary)/0.28)]",
             "transition-colors resize-y",
@@ -149,8 +208,8 @@ export const ColarAlunos = ({
         />
         <p className="text-xs text-muted-foreground mt-1.5 flex items-center gap-1.5">
           <Copy className="h-3 w-3 shrink-0" />
-          Funciona com Excel, Google Sheets, Numbers ou texto separado por
-          vírgula. Só o nome é obrigatório.
+          Aceita CSV, Excel, Google Sheets, Numbers ou texto separado por
+          vírgula, ponto-e-vírgula ou tabulação. Só o nome é obrigatório.
         </p>
       </div>
 
