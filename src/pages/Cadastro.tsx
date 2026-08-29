@@ -56,7 +56,10 @@ const Cadastro = () => {
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
-        options: { data: { nome } },
+        options: {
+          data: { nome },
+          emailRedirectTo: `${window.location.origin}/onboarding`,
+        },
       });
 
       if (error) {

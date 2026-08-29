@@ -27,9 +27,8 @@ Body:
         <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:560px;background:#13110e;border:1px solid #2a2620;border-radius:16px;overflow:hidden;">
           <tr>
             <td style="padding:28px 28px 12px;">
-              <div style="font-size:20px;font-weight:700;letter-spacing:-0.02em;color:#f5f1ea;">
-                Studoo
-              </div>
+              <img src="https://studoo.com.br/favicon-192.png" width="40" height="40" alt="Studoo" style="display:block;border:0;border-radius:10px;margin:0 0 10px;">
+              <div style="font-size:20px;font-weight:700;letter-spacing:-0.02em;color:#f5f1ea;">Studoo</div>
             </td>
           </tr>
           <tr>
@@ -84,9 +83,8 @@ Body:
         <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:560px;background:#13110e;border:1px solid #2a2620;border-radius:16px;overflow:hidden;">
           <tr>
             <td style="padding:28px 28px 12px;">
-              <div style="font-size:20px;font-weight:700;letter-spacing:-0.02em;color:#f5f1ea;">
-                Studoo
-              </div>
+              <img src="https://studoo.com.br/favicon-192.png" width="40" height="40" alt="Studoo" style="display:block;border:0;border-radius:10px;margin:0 0 10px;">
+              <div style="font-size:20px;font-weight:700;letter-spacing:-0.02em;color:#f5f1ea;">Studoo</div>
             </td>
           </tr>
           <tr>
@@ -141,9 +139,8 @@ Body:
         <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:560px;background:#13110e;border:1px solid #2a2620;border-radius:16px;overflow:hidden;">
           <tr>
             <td style="padding:28px 28px 12px;">
-              <div style="font-size:20px;font-weight:700;letter-spacing:-0.02em;color:#f5f1ea;">
-                Studoo
-              </div>
+              <img src="https://studoo.com.br/favicon-192.png" width="40" height="40" alt="Studoo" style="display:block;border:0;border-radius:10px;margin:0 0 10px;">
+              <div style="font-size:20px;font-weight:700;letter-spacing:-0.02em;color:#f5f1ea;">Studoo</div>
             </td>
           </tr>
           <tr>
