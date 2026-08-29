@@ -22,7 +22,14 @@ export class ErrorBoundary extends Component<Props, State> {
   state: State = { hasError: false, error: null, reloadingChunk: false };
 
   static getDerivedStateFromError(error: Error): State {
-    return { hasError: true, error, reloadingChunk: false };
+    return { hasError: true, error, reloadingChunk: isChunkLoadError(error) };
+  }
+
+  componentDidMount() {
+    if (typeof window === "undefined") return;
+    window.setTimeout(() => {
+      window.sessionStorage.removeItem("studoo:chunk-reload:v2");
+    }, 10000);
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
@@ -35,11 +42,13 @@ export class ErrorBoundary extends Component<Props, State> {
     });
 
     if (typeof window !== "undefined" && isChunkLoadError(error)) {
-      const key = `studoo:chunk-reload:${window.location.pathname}`;
-      if (!window.sessionStorage.getItem(key)) {
-        window.sessionStorage.setItem(key, "1");
+      const key = "studoo:chunk-reload:v2";
+      const last = Number(window.sessionStorage.getItem(key) ?? 0);
+      const now = Date.now();
+      if (!last || now - last > 15000) {
+        window.sessionStorage.setItem(key, String(now));
         this.setState({ reloadingChunk: true });
-        window.location.reload();
+        window.setTimeout(() => window.location.replace(window.location.href), 250);
       }
     }
   }
