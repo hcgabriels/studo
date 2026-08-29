@@ -628,11 +628,6 @@ const PrimeiroAlunoStep = ({
         <Field
           label={form.aluno_nome.trim() ? "Instrumento *" : "Instrumento"}
           error={erros.aluno_instrumento}
-          hint={
-            erros.aluno_instrumento
-              ? undefined
-              : "Obrigatório se você preencher o nome."
-          }
         >
           {/* Era texto livre: dava pra digitar "violao" e o valor não bater
               com nenhuma opção do select na hora de editar o aluno. */}

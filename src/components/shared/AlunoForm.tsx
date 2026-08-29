@@ -410,7 +410,6 @@ export const AlunoForm = ({
                 <FormGrid cols={2}>
                   <Field
                     label="Email"
-                    hint="Pra avisos de cobrança"
                     error={errors.email_notificacao}
                   >
                     <Input
@@ -504,7 +503,6 @@ export const AlunoForm = ({
                 <Field
                   label="Responsável"
                   optional
-                  hint="Pra alunos menores de idade"
                 >
                   <Input
                     value={form.nome_responsavel}
