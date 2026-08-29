@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Plus,
@@ -11,9 +11,6 @@ import {
   Users as UsersIcon,
   Clock,
   MessageSquare,
-  BookOpen,
-  FileText,
-  Repeat,
   Upload,
   Download,
 } from "lucide-react";
@@ -25,8 +22,6 @@ import { useProfessor } from "@/hooks/useProfessor";
 import { usePage } from "@/contexts/PageContext";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   Dialog,
   DialogContent,
@@ -37,32 +32,23 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
-import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
-import { AlunoStatusBadge, FinanceiroStatusBadge, AulaStatusBadge } from "@/components/shared/StatusBadge";
+import { AlunoStatusBadge } from "@/components/shared/StatusBadge";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { PageHead, PageHeadMobile } from "@/components/shared/PageHead";
 import { FilterBar, FilterChip } from "@/components/shared/FilterBar";
 import { AlunosTable } from "@/components/alunos/AlunosTable";
-import { ReciboModal } from "@/components/shared/ReciboModal";
 import { ColarAlunos } from "@/components/alunos/ColarAlunos";
-import { PacotesTab } from "@/components/shared/PacotesTab";
 import { AlunoForm } from "@/components/shared/AlunoForm";
 import { NivelBadge } from "@/components/shared/NivelBadge";
 import {
   useAulasRecorrentes,
   getHorariosDoAluno,
 } from "@/hooks/useAulasRecorrentes";
-import { getCobrancaStatus } from "@/lib/cobranca";
 import { invalidateAlunos } from "@/lib/queries";
 import { useDebounced } from "@/hooks/useDebounced";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
@@ -71,11 +57,11 @@ import { openWhatsApp, messageTemplates } from "@/lib/whatsapp";
 import { type AlunoImportRow } from "@/lib/csv";
 import { toCSV, downloadCSV } from "@/lib/csvExport";
 import { cn } from "@/lib/utils";
-import type { Aluno, Aula, Cobranca, Professor, AulaRecorrente } from "@/types/supabase";
-import { parseDateOnly, toDateOnly, yearOfDateOnly } from "@/lib/dates";
+import type { Aluno, Aula, Cobranca, AulaRecorrente } from "@/types/supabase";
+import { toDateOnly } from "@/lib/dates";
 import { track } from "@/lib/analytics";
 import { fmtBRL } from "@/lib/format";
-import { nomeDiaSemana, nomeDiaSemanaCurto } from "@/lib/constants";
+import { nomeDiaSemanaCurto } from "@/lib/constants";
 
 const AlunoCard = ({
   aluno,
@@ -258,316 +244,6 @@ const AlunoCard = ({
   );
 };
 
-const AlunoSheet = ({
-  aluno,
-  aulas,
-  cobrancas,
-  professor,
-  onClose,
-  onEdit,
-  onToggleStatus,
-  onRecibo,
-}: {
-  aluno: Aluno | null;
-  aulas: Aula[];
-  cobrancas: Cobranca[];
-  professor: Professor | undefined;
-  onClose: () => void;
-  onEdit: (a: Aluno) => void;
-  onToggleStatus: (a: Aluno) => void;
-  onRecibo: (c: Cobranca) => void;
-}) => {
-  const professorNome = professor?.nome?.split(" ")[0] ?? "Professor";
-  const qc = useQueryClient();
-  if (!aluno) return null;
-  const aulasDoAluno = aulas
-    .filter((a) => a.aluno_id === aluno.id)
-    .sort((a, b) => new Date(b.data_hora).getTime() - new Date(a.data_hora).getTime())
-    .slice(0, 20);
-  const cobrancasDoAluno = cobrancas
-    .filter((c) => c.aluno_id === aluno.id)
-    .sort((a, b) => parseDateOnly(b.mes_referencia).getTime() - parseDateOnly(a.mes_referencia).getTime());
-  const totalPagoAno = cobrancasDoAluno
-    .filter((c) => {
-      const ano = yearOfDateOnly(c.mes_referencia);
-      return c.status === "pago" && ano === new Date().getFullYear();
-    })
-    .reduce((s, c) => s + Number(c.valor), 0);
-
-  return (
-    <Sheet open={!!aluno} onOpenChange={(v) => !v && onClose()}>
-      <SheetContent className="w-full sm:max-w-md overflow-y-auto">
-        <SheetHeader className="mb-5">
-          <div className="flex items-center gap-3">
-            <div className="h-14 w-14 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
-              <span className="font-mono text-xl font-semibold tracking-tight text-primary">
-                {aluno.nome.charAt(0).toUpperCase()}
-              </span>
-            </div>
-            <div className="min-w-0">
-              <SheetTitle className="truncate">{aluno.nome}</SheetTitle>
-              <p className="text-sm text-muted-foreground flex items-center gap-1">
-                <Music className="h-3.5 w-3.5" />
-                {aluno.instrumento || "—"}
-              </p>
-            </div>
-          </div>
-        </SheetHeader>
-
-        <div className="space-y-5">
-          <div className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
-            {[
-              ["Dia", nomeDiaSemana(aluno.dia_semana)],
-              ["Horário", `${aluno.horario.slice(0, 5)} (${aluno.duracao_minutos}min)`],
-              ["Mensalidade", fmtBRL(Number(aluno.valor_mensalidade))],
-              ["Status", aluno.status === "ativo" ? "Ativo" : "Inativo"],
-              ...(aluno.telefone ? [["Telefone", formatPhone(aluno.telefone)]] : []),
-              ...(aluno.email_notificacao ? [["Email", aluno.email_notificacao]] : []),
-              ...(aluno.nome_responsavel ? [["Responsável", aluno.nome_responsavel]] : []),
-            ].map(([k, v]) => (
-              <div key={k}>
-                <p className="text-muted-foreground text-[11px] uppercase tracking-wider">
-                  {k}
-                </p>
-                <p className="font-medium mt-0.5">{v}</p>
-              </div>
-            ))}
-          </div>
-
-          {aluno.observacoes && (
-            <div>
-              <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1">
-                Observações
-              </p>
-              <p className="text-sm">{aluno.observacoes}</p>
-            </div>
-          )}
-
-          {aluno.reposicoes_disponiveis > 0 && (
-            <div className="bg-success/10 border border-success/20 rounded-lg px-4 py-3 flex items-center gap-3">
-              <div className="h-9 w-9 rounded-lg bg-success/20 flex items-center justify-center shrink-0">
-                <Repeat className="h-4 w-4 text-success" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold">
-                  {aluno.reposicoes_disponiveis} reposiç
-                  {aluno.reposicoes_disponiveis === 1 ? "ão" : "ões"} pendente
-                  {aluno.reposicoes_disponiveis === 1 ? "" : "s"}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  Agende uma aula avulsa e marque como reposição
-                </p>
-              </div>
-              <button
-                onClick={async () => {
-                  if (!confirm(`Zerar reposições de ${aluno.nome.split(" ")[0]}?`)) return;
-                  await supabase
-                    .from("alunos")
-                    .update({ reposicoes_disponiveis: 0 })
-                    .eq("id", aluno.id);
-                  invalidateAlunos(qc);
-                  toast.success("Reposições zeradas");
-                }}
-                className="text-[11px] text-muted-foreground hover:text-destructive transition-colors shrink-0"
-              >
-                Limpar
-              </button>
-            </div>
-          )}
-
-          {aluno.telefone && (
-            <Button
-              variant="default"
-              className="w-full"
-              onClick={() =>
-                openWhatsApp(
-                  aluno.telefone!,
-                  messageTemplates.saudacao(aluno.nome.split(" ")[0], professorNome),
-                  {
-                    professorId: professor?.id,
-                    alunoId: aluno.id,
-                    tipo: "saudacao",
-                  }
-                )
-              }
-            >
-              <MessageSquare className="h-4 w-4 mr-1.5" />
-              Conversar no WhatsApp
-            </Button>
-          )}
-
-          <div className="flex gap-2">
-            <Button
-              className="flex-1"
-              variant="outline"
-              onClick={() => onEdit(aluno)}
-            >
-              Editar
-            </Button>
-            <Button
-              className="flex-1"
-              variant={aluno.status === "ativo" ? "destructive" : "default"}
-              onClick={() => onToggleStatus(aluno)}
-            >
-              {aluno.status === "ativo" ? "Arquivar" : "Reativar"}
-            </Button>
-          </div>
-
-          <Separator />
-
-          <Tabs defaultValue="aulas">
-            <TabsList className="w-full">
-              <TabsTrigger value="aulas" className="flex-1">
-                Diário
-              </TabsTrigger>
-              <TabsTrigger value="financeiro" className="flex-1">
-                Financeiro
-              </TabsTrigger>
-              <TabsTrigger value="pacotes" className="flex-1">
-                Pacotes
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="aulas" className="mt-4">
-              {aulasDoAluno.length === 0 ? (
-                <div className="text-center py-8">
-                  <BookOpen className="h-8 w-8 text-muted-foreground/40 mx-auto mb-2" />
-                  <p className="text-sm font-medium">Sem aulas registradas</p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    As anotações de cada aula aparecerão aqui.
-                  </p>
-                </div>
-              ) : (
-                <div className="relative">
-                  {/* Vertical timeline line */}
-                  <div className="absolute left-[7px] top-1 bottom-1 w-px bg-border" />
-
-                  <div className="space-y-4">
-                    {aulasDoAluno.map((aula) => {
-                      const dotColor =
-                        aula.status === "realizada"
-                          ? "bg-success"
-                          : aula.status === "falta_sem_aviso"
-                          ? "bg-destructive"
-                          : aula.status === "falta_justificada"
-                          ? "bg-warning"
-                          : aula.status === "cancelada_professor"
-                          ? "bg-muted-foreground"
-                          : "bg-primary";
-                      return (
-                        <div key={aula.id} className="relative pl-6">
-                          <div
-                            className={cn(
-                              "absolute left-0 top-1 h-3.5 w-3.5 rounded-full ring-4 ring-card",
-                              dotColor
-                            )}
-                          />
-                          <div className="flex items-center justify-between gap-2 mb-1">
-                            <p className="text-sm font-semibold">
-                              {format(new Date(aula.data_hora), "dd 'de' MMM 'de' yyyy", {
-                                locale: ptBR,
-                              })}
-                              <span className="text-xs text-muted-foreground font-normal ml-2 font-mono">
-                                {format(new Date(aula.data_hora), "HH:mm")}
-                              </span>
-                            </p>
-                            <AulaStatusBadge
-                              status={
-                                aula.status as
-                                  | "realizada"
-                                  | "falta_justificada"
-                                  | "falta_sem_aviso"
-                                  | "cancelada_professor"
-                                  | "agendada"
-                              }
-                            />
-                          </div>
-                          {aula.observacao ? (
-                            <div className="bg-muted/40 rounded-lg px-3 py-2 mt-1.5">
-                              <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                                {aula.observacao}
-                              </p>
-                            </div>
-                          ) : aula.status === "realizada" && !aula.licao_casa ? (
-                            <p className="text-xs text-muted-foreground/70 italic mt-1">
-                              Sem anotações nesta aula.
-                            </p>
-                          ) : null}
-                          {aula.licao_casa ? (
-                            <div className="bg-primary/5 border border-primary/15 rounded-lg px-3 py-2 mt-1.5">
-                              <p className="font-mono text-[10px] tracking-[0.12em] uppercase text-primary/80 mb-1">
-                                Lição de casa
-                              </p>
-                              <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                                {aula.licao_casa}
-                              </p>
-                            </div>
-                          ) : null}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-            </TabsContent>
-
-            <TabsContent value="financeiro" className="mt-3 space-y-2">
-              <div className="bg-primary/10 rounded-lg px-4 py-3 mb-3">
-                <p className="font-mono text-[10px] tracking-[0.14em] uppercase text-muted-foreground">
-                  Total pago em {new Date().getFullYear()}
-                </p>
-                <p className="font-mono text-[22px] font-bold tabular-nums tracking-[-0.02em] text-primary mt-1">
-                  {fmtBRL(totalPagoAno)}
-                </p>
-              </div>
-              {cobrancasDoAluno.length === 0 ? (
-                <p className="text-sm text-muted-foreground text-center py-4">
-                  Nenhuma cobrança registrada.
-                </p>
-              ) : (
-                cobrancasDoAluno.map((c) => (
-                  <div
-                    key={c.id}
-                    className="flex items-center justify-between py-2 border-b border-border/50 last:border-0"
-                  >
-                    <div>
-                      <p className="text-sm font-medium first-letter:uppercase">
-                        {format(new Date(c.mes_referencia + "T00:00:00"), "MMMM yyyy", { locale: ptBR })}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        Venc. {format(new Date(c.vencimento + "T00:00:00"), "dd/MM")}
-                      </p>
-                    </div>
-                    <div className="text-right space-y-1">
-                      <FinanceiroStatusBadge status={getCobrancaStatus(c)} />
-                      <p className="text-xs font-mono">{fmtBRL(Number(c.valor))}</p>
-                      {c.status === "pago" && (
-                        <button
-                          onClick={() => onRecibo(c)}
-                          className="text-[11px] text-primary hover:underline inline-flex items-center gap-1"
-                        >
-                          <FileText className="h-3 w-3" />
-                          Recibo
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                ))
-              )}
-            </TabsContent>
-
-            <TabsContent value="pacotes" className="mt-4">
-              {professor && (
-                <PacotesTab alunoId={aluno.id} professorId={professor.id} />
-              )}
-            </TabsContent>
-          </Tabs>
-        </div>
-      </SheetContent>
-    </Sheet>
-  );
-};
-
 const ImportarCsvModal = ({
   open,
   onClose,
@@ -699,14 +375,13 @@ const Alunos = () => {
   const { data: professor } = useProfessor();
   const { data: recorrentes } = useAulasRecorrentes(professor?.id);
   const qc = useQueryClient();
+  const navigate = useNavigate();
   const [busca, setBusca] = useState("");
   const buscaDebounced = useDebounced(busca, 200);
   const [statusFilter, setStatusFilter] = useState<"todos" | "ativo" | "inativo">("todos");
   const [formOpen, setFormOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
   const [editingAluno, setEditingAluno] = useState<Aluno | null>(null);
-  const [selectedAluno, setSelectedAluno] = useState<Aluno | null>(null);
-  const [reciboCobranca, setReciboCobranca] = useState<Cobranca | null>(null);
   const [confirmDialog, setConfirmDialog] = useState<{
     aluno: Aluno;
     action: "arquivar" | "reativar" | "excluir";
@@ -772,7 +447,6 @@ const Alunos = () => {
       invalidateAlunos(qc);
       toast.success("Status atualizado!");
       setConfirmDialog(null);
-      setSelectedAluno(null);
     },
     onError: () => toast.error("Erro ao atualizar status"),
   });
@@ -803,7 +477,6 @@ const Alunos = () => {
       qc.invalidateQueries({ queryKey: ["aulas-recorrentes"] });
       toast.success("Aluno e histórico excluídos.");
       setConfirmDialog(null);
-      setSelectedAluno(null);
     },
     onError: (err: Error) =>
       toast.error(err.message || "Erro ao excluir aluno"),
@@ -847,7 +520,6 @@ const Alunos = () => {
 
   const handleEdit = (aluno: Aluno) => {
     setEditingAluno(aluno);
-    setSelectedAluno(null);
     setFormOpen(true);
   };
 
@@ -1008,7 +680,7 @@ const Alunos = () => {
               alunos={filteredAlunos}
               cobrancas={cobrancas ?? []}
               recorrentes={recorrentes ?? []}
-              onClick={(a) => setSelectedAluno(a)}
+              onClick={(a) => navigate(`/alunos/${a.id}`)}
               onEdit={handleEdit}
               onToggleStatus={handleToggleStatus}
             />
@@ -1042,27 +714,6 @@ const Alunos = () => {
         professorId={professor?.id ?? ""}
         alunosExistentes={alunos ?? []}
       />
-
-      <AlunoSheet
-        aluno={selectedAluno}
-        aulas={aulas ?? []}
-        cobrancas={cobrancas ?? []}
-        professor={professor ?? undefined}
-        onClose={() => setSelectedAluno(null)}
-        onEdit={handleEdit}
-        onToggleStatus={handleToggleStatus}
-        onRecibo={setReciboCobranca}
-      />
-
-      {professor && selectedAluno && (
-        <ReciboModal
-          open={!!reciboCobranca}
-          onClose={() => setReciboCobranca(null)}
-          cobranca={reciboCobranca}
-          alunoNome={selectedAluno.nome}
-          professor={professor}
-        />
-      )}
 
       <ConfirmDialog
         open={!!confirmDialog}
