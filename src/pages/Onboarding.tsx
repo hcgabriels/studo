@@ -78,6 +78,7 @@ type StepId = (typeof STEPS)[number]["id"];
 
 const TOTAL_STEPS = STEPS.length;
 const ULTIMO_STEP = TOTAL_STEPS - 1;
+const ONBOARDING_SHELL = "w-full max-w-5xl mx-auto px-4 md:px-8";
 
 /** Etapas sem formulário: layout centrado, CTA próprio, sem preview. */
 const SEM_FORMULARIO: readonly StepId[] = ["boas-vindas", "pronto"];
@@ -341,7 +342,7 @@ const OnboardingWizard = ({ professor }: { professor: Professor }) => {
     <div className="min-h-screen bg-background flex flex-col relative overflow-hidden">
       {/* Header */}
       <header className="border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-10">
-        <div className="max-w-6xl mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
+        <div className={cn(ONBOARDING_SHELL, "h-16 flex items-center justify-between")}>
           <div className="flex items-center gap-2.5">
             <StudooMark size={22} />
             <Wordmark size={16} />
@@ -357,7 +358,7 @@ const OnboardingWizard = ({ professor }: { professor: Professor }) => {
           )}
         </div>
         {/* Progresso */}
-        <div className="max-w-6xl mx-auto px-4 md:px-8 pb-3">
+        <div className={cn(ONBOARDING_SHELL, "pb-3")}>
           <div className="flex items-center gap-2">
             {STEPS.map((s, i) => (
               <div
@@ -383,13 +384,13 @@ const OnboardingWizard = ({ professor }: { professor: Professor }) => {
       {/* Conteúdo */}
       <main
         className={cn(
-          "flex-1 px-4 md:px-8 py-10 md:py-16 overflow-y-auto",
+          "flex-1 py-10 md:py-16 overflow-y-auto",
           "flex items-start justify-center",
         )}
       >
         <div
           className={cn(
-            "w-full mx-auto",
+            ONBOARDING_SHELL,
             semFormulario ? "max-w-2xl text-center pt-8 md:pt-14" : "max-w-5xl",
             temPreview &&
               "md:grid md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] md:gap-10 lg:gap-14 md:items-center",
@@ -468,7 +469,7 @@ const OnboardingWizard = ({ professor }: { professor: Professor }) => {
       {etapaId !== "boas-vindas" && (
         <footer className="border-t border-border bg-card/40 backdrop-blur-sm">
           <div
-            className="max-w-6xl mx-auto px-4 md:px-8 py-3 flex items-center justify-between"
+            className={cn(ONBOARDING_SHELL, "py-3 flex items-center justify-between")}
             style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 0.75rem)" }}
           >
             <Button
