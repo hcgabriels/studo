@@ -66,54 +66,16 @@ Hoje o email vem em inglês padrão Supabase. Pra customizar:
 
 1. Supabase Dashboard → **Authentication** → **Email Templates**
 2. Selecione **"Confirm signup"**
-3. Cole o template abaixo no campo HTML:
-
-```html
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="UTF-8" />
-    <title>Bem-vindo ao Studoo</title>
-  </head>
-  <body style="font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #0a0a0a; color: #f5f5f5; padding: 40px 20px; max-width: 600px; margin: 0 auto;">
-    <div style="background: #141414; border: 1px solid #222; border-radius: 16px; padding: 32px;">
-      <div style="text-align: center; margin-bottom: 24px;">
-        <h1 style="color: #d4a843; font-size: 28px; margin: 0; letter-spacing: -0.02em;">studoo</h1>
-      </div>
-
-      <h2 style="font-size: 22px; margin: 0 0 12px;">Bem-vindo, professor! 🎵</h2>
-
-      <p style="color: #b5b5b5; line-height: 1.6; margin: 0 0 24px;">
-        Obrigado por se cadastrar no Studoo. Clique no botão abaixo para
-        confirmar seu email e começar a organizar sua escola de música.
-      </p>
-
-      <div style="text-align: center; margin: 32px 0;">
-        <a href="{{ .ConfirmationURL }}"
-           style="background: #d4a843; color: #0a0a0a; padding: 12px 28px; text-decoration: none; border-radius: 12px; font-weight: 600; display: inline-block;">
-          Confirmar email
-        </a>
-      </div>
-
-      <p style="color: #888; font-size: 12px; line-height: 1.5; margin: 24px 0 0;">
-        Se você não criou essa conta, pode ignorar este email.
-        Ou copie e cole esse link no navegador:<br />
-        <span style="color: #d4a843; word-break: break-all;">{{ .ConfirmationURL }}</span>
-      </p>
-    </div>
-
-    <p style="text-align: center; color: #555; font-size: 11px; margin-top: 24px;">
-      © Studoo · Gestão para professores de música
-    </p>
-  </body>
-</html>
-```
-
-4. Edite também:
-   - **"Subject heading"** → `Confirme seu cadastro no Studoo`
+3. Use o template oficial em `docs/EMAIL_TEMPLATES.md`
+4. Subject: `Confirme seu email para entrar no Studoo`
 5. Save
 
-**Repita pra os outros templates** que você usar (Reset Password, Magic Link). Use a mesma estrutura visual.
+O template oficial já usa a marca visual do Studoo e a imagem pública
+`https://studoo.com.br/favicon-192.png`. O botão principal deve continuar com
+`{{ .ConfirmationURL }}` para o Supabase aplicar o link seguro de confirmação.
+
+Repita a mesma lógica para os outros templates usados em produção, como Reset
+Password e Invite User.
 
 ---
 
@@ -178,8 +140,12 @@ Agora as credenciais:
 Pra que os emails de confirmação/reset apontem pra URL certa:
 
 1. Supabase Dashboard → **Authentication** → **URL Configuration**
-2. **Site URL**: `https://seudominio.com` (ou `http://localhost:5174` em dev)
-3. **Redirect URLs** (lista permitida): adicione todos os domínios onde o app vai rodar (localhost + produção)
+2. **Site URL**: `https://studoo.com.br`
+3. **Redirect URLs**:
+   - `https://studoo.com.br/*`
+   - `https://studoo.com.br/onboarding`
+   - `https://studoo.com.br/reset-password`
+   - `http://localhost:5173/*`
 
 ---
 
