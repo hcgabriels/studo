@@ -563,7 +563,7 @@ const Dashboard = () => {
           </div>
         )}
 
-      {/* Cards secundários: reposições, pacotes, trials, bloqueios */}
+      {/* Cards secundários: reposições, créditos, trials, bloqueios */}
       {(totalReposicoes > 0 ||
         pacotesStats.count > 0 ||
         trialStats.total > 0 ||
@@ -583,7 +583,7 @@ const Dashboard = () => {
             <KpiCard
               icon={Package}
               iconTone="default"
-              label="Pacotes ativos"
+              label="Créditos ativos"
               value={pacotesStats.count}
               hint={`${pacotesStats.aulasRestantes} aulas restantes`}
               to="/alunos"

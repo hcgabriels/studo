@@ -49,19 +49,10 @@ import type {
   Aluno,
   Aula,
   Cobranca,
-  MensagemEnviada,
 } from "@/types/supabase";
 import { yearOfDateOnly } from "@/lib/dates";
 import { fmtBRL } from "@/lib/format";
 import { nomeDiaSemana } from "@/lib/constants";
-
-const TIPO_MSG_LABEL: Record<string, string> = {
-  saudacao: "Saudação",
-  lembrete_aula: "Lembrete de aula",
-  cobranca: "Cobrança",
-  parabens: "Parabéns",
-  outro: "Outro",
-};
 
 const AlunoDetalhe = () => {
   const { id } = useParams<{ id: string }>();
@@ -112,21 +103,6 @@ const AlunoDetalhe = () => {
         .order("mes_referencia", { ascending: false });
       if (error) throw error;
       return data as Cobranca[];
-    },
-    enabled: !!id,
-  });
-
-  const { data: mensagens } = useQuery({
-    queryKey: ["aluno-mensagens", id],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("mensagens_enviadas")
-        .select("*")
-        .eq("aluno_id", id!)
-        .order("enviada_em", { ascending: false })
-        .limit(50);
-      if (error) throw error;
-      return data as MensagemEnviada[];
     },
     enabled: !!id,
   });
@@ -308,13 +284,7 @@ const AlunoDetalhe = () => {
                 Diário
               </TabsTrigger>
               <TabsTrigger value="financeiro">Financeiro</TabsTrigger>
-              <TabsTrigger value="pacotes">Pacotes</TabsTrigger>
-              <TabsTrigger
-                value="mensagens"
-                count={mensagens?.length}
-              >
-                Mensagens
-              </TabsTrigger>
+              <TabsTrigger value="pacotes">Créditos</TabsTrigger>
             </TabsList>
 
             <TabsContent value="diario" className="mt-5">
@@ -485,42 +455,6 @@ const AlunoDetalhe = () => {
             <TabsContent value="pacotes" className="mt-5">
               {professor && (
                 <PacotesTab alunoId={aluno.id} professorId={professor.id} />
-              )}
-            </TabsContent>
-
-            <TabsContent value="mensagens" className="mt-5">
-              {!mensagens || mensagens.length === 0 ? (
-                <SectionCard>
-                  <p className="text-sm text-muted-foreground text-center py-8">
-                    Nenhuma mensagem enviada ainda.
-                  </p>
-                </SectionCard>
-              ) : (
-                <SectionCard
-                  title="Mensagens enviadas"
-                  description={`${mensagens.length} mensagens via WhatsApp`}
-                >
-                  <div className="-mx-1 divide-y divide-border/40">
-                    {mensagens.map((m) => (
-                      <div key={m.id} className="px-1 py-3">
-                        <div className="flex items-center justify-between gap-2 mb-1.5">
-                          <Badge variant="secondary">
-                            {TIPO_MSG_LABEL[m.tipo] ?? m.tipo}
-                          </Badge>
-                          <span className="text-xs text-muted-foreground font-mono">
-                            {format(
-                              new Date(m.enviada_em),
-                              "dd/MM/yyyy 'às' HH:mm"
-                            )}
-                          </span>
-                        </div>
-                        <p className="text-sm whitespace-pre-wrap text-muted-foreground">
-                          {m.texto}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </SectionCard>
               )}
             </TabsContent>
           </Tabs>

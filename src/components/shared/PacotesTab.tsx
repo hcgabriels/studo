@@ -70,10 +70,10 @@ const NovoPacoteModal = ({
     },
     onSuccess: () => {
       invalidatePacotes(qc);
-      toast.success("Pacote vendido!");
+      toast.success("Crédito registrado!");
       onClose();
     },
-    onError: () => toast.error("Erro ao criar pacote"),
+    onError: () => toast.error("Erro ao registrar crédito"),
   });
 
   const valid =
@@ -83,10 +83,9 @@ const NovoPacoteModal = ({
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Vender pacote de aulas</DialogTitle>
+          <DialogTitle>Adicionar crédito de aulas</DialogTitle>
           <DialogDescription>
-            Crédito pré-pago de aulas avulsas. Decremente manualmente conforme
-            uso.
+            Registre aulas pré-pagas para descontar conforme o aluno usar.
           </DialogDescription>
         </DialogHeader>
 
@@ -128,7 +127,7 @@ const NovoPacoteModal = ({
               className="flex h-10 w-full rounded-lg border border-border bg-input px-3 text-sm focus-visible:outline-none focus-visible:border-primary/40"
             />
             <p className="text-xs text-muted-foreground">
-              Padrão: 3 meses. Deixe em branco se não houver validade.
+              Padrão: 3 meses. Deixe vazio se não tiver prazo.
             </p>
           </div>
 
@@ -137,7 +136,7 @@ const NovoPacoteModal = ({
             <Textarea
               value={observacao}
               onChange={(e) => setObservacao(e.target.value)}
-              placeholder="Forma de pagamento, condições..."
+              placeholder="Forma de pagamento, combinado com o aluno..."
               rows={2}
             />
           </div>
@@ -151,7 +150,7 @@ const NovoPacoteModal = ({
             disabled={!valid || mutation.isPending}
             onClick={() => mutation.mutate()}
           >
-            {mutation.isPending ? "Salvando..." : "Confirmar venda"}
+            {mutation.isPending ? "Salvando..." : "Adicionar crédito"}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -207,9 +206,9 @@ const PacoteCard = ({ pacote }: { pacote: PacoteAulas }) => {
     },
     onSuccess: () => {
       invalidatePacotes(qc);
-      toast.success("Aula descontada do pacote");
+      toast.success("Aula descontada do crédito");
     },
-    onError: () => toast.error("Erro ao atualizar pacote"),
+    onError: () => toast.error("Erro ao atualizar crédito"),
   });
 
   const cancelar = useMutation({
@@ -222,7 +221,7 @@ const PacoteCard = ({ pacote }: { pacote: PacoteAulas }) => {
     },
     onSuccess: () => {
       invalidatePacotes(qc);
-      toast.success("Pacote cancelado");
+      toast.success("Crédito cancelado");
     },
   });
 
@@ -242,7 +241,7 @@ const PacoteCard = ({ pacote }: { pacote: PacoteAulas }) => {
             <p
               className="text-sm font-semibold"
 >
-              Pacote {pacote.total_aulas} aulas
+              Crédito de {pacote.total_aulas} aulas
             </p>
             <p className="text-xs text-muted-foreground">
               Comprado em{" "}
@@ -262,7 +261,7 @@ const PacoteCard = ({ pacote }: { pacote: PacoteAulas }) => {
       <div className="space-y-1.5 mb-3">
         <div className="flex items-center justify-between text-xs">
           <span className="text-muted-foreground">
-            {pacote.aulas_usadas} de {pacote.total_aulas} usadas
+            {pacote.aulas_usadas} de {pacote.total_aulas} aulas usadas
           </span>
           <span className="font-mono font-semibold">{pct}%</span>
         </div>
@@ -297,7 +296,7 @@ const PacoteCard = ({ pacote }: { pacote: PacoteAulas }) => {
         >
           <span className="inline-flex items-center gap-1">
             {(vencido || venceLogo) && <AlertCircle className="h-3 w-3" />}
-            Validade
+            Válido até
           </span>
           <span className="font-mono font-semibold">
             {vencido
@@ -323,7 +322,7 @@ const PacoteCard = ({ pacote }: { pacote: PacoteAulas }) => {
             disabled={usar.isPending || restantes <= 0}
           >
             <Check className="h-3.5 w-3.5 mr-1" />
-            Usar 1 aula ({restantes})
+            Descontar 1 aula ({restantes})
           </Button>
           <Button
             size="sm"
@@ -340,10 +339,10 @@ const PacoteCard = ({ pacote }: { pacote: PacoteAulas }) => {
       <ConfirmDialog
         open={confirmUsar}
         onOpenChange={setConfirmUsar}
-        title="Descontar 1 aula do pacote?"
+        title="Descontar 1 aula do crédito?"
         description={`Vai sobrar ${Math.max(0, restantes - 1)} aula${
           restantes - 1 !== 1 ? "s" : ""
-        } no pacote. Essa ação não tem desfazer.`}
+        } neste crédito. Essa ação não tem desfazer.`}
         confirmLabel="Descontar aula"
         loadingLabel="Descontando…"
         loading={usar.isPending}
@@ -357,10 +356,10 @@ const PacoteCard = ({ pacote }: { pacote: PacoteAulas }) => {
       <ConfirmDialog
         open={confirmCancelar}
         onOpenChange={setConfirmCancelar}
-        title="Cancelar pacote?"
-        description="O pacote será marcado como cancelado e não poderá mais ser usado. O histórico fica preservado."
+        title="Cancelar crédito?"
+        description="O crédito será marcado como cancelado e não poderá mais ser usado. O histórico fica preservado."
         variant="destructive"
-        confirmLabel="Cancelar pacote"
+        confirmLabel="Cancelar crédito"
         cancelLabel="Voltar"
         loadingLabel="Cancelando…"
         loading={cancelar.isPending}
@@ -389,11 +388,11 @@ export const PacotesTab = ({
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
-            {pacotes?.length ?? 0} pacote{pacotes?.length !== 1 ? "s" : ""}
+            Aulas pré-pagas deste aluno
           </p>
           <Button size="sm" onClick={() => setNovoOpen(true)}>
             <Plus className="h-3.5 w-3.5 mr-1" />
-            Vender pacote
+            Adicionar crédito
           </Button>
         </div>
 
@@ -404,9 +403,9 @@ export const PacotesTab = ({
         ) : !pacotes || pacotes.length === 0 ? (
           <div className="bg-muted/30 border border-dashed border-border rounded-xl p-6 text-center">
             <Package className="h-8 w-8 text-muted-foreground/40 mx-auto mb-2" />
-            <p className="text-sm font-medium">Nenhum pacote vendido</p>
+            <p className="text-sm font-medium">Nenhum crédito ativo</p>
             <p className="text-xs text-muted-foreground mt-1">
-              Venda pacotes de aulas avulsas pré-pagas
+              Use esta área quando o aluno comprar aulas avulsas antecipadas.
             </p>
           </div>
         ) : (
