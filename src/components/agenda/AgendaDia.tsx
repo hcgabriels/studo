@@ -135,6 +135,8 @@ export const AgendaDia = ({
               <StatusIcon
                 variant={proximaEmBreve && variant === "neutral" ? "info" : variant}
                 title={proximaEmBreve ? `Em ${minsAte} min` : title}
+                showLabel="always"
+                className="justify-end"
               />
             </button>
           );

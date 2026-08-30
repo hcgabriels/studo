@@ -175,10 +175,12 @@ const PresencaModal = ({
   const [newTime, setNewTime] = useState("");
 
   const existing = slot?.existingAula;
+  const podeSalvarRegistro = Boolean(status);
 
   const podeEnviarResumo = !!(
     slot?.aluno.id &&
     slot?.aluno.telefone &&
+    podeSalvarRegistro &&
     (obs.trim() || licao.trim())
   );
 
@@ -359,10 +361,10 @@ const PresencaModal = ({
                 <ArrowLeft className="h-4 w-4" />
               </button>
             )}
-            {mode === "reschedule" ? "Reagendar aula" : slot.aluno.nome}
+            {mode === "reschedule" ? "Reagendar aula" : "Registrar aula"}
             {mode === "presence" && (
               <span className="text-muted-foreground font-normal text-sm ml-2">
-                — {slot.aluno.instrumento}
+                — {slot.aluno.nome}
               </span>
             )}
           </DialogTitle>
@@ -379,6 +381,25 @@ const PresencaModal = ({
             inalcançável. */}
         {mode === "presence" ? (
           <DialogBody className="space-y-4">
+            <div className="rounded-lg border border-border/70 bg-muted/20 px-3.5 py-3">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold truncate">
+                    {slot.aluno.nome}
+                  </p>
+                  <p className="text-xs text-muted-foreground truncate">
+                    {slot.aluno.instrumento} · {format(slot.date, "HH:mm")} ·{" "}
+                    {slot.aluno.duracao_minutos} min
+                  </p>
+                </div>
+                {existing ? (
+                  <Badge variant="secondary">Já registrada</Badge>
+                ) : (
+                  <Badge variant="info">Pendente</Badge>
+                )}
+              </div>
+            </div>
+
             {existing && (
               <div className="bg-muted rounded-lg px-3 py-2 text-sm">
                 <p className="text-muted-foreground text-xs mb-1">Registro existente</p>
@@ -408,7 +429,7 @@ const PresencaModal = ({
             )}
 
             <div className="space-y-2">
-              <p className="text-sm font-medium">Status da aula</p>
+              <p className="text-sm font-medium">1. Como foi a aula?</p>
               <div className="grid grid-cols-3 gap-2">
                 {STATUS_OPTIONS.map((opt) => {
                   const Icon = opt.icon;
@@ -466,18 +487,18 @@ const PresencaModal = ({
             </div>
 
             <div className="space-y-1.5">
-              <p className="text-sm font-medium">Observações / Repertório</p>
+              <p className="text-sm font-medium">2. O que foi trabalhado?</p>
               <Textarea
                 value={obs}
                 onChange={(e) => setObs(e.target.value)}
-                placeholder="O que foi trabalhado na aula..."
+                placeholder="Ex.: levada de baião, leitura rítmica, música nova..."
                 rows={3}
               />
             </div>
 
             <div className="space-y-1.5">
               <div className="flex items-baseline justify-between gap-2">
-                <p className="text-sm font-medium">Lição de casa</p>
+                <p className="text-sm font-medium">3. Lição de casa</p>
                 <p className="text-[11px] text-muted-foreground">
                   Aparece no resumo enviado ao aluno
                 </p>
@@ -485,7 +506,7 @@ const PresencaModal = ({
               <Textarea
                 value={licao}
                 onChange={(e) => setLicao(e.target.value)}
-                placeholder="O que praticar até a próxima aula..."
+                placeholder="Ex.: praticar 10 min por dia com metrônomo em 70 bpm..."
                 rows={2}
               />
             </div>
@@ -515,14 +536,14 @@ const PresencaModal = ({
               </Button>
               <Button
                 className="flex-1"
-                disabled={!status || mutation.isPending}
+                disabled={!podeSalvarRegistro || mutation.isPending}
                 onClick={() => mutation.mutate()}
               >
                 {mutation.isPending
                   ? "Salvando..."
                   : existing
                   ? "Atualizar"
-                  : "Registrar"}
+                  : "Registrar aula"}
               </Button>
             </div>
           </DialogBody>
