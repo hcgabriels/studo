@@ -458,6 +458,10 @@ const Dashboard = () => {
   const proximaAulaHoje = proximasAgrupadas[0]?.isToday
     ? proximasAgrupadas[0].aulas[0]
     : null;
+  const mostrarCardCobrancas =
+    cobrancasLoading ||
+    (cobrancas?.length ?? 0) === 0 ||
+    cobrancasPendentes.length > 0;
   const subtitleDesktop = (
     <>
       Você tem{" "}
@@ -799,7 +803,11 @@ const Dashboard = () => {
       )}
 
       {/* Dashboard grid: aulas (esquerda) + cobranças (direita) */}
-      <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-4 md:gap-[22px] mb-6 md:mb-8">
+      <div
+        className={`grid grid-cols-1 gap-4 md:gap-[22px] mb-6 md:mb-8 ${
+          mostrarCardCobrancas ? "lg:grid-cols-[1.5fr_1fr]" : ""
+        }`}
+      >
         {/* Próximas aulas */}
         <SectionCard
           title="Próximas aulas"
@@ -864,104 +872,99 @@ const Dashboard = () => {
         </SectionCard>
 
         {/* Cobranças do mês */}
-        <SectionCard
-          title={`Cobranças de ${format(hoje, "MMMM", { locale: ptBR })}`}
-          description={
-            cobrancas && cobrancas.length > 0
-              ? `${cobrancas.length} cobrança${cobrancas.length !== 1 ? "s" : ""} no mês`
-              : "Nenhuma cobrança gerada"
-          }
-          icon={DollarSign}
-          iconTone="warning"
-          bodyPadding={false}
-          action={
-            <Button asChild variant="ghost" size="sm">
-              <Link to="/financeiro">
-                Ver todas
-                <ArrowUpRight className="h-3.5 w-3.5 ml-1" />
-              </Link>
-            </Button>
-          }
-        >
-          {cobrancasLoading ? (
-            <div className="p-5 space-y-2">
-              {[...Array(3)].map((_, i) => (
-                <Skeleton key={i} className="h-12 w-full" />
-              ))}
-            </div>
-          ) : (cobrancas?.length ?? 0) === 0 ? (
-            <EmptyState
-              tone="muted"
-              icon={DollarSign}
-              title="Sem cobranças do mês"
-              description="Gere as cobranças com 1 clique pra todos os alunos ativos."
-              action={
-                <Button asChild size="sm">
-                  <Link to="/financeiro">Gerar cobranças</Link>
-                </Button>
-              }
-            />
-          ) : cobrancasPendentes.length === 0 ? (
-            <EmptyState
-              tone="muted"
-              icon={DollarSign}
-              title="Tudo pago"
-              description="Sem cobranças pendentes esse mês — bom trabalho."
-            />
-          ) : (
-            <>
-              <CobrSummary
-                cols={[
-                  {
-                    label: "Pagas",
-                    value: fmtBRLCompacto(cobrSummaryData.pagas),
-                    count: `${cobrSummaryData.pagasCnt} aluno${cobrSummaryData.pagasCnt !== 1 ? "s" : ""}`,
-                    tone: "ok",
-                  },
-                  {
-                    label: "Pendentes",
-                    value: fmtBRLCompacto(cobrSummaryData.pendentes),
-                    count: `${cobrSummaryData.pendentesCnt} aluno${cobrSummaryData.pendentesCnt !== 1 ? "s" : ""}`,
-                    tone: "warn",
-                  },
-                  {
-                    label: "Atrasadas",
-                    value: fmtBRLCompacto(cobrSummaryData.atrasadas),
-                    count: `${cobrSummaryData.atrasadasCnt} aluno${cobrSummaryData.atrasadasCnt !== 1 ? "s" : ""}`,
-                    tone: "danger",
-                  },
-                ]}
+        {mostrarCardCobrancas && (
+          <SectionCard
+            title={`Cobranças de ${format(hoje, "MMMM", { locale: ptBR })}`}
+            description={
+              cobrancas && cobrancas.length > 0
+                ? `${cobrancas.length} cobrança${cobrancas.length !== 1 ? "s" : ""} no mês`
+                : "Nenhuma cobrança gerada"
+            }
+            icon={DollarSign}
+            iconTone="warning"
+            bodyPadding={false}
+            action={
+              <Button asChild variant="ghost" size="sm">
+                <Link to="/financeiro">
+                  Ver todas
+                  <ArrowUpRight className="h-3.5 w-3.5 ml-1" />
+                </Link>
+              </Button>
+            }
+          >
+            {cobrancasLoading ? (
+              <div className="p-5 space-y-2">
+                {[...Array(3)].map((_, i) => (
+                  <Skeleton key={i} className="h-12 w-full" />
+                ))}
+              </div>
+            ) : (cobrancas?.length ?? 0) === 0 ? (
+              <EmptyState
+                tone="muted"
+                icon={DollarSign}
+                title="Sem cobranças do mês"
+                description="Gere as cobranças com 1 clique pra todos os alunos ativos."
+                action={
+                  <Button asChild size="sm">
+                    <Link to="/financeiro">Gerar cobranças</Link>
+                  </Button>
+                }
               />
-              {cobrancasPendentes.map((c) => {
-                const st = getCobrancaStatus(c);
-                const venc = new Date(c.vencimento + "T00:00:00");
-                const dia = format(venc, "dd/MM");
-                return (
-                  <CobrRow
-                    key={c.id}
-                    nome={c.alunos?.nome ?? "Aluno"}
-                    due={st === "atrasado" ? `venceu ${dia}` : `vence ${dia}`}
-                    amt={fmtBRL(Number(c.valor))}
-                    status={
-                      st === "atrasado"
-                        ? "danger"
-                        : st === "pendente"
-                          ? "warn"
-                          : "ok"
-                    }
-                    statusTitle={
-                      st === "atrasado"
-                        ? "Atrasada"
-                        : st === "pendente"
-                          ? "Pendente"
-                          : "Paga"
-                    }
-                  />
-                );
-              })}
-            </>
-          )}
-        </SectionCard>
+            ) : (
+              <>
+                <CobrSummary
+                  cols={[
+                    {
+                      label: "Pagas",
+                      value: fmtBRLCompacto(cobrSummaryData.pagas),
+                      count: `${cobrSummaryData.pagasCnt} aluno${cobrSummaryData.pagasCnt !== 1 ? "s" : ""}`,
+                      tone: "ok",
+                    },
+                    {
+                      label: "Pendentes",
+                      value: fmtBRLCompacto(cobrSummaryData.pendentes),
+                      count: `${cobrSummaryData.pendentesCnt} aluno${cobrSummaryData.pendentesCnt !== 1 ? "s" : ""}`,
+                      tone: "warn",
+                    },
+                    {
+                      label: "Atrasadas",
+                      value: fmtBRLCompacto(cobrSummaryData.atrasadas),
+                      count: `${cobrSummaryData.atrasadasCnt} aluno${cobrSummaryData.atrasadasCnt !== 1 ? "s" : ""}`,
+                      tone: "danger",
+                    },
+                  ]}
+                />
+                {cobrancasPendentes.map((c) => {
+                  const st = getCobrancaStatus(c);
+                  const venc = new Date(c.vencimento + "T00:00:00");
+                  const dia = format(venc, "dd/MM");
+                  return (
+                    <CobrRow
+                      key={c.id}
+                      nome={c.alunos?.nome ?? "Aluno"}
+                      due={st === "atrasado" ? `venceu ${dia}` : `vence ${dia}`}
+                      amt={fmtBRL(Number(c.valor))}
+                      status={
+                        st === "atrasado"
+                          ? "danger"
+                          : st === "pendente"
+                            ? "warn"
+                            : "ok"
+                      }
+                      statusTitle={
+                        st === "atrasado"
+                          ? "Atrasada"
+                          : st === "pendente"
+                            ? "Pendente"
+                            : "Paga"
+                      }
+                    />
+                  );
+                })}
+              </>
+            )}
+          </SectionCard>
+        )}
       </div>
 
       {(loading || alertas.length > 0) && (
