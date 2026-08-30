@@ -9,6 +9,7 @@ type TourStep = {
 };
 
 const PADDING = 10;
+const OVERLAY_CLASS = "absolute bg-background/58";
 
 const steps: TourStep[] = [
   {
@@ -158,12 +159,47 @@ export const GuidedTour = ({
       aria-labelledby="guided-tour-title"
       className="fixed inset-0 z-[90]"
     >
-      <div className="absolute inset-0 bg-background/72 backdrop-blur-[2px]" />
+      {rect ? (
+        <>
+          <div
+            aria-hidden="true"
+            className={OVERLAY_CLASS}
+            style={{ left: 0, top: 0, right: 0, height: Math.max(0, rect.top - PADDING) }}
+          />
+          <div
+            aria-hidden="true"
+            className={OVERLAY_CLASS}
+            style={{
+              left: 0,
+              top: rect.top - PADDING,
+              width: Math.max(0, rect.left - PADDING),
+              height: rect.height + PADDING * 2,
+            }}
+          />
+          <div
+            aria-hidden="true"
+            className={OVERLAY_CLASS}
+            style={{
+              left: rect.right + PADDING,
+              top: rect.top - PADDING,
+              right: 0,
+              height: rect.height + PADDING * 2,
+            }}
+          />
+          <div
+            aria-hidden="true"
+            className={OVERLAY_CLASS}
+            style={{ left: 0, right: 0, top: rect.bottom + PADDING, bottom: 0 }}
+          />
+        </>
+      ) : (
+        <div className="absolute inset-0 bg-background/58" />
+      )}
 
       {rect && (
         <div
           aria-hidden="true"
-          className="absolute rounded-xl border border-primary/70 shadow-[0_0_0_9999px_hsl(var(--background)/0.72),0_0_0_4px_hsl(var(--primary)/0.18)] transition-all duration-200"
+          className="pointer-events-none absolute rounded-xl border border-primary/80 shadow-[0_0_0_1px_hsl(var(--primary)/0.24),0_0_22px_hsl(var(--primary)/0.18)] transition-all duration-200"
           style={{
             left: rect.left - PADDING,
             top: rect.top - PADDING,
