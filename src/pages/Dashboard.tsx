@@ -531,8 +531,8 @@ const Dashboard = () => {
     } else if (items.length === 0 && proximasAulas.length > 0) {
       const prox = proximasAulas[0];
       items.push({
-        title: `Preparar próxima aula de ${prox.aluno.nome.split(" ")[0]}`,
-        description: `${format(prox.date, "EEEE, dd/MM 'às' HH:mm", { locale: ptBR })}. Veja o histórico antes da aula.`,
+        title: `Preparar aula de ${prox.aluno.nome.split(" ")[0]}`,
+        description: `${format(prox.date, "EEEE, dd/MM 'às' HH:mm", { locale: ptBR })} · confira histórico, notas e pendências.`,
         to: `/alunos/${prox.aluno.id}`,
         icon: Calendar,
         tone: "default",
@@ -566,49 +566,6 @@ const Dashboard = () => {
     ["destructive", "warning"].includes(t.tone),
   );
 
-  const tarefaLabel: Record<(typeof tarefasHoje)[number]["tone"], string> = {
-    default: "Sugestão",
-    success: "Em ordem",
-    warning: "Atenção",
-    destructive: "Urgente",
-    info: "Próximo",
-  };
-
-  const tarefaToneClasses: Record<
-    (typeof tarefasHoje)[number]["tone"],
-    {
-      icon: string;
-      badge:
-        | "default"
-        | "success"
-        | "warning"
-        | "destructive"
-        | "info"
-        | "muted";
-    }
-  > = {
-    default: {
-      icon: "bg-primary-soft text-primary border-primary-ring",
-      badge: "default",
-    },
-    success: {
-      icon: "bg-success-soft text-success border-success/25",
-      badge: "success",
-    },
-    warning: {
-      icon: "bg-warning-soft text-warning border-warning/25",
-      badge: "warning",
-    },
-    destructive: {
-      icon: "bg-destructive-soft text-destructive border-destructive/25",
-      badge: "destructive",
-    },
-    info: {
-      icon: "bg-info-soft text-info border-info/25",
-      badge: "info",
-    },
-  };
-
   return (
     <div className="px-4 md:px-9 lg:px-9 py-4 md:py-8 max-w-[1320px] mx-auto animate-fade-in-up">
       {/* Desktop page-head */}
@@ -635,11 +592,11 @@ const Dashboard = () => {
       {(loading || tarefasHoje.length > 0) && (
         <div className="mb-6 md:mb-8">
           <SectionCard
-            title={temTarefaUrgente ? "Para resolver hoje" : "Próximo passo"}
+            title={temTarefaUrgente ? "Para resolver hoje" : "Sugestão"}
             description={
               temTarefaUrgente
                 ? "O que precisa de atenção para manter a gestão em ordem"
-                : "Uma ação simples para preparar melhor sua rotina"
+                : "Um lembrete útil antes da próxima aula"
             }
             icon={temTarefaUrgente ? AlertTriangle : Sparkles}
             iconTone={temTarefaUrgente ? "warning" : "default"}
@@ -653,40 +610,28 @@ const Dashboard = () => {
               </div>
             ) : (
               <div className="divide-y divide-border/40">
-                {tarefasHoje.map((item) => {
-                  const Icon = item.icon;
-                  return (
-                    <Link
-                      key={item.title}
-                      to={item.to}
-                      className="group flex flex-col gap-3 p-[18px] transition-colors hover:bg-secondary/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring sm:flex-row sm:items-center sm:gap-4"
+                {tarefasHoje.map((item) => (
+                  <Link
+                    key={item.title}
+                    to={item.to}
+                    className="group flex items-center gap-4 px-[22px] py-4 transition-colors hover:bg-secondary/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+                  >
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-[15px] font-semibold leading-snug">
+                        {item.title}
+                      </span>
+                      <span className="mt-1 block text-[13px] leading-relaxed text-muted-foreground">
+                        {item.description}
+                      </span>
+                    </span>
+                    <span
+                      className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground/70 transition-colors group-hover:text-primary"
+                      aria-hidden="true"
                     >
-                      <span className="flex items-start gap-3.5 min-w-0 flex-1">
-                        <span
-                          className={`h-10 w-10 rounded-lg border flex items-center justify-center shrink-0 ${tarefaToneClasses[item.tone].icon}`}
-                          aria-hidden="true"
-                        >
-                          <Icon className="h-4 w-4" />
-                        </span>
-                        <span className="min-w-0 space-y-1">
-                          <Badge variant={tarefaToneClasses[item.tone].badge}>
-                            {tarefaLabel[item.tone]}
-                          </Badge>
-                          <span className="block text-[15px] font-semibold leading-snug">
-                            {item.title}
-                          </span>
-                          <span className="block text-[13px] leading-relaxed text-muted-foreground">
-                            {item.description}
-                          </span>
-                        </span>
-                      </span>
-                      <span className="inline-flex h-9 items-center justify-center gap-1.5 rounded-md border border-border bg-background px-3 text-[12.5px] font-semibold text-foreground transition-colors group-hover:border-primary/40 group-hover:text-primary sm:ml-auto">
-                        Abrir
-                        <ArrowUpRight className="h-3.5 w-3.5" />
-                      </span>
-                    </Link>
-                  );
-                })}
+                      <ArrowUpRight className="h-4 w-4" />
+                    </span>
+                  </Link>
+                ))}
               </div>
             )}
           </SectionCard>
