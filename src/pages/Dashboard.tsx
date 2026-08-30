@@ -529,6 +529,15 @@ const Dashboard = () => {
         icon: Calendar,
         tone: "info",
       });
+    } else if (items.length === 0 && proximasAulas.length > 0) {
+      const prox = proximasAulas[0];
+      items.push({
+        title: `Preparar próxima aula de ${prox.aluno.nome.split(" ")[0]}`,
+        description: `${format(prox.date, "EEEE, dd/MM 'às' HH:mm", { locale: ptBR })}. Veja o histórico antes da aula.`,
+        to: `/alunos/${prox.aluno.id}`,
+        icon: Calendar,
+        tone: "default",
+      });
     }
 
     if (alertas.length > 0) {
@@ -550,6 +559,7 @@ const Dashboard = () => {
     cobrancasLoading,
     loading,
     metrics.ativos,
+    proximasAulas,
     proximasAgrupadas,
   ]);
 
