@@ -8,6 +8,7 @@ import {
   Cake,
   Clock,
   MessageSquare,
+  CalendarPlus,
   Repeat,
   Archive,
   Pencil,
@@ -257,7 +258,7 @@ const AlunoDetalhe = () => {
                 }
               >
                 <MessageSquare className="h-4 w-4 mr-1.5" />
-                Mensagem
+                WhatsApp
               </Button>
             )}
             <Button variant="outline" onClick={() => setIsEditOpen(true)}>
@@ -278,26 +279,44 @@ const AlunoDetalhe = () => {
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6">
         {/* Conteúdo principal: tabs */}
         <div className="min-w-0">
-          <Tabs defaultValue="diario">
+          <Tabs defaultValue="aulas">
             <TabsList>
-              <TabsTrigger value="diario" count={aulas?.length}>
-                Diário
+              <TabsTrigger value="aulas" count={aulas?.length}>
+                Aulas
               </TabsTrigger>
               <TabsTrigger value="financeiro">Financeiro</TabsTrigger>
               <TabsTrigger value="pacotes">Créditos</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="diario" className="mt-5">
+            <TabsContent value="aulas" className="mt-5">
               {!aulas || aulas.length === 0 ? (
                 <SectionCard>
-                  <p className="text-sm text-muted-foreground text-center py-8">
-                    Sem aulas registradas ainda.
-                  </p>
+                  <div className="text-center py-8 max-w-md mx-auto">
+                    <p className="text-sm font-medium">Sem aulas registradas ainda</p>
+                    <p className="text-sm text-muted-foreground mt-1.5">
+                      Registre presença, anotações e lição de casa pela Agenda.
+                      Tudo aparece aqui no histórico do aluno.
+                    </p>
+                    <Button asChild className="mt-4">
+                      <Link to="/agenda">
+                        <CalendarPlus className="h-4 w-4" />
+                        Ir para Agenda
+                      </Link>
+                    </Button>
+                  </div>
                 </SectionCard>
               ) : (
                 <SectionCard
                   title="Histórico de aulas"
-                  description={`${aulas.length} registros`}
+                  description="Presença, anotações e lições registradas na Agenda"
+                  action={
+                    <Button asChild size="sm" variant="outline">
+                      <Link to="/agenda">
+                        <CalendarPlus className="h-3.5 w-3.5" />
+                        Registrar aula
+                      </Link>
+                    </Button>
+                  }
                 >
                   <div className="relative">
                     <div className="absolute left-[7px] top-1 bottom-1 w-px bg-border" />
