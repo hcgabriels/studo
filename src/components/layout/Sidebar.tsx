@@ -25,9 +25,9 @@ import {
 
 const menuItems = [
   { to: "/dashboard", label: "Painel", icon: LayoutDashboard },
-  { to: "/alunos", label: "Alunos", icon: Users },
-  { to: "/agenda", label: "Agenda", icon: Calendar },
-  { to: "/financeiro", label: "Financeiro", icon: DollarSign },
+  { to: "/alunos", label: "Alunos", icon: Users, tourId: "nav-alunos" },
+  { to: "/agenda", label: "Agenda", icon: Calendar, tourId: "nav-agenda" },
+  { to: "/financeiro", label: "Financeiro", icon: DollarSign, tourId: "nav-financeiro" },
   { to: "/relatorios", label: "Relatórios", icon: BarChart3 },
 ];
 
@@ -36,14 +36,17 @@ const NavItem = ({
   label,
   icon: Icon,
   active,
+  tourId,
 }: {
   to: string;
   label: string;
   icon: React.ElementType;
   active: boolean;
+  tourId?: string;
 }) => (
   <Link
     to={to}
+    data-tour={tourId}
     aria-current={active ? "page" : undefined}
     className={cn(
       "flex items-center gap-3 px-3 py-2 rounded-md text-[13.5px] transition-colors",
@@ -132,6 +135,7 @@ const Sidebar = () => {
 
           <Link
             to="/configuracoes"
+            data-tour="nav-configuracoes"
             aria-current={isConfiguracoesActive ? "page" : undefined}
             className={cn(
               "flex items-center gap-3 px-3 py-2 rounded-md text-[13.5px] transition-colors",

@@ -22,19 +22,20 @@ import Sidebar from "./Sidebar";
 import TopBar from "./TopBar";
 import MobileTopBar from "./MobileTopBar";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import { GuidedTour } from "@/components/shared/GuidedTour";
 import { PageProvider } from "@/contexts/PageContext";
 import { useAuth } from "@/contexts/AuthContext";
 
 const primaryNav = [
   { to: "/dashboard", label: "Início", icon: LayoutDashboard },
-  { to: "/alunos", label: "Alunos", icon: Users },
-  { to: "/agenda", label: "Agenda", icon: Calendar },
-  { to: "/financeiro", label: "Financeiro", icon: DollarSign },
+  { to: "/alunos", label: "Alunos", icon: Users, tourId: "nav-alunos" },
+  { to: "/agenda", label: "Agenda", icon: Calendar, tourId: "nav-agenda" },
+  { to: "/financeiro", label: "Financeiro", icon: DollarSign, tourId: "nav-financeiro" },
 ];
 
 const overflowNav = [
   { to: "/relatorios", label: "Relatórios", icon: BarChart3 },
-  { to: "/configuracoes", label: "Configurações", icon: Settings },
+  { to: "/configuracoes", label: "Configurações", icon: Settings, tourId: "nav-configuracoes" },
 ];
 
 const isPathActive = (current: string, to: string) =>
@@ -49,7 +50,7 @@ const FOCAVEIS =
 
 const DashboardLayout = () => {
   const location = useLocation();
-  const { signOut } = useAuth();
+  const { signOut, user } = useAuth();
   const [maisOpen, setMaisOpen] = useState(false);
   const [sairOpen, setSairOpen] = useState(false);
   const maisAtivo = overflowNav.some((i) => isPathActive(location.pathname, i.to));
@@ -173,12 +174,13 @@ const DashboardLayout = () => {
           style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
         >
           <div className="flex items-center justify-between gap-1 px-2 py-2 rounded-2xl bg-card/95 backdrop-blur-xl border border-border shadow-lg">
-            {primaryNav.map(({ to, label, icon: Icon }) => {
+            {primaryNav.map(({ to, label, icon: Icon, tourId }) => {
               const active = isPathActive(location.pathname, to);
               return (
                 <Link
                   key={to}
                   to={to}
+                  data-tour={tourId}
                   aria-current={active ? "page" : undefined}
                   className={cn(
                     "flex flex-col items-center justify-center gap-0.5 flex-1 min-w-0 py-1.5 rounded-xl transition-all",
@@ -200,6 +202,7 @@ const DashboardLayout = () => {
             <button
               ref={maisBtnRef}
               type="button"
+              data-tour="nav-mais"
               onClick={() => setMaisOpen(true)}
               aria-haspopup="dialog"
               aria-expanded={maisOpen}
@@ -258,12 +261,13 @@ const DashboardLayout = () => {
                 </button>
               </div>
               <div className="space-y-1">
-                {overflowNav.map(({ to, label, icon: Icon }) => {
+                {overflowNav.map(({ to, label, icon: Icon, tourId }) => {
                   const active = isPathActive(location.pathname, to);
                   return (
                     <Link
                       key={to}
                       to={to}
+                      data-tour={tourId}
                       aria-current={active ? "page" : undefined}
                       onClick={() => fecharDrawer(false)}
                       className={cn(
@@ -310,6 +314,10 @@ const DashboardLayout = () => {
           variant="destructive"
           confirmLabel="Sair"
           onConfirm={signOut}
+        />
+        <GuidedTour
+          enabled={location.pathname === "/dashboard"}
+          storageKey={`studoo:guided-tour:v1:${user?.id ?? "anon"}`}
         />
       </div>
     </PageProvider>

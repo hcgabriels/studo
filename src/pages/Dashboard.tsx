@@ -643,7 +643,10 @@ const Dashboard = () => {
       )}
 
       {/* KPIs */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-[18px] mb-6 md:mb-8">
+      <div
+        data-tour="painel-kpis"
+        className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-[18px] mb-6 md:mb-8"
+      >
         <KpiCard
           icon={Users}
           label="Alunos ativos"
