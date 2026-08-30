@@ -12,6 +12,7 @@ import {
   MessageSquare,
   FileText,
   Download,
+  ArrowUpRight,
 } from "lucide-react";
 import { toCSV, downloadCSV } from "@/lib/csvExport";
 import { format, startOfMonth, addMonths, subMonths } from "date-fns";
@@ -205,6 +206,15 @@ const Financeiro = () => {
     (s, a) => s + Number(a.valor_mensalidade),
     0
   );
+  const ultimoDiaMes = new Date(
+    mesAtual.getFullYear(),
+    mesAtual.getMonth() + 1,
+    0,
+  ).getDate();
+  const diaVencimentoPadrao = Math.min(
+    Math.max(professor?.dia_vencimento ?? 10, 1),
+    ultimoDiaMes,
+  );
 
   const metrics = useMemo(() => {
     if (!cobrancas)
@@ -276,14 +286,42 @@ const Financeiro = () => {
   };
 
   const pagasCount = cobrancas?.filter((c) => c.status === "pago").length ?? 0;
+  const cobrancasAbertas =
+    cobrancas?.filter((c) => c.status !== "pago") ?? [];
+  const cobrancasParaAcompanhar = cobrancasAbertas
+    .slice()
+    .sort((a, b) => {
+      const statusA = getCobrancaStatus(a) === "atrasado" ? 0 : 1;
+      const statusB = getCobrancaStatus(b) === "atrasado" ? 0 : 1;
+      if (statusA !== statusB) return statusA - statusB;
+      return a.vencimento.localeCompare(b.vencimento);
+    })
+    .slice(0, 3);
   const pendentesCount =
-    cobrancas?.filter(
-      (c) => c.status !== "pago" && getCobrancaStatus(c) !== "atrasado",
-    ).length ?? 0;
+    cobrancasAbertas.filter((c) => getCobrancaStatus(c) !== "atrasado").length;
   const atrasadasCount =
     cobrancas?.filter((c) => getCobrancaStatus(c) === "atrasado").length ?? 0;
 
   const tudoGerado = alunosSemCobranca.length === 0;
+
+  const enviarCobranca = (c: CobrancaComAluno) => {
+    if (!c.alunos?.telefone) return;
+    void openWhatsApp(
+      c.alunos.telefone,
+      messageTemplates.lembreteCobranca(
+        c.alunos.nome.split(" ")[0],
+        professor?.nome?.split(" ")[0] ?? "Professor",
+        fmtBRL(Number(c.valor)),
+        format(new Date(c.vencimento + "T00:00:00"), "dd/MM/yyyy"),
+        professor?.chave_pix ?? undefined,
+      ),
+      {
+        professorId: professor?.id,
+        alunoId: c.aluno_id,
+        tipo: "cobranca",
+      },
+    );
+  };
 
   const headActions = (
     <>
@@ -393,7 +431,8 @@ const Financeiro = () => {
             Serão criadas <strong>{alunosSemCobranca.length}</strong> cobrança
             {alunosSemCobranca.length !== 1 ? "s" : ""} para{" "}
             <span className="first-letter:uppercase inline-block">{mesLabel}</span>, totalizando{" "}
-            <strong>{fmtBRL(valorTotalGerar)}</strong>. Vencimento padrão: dia 10.
+            <strong>{fmtBRL(valorTotalGerar)}</strong>. Vencimento padrão: dia{" "}
+            {diaVencimentoPadrao}.
           </>
         }
         confirmLabel="Confirmar"
@@ -456,6 +495,85 @@ const Financeiro = () => {
             iconTone="success"
           >
             <BarsChart items={barsData} height={180} />
+          </SectionCard>
+        </div>
+      )}
+
+      {cobrancasParaAcompanhar.length > 0 && (
+        <div className="mb-[22px]">
+          <SectionCard
+            title="Acompanhar recebimentos"
+            description={
+              atrasadasCount > 0
+                ? "Comece pelas cobranças em atraso"
+                : "Próximas mensalidades que ainda não foram pagas"
+            }
+            icon={atrasadasCount > 0 ? AlertTriangle : Clock}
+            iconTone={atrasadasCount > 0 ? "destructive" : "warning"}
+            bodyPadding={false}
+          >
+            <div className="divide-y divide-border/50">
+              {cobrancasParaAcompanhar.map((c) => {
+                const status = getCobrancaStatus(c);
+                const vencimento = format(
+                  new Date(c.vencimento + "T00:00:00"),
+                  "dd/MM/yyyy",
+                );
+                return (
+                  <div
+                    key={c.id}
+                    className="flex flex-col gap-3 px-[22px] py-4 md:flex-row md:items-center"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="text-[14.5px] font-semibold">
+                          {c.alunos?.nome}
+                        </p>
+                        <FinanceiroStatusBadge status={status} />
+                      </div>
+                      <p className="mt-1 text-[13px] text-muted-foreground">
+                        {fmtBRL(Number(c.valor))} ·{" "}
+                        {status === "atrasado" ? "venceu" : "vence"} em{" "}
+                        {vencimento}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2 md:justify-end">
+                      {c.alunos?.telefone && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => enviarCobranca(c)}
+                        >
+                          <MessageSquare className="h-3.5 w-3.5" />
+                          Cobrar
+                        </Button>
+                      )}
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => marcarPagoMutation.mutate(c.id)}
+                        disabled={marcarPagoMutation.isPending}
+                        className="text-success border-success/30 hover:bg-success/10 hover:text-success"
+                      >
+                        <Check className="h-3.5 w-3.5" />
+                        Recebi
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })}
+              {cobrancasAbertas.length > cobrancasParaAcompanhar.length && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="m-[14px] text-muted-foreground"
+                  onClick={() => setStatusFiltro("pendente")}
+                >
+                  Ver todas as pendentes
+                  <ArrowUpRight className="h-3.5 w-3.5" />
+                </Button>
+              )}
+            </div>
           </SectionCard>
         </div>
       )}
@@ -575,30 +693,12 @@ const Financeiro = () => {
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() =>
-                        openWhatsApp(
-                          c.alunos.telefone!,
-                          messageTemplates.lembreteCobranca(
-                            c.alunos.nome.split(" ")[0],
-                            professor?.nome?.split(" ")[0] ?? "Professor",
-                            fmtBRL(Number(c.valor)),
-                            format(
-                              new Date(c.vencimento + "T00:00:00"),
-                              "dd/MM/yyyy"
-                            ),
-                            professor?.chave_pix ?? undefined
-                          ),
-                          {
-                            professorId: professor?.id,
-                            alunoId: c.aluno_id,
-                            tipo: "cobranca",
-                          }
-                        )
-                      }
+                      onClick={() => enviarCobranca(c)}
                       aria-label="Enviar cobrança via WhatsApp"
                       title="Enviar via WhatsApp"
                     >
                       <MessageSquare className="h-3.5 w-3.5" />
+                      <span className="hidden xl:inline">Cobrar</span>
                     </Button>
                   )}
                   {c.status !== "pago" && (
