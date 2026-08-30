@@ -12,6 +12,7 @@ import {
   Cake,
   CalendarOff,
   Sparkles,
+  CheckCircle2,
 } from "lucide-react";
 import {
   addDays,
@@ -475,6 +476,83 @@ const Dashboard = () => {
     </>
   );
 
+  const tarefasHoje = useMemo(() => {
+    const totalPendentes =
+      cobrSummaryData.pendentesCnt + cobrSummaryData.atrasadasCnt;
+    const aulasHoje = proximasAgrupadas[0]?.isToday
+      ? proximasAgrupadas[0].aulas.length
+      : 0;
+    const items: {
+      title: string;
+      description: string;
+      to: string;
+      icon: typeof AlertTriangle;
+      tone: "default" | "success" | "warning" | "destructive" | "info";
+    }[] = [];
+
+    if (!loading && metrics.ativos === 0) {
+      items.push({
+        title: "Cadastrar ou importar alunos",
+        description: "Comece trazendo sua lista para organizar agenda e cobranças.",
+        to: "/alunos",
+        icon: Users,
+        tone: "info",
+      });
+    }
+
+    if (!cobrancasLoading && cobrancas?.length === 0 && metrics.ativos > 0) {
+      items.push({
+        title: `Gerar cobranças de ${format(new Date(), "MMMM", { locale: ptBR })}`,
+        description: `${metrics.ativos} aluno${metrics.ativos !== 1 ? "s" : ""} ativo${metrics.ativos !== 1 ? "s" : ""} ainda sem cobrança no mês.`,
+        to: "/financeiro",
+        icon: DollarSign,
+        tone: "warning",
+      });
+    } else if (totalPendentes > 0) {
+      items.push({
+        title: `${totalPendentes} cobrança${totalPendentes !== 1 ? "s" : ""} para acompanhar`,
+        description:
+          cobrSummaryData.atrasadasCnt > 0
+            ? `${cobrSummaryData.atrasadasCnt} em atraso e ${cobrSummaryData.pendentesCnt} pendente${cobrSummaryData.pendentesCnt !== 1 ? "s" : ""}.`
+            : "Prepare lembretes ou marque pagamentos recebidos.",
+        to: "/financeiro",
+        icon: DollarSign,
+        tone: cobrSummaryData.atrasadasCnt > 0 ? "destructive" : "warning",
+      });
+    }
+
+    if (aulasHoje > 0) {
+      items.push({
+        title: `${aulasHoje} aula${aulasHoje !== 1 ? "s" : ""} hoje`,
+        description: "Abra a agenda para registrar presença, anotações e lição de casa.",
+        to: "/agenda",
+        icon: Calendar,
+        tone: "info",
+      });
+    }
+
+    if (alertas.length > 0) {
+      items.push({
+        title: `${alertas.length} aluno${alertas.length !== 1 ? "s" : ""} precisa${alertas.length !== 1 ? "m" : ""} de atenção`,
+        description: "Baixa frequência, cobrança atrasada ou período sem aula recente.",
+        to: "/alunos",
+        icon: AlertTriangle,
+        tone: "destructive",
+      });
+    }
+
+    return items;
+  }, [
+    alertas.length,
+    cobrSummaryData.atrasadasCnt,
+    cobrSummaryData.pendentesCnt,
+    cobrancas,
+    cobrancasLoading,
+    loading,
+    metrics.ativos,
+    proximasAgrupadas,
+  ]);
+
   return (
     <div className="px-4 md:px-9 lg:px-9 py-4 md:py-8 max-w-[1320px] mx-auto animate-fade-in-up">
       {/* Desktop page-head */}
@@ -495,6 +573,52 @@ const Dashboard = () => {
       {professor && (
         <div className="mb-6 md:mb-8">
           <OnboardingChecklist professor={professor} alunos={alunos ?? []} />
+        </div>
+      )}
+
+      {(loading || tarefasHoje.length > 0) && (
+        <div className="mb-6 md:mb-8">
+          <SectionCard
+            title="Para resolver hoje"
+            description="As próximas ações que mantêm sua gestão em ordem"
+            icon={tarefasHoje.some((t) => t.tone === "destructive") ? AlertTriangle : CheckCircle2}
+            iconTone={tarefasHoje.some((t) => t.tone === "destructive") ? "destructive" : "success"}
+            bodyPadding={false}
+          >
+            {loading ? (
+              <div className="p-5 space-y-2">
+                {[...Array(3)].map((_, i) => (
+                  <Skeleton key={i} className="h-12 w-full" />
+                ))}
+              </div>
+            ) : (
+              <div className="divide-y divide-border/40">
+                {tarefasHoje.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <Link
+                      key={item.title}
+                      to={item.to}
+                      className="flex items-center gap-3 px-[22px] py-4 transition-colors hover:bg-muted/30"
+                    >
+                      <span className="h-9 w-9 rounded-md border border-border bg-muted/30 flex items-center justify-center shrink-0">
+                        <Icon className="h-4 w-4 text-muted-foreground" />
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block text-sm font-semibold truncate">
+                          {item.title}
+                        </span>
+                        <span className="block text-xs text-muted-foreground truncate">
+                          {item.description}
+                        </span>
+                      </span>
+                      <ArrowUpRight className="h-4 w-4 text-muted-foreground/60 shrink-0" />
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+          </SectionCard>
         </div>
       )}
 
@@ -534,34 +658,6 @@ const Dashboard = () => {
           hint="vs. mês anterior"
         />
       </div>
-
-      {/* Alerta: cobranças do mês ainda não geradas */}
-      {!cobrancasLoading &&
-        cobrancas?.length === 0 &&
-        metrics.ativos > 0 && (
-          <div className="bg-warning/5 border border-warning/30 rounded-xl p-5 flex flex-col sm:flex-row sm:items-center gap-4 mb-6 md:mb-8">
-            <div className="h-10 w-10 rounded-lg bg-warning/15 flex items-center justify-center shrink-0">
-              <AlertTriangle className="h-5 w-5 text-warning" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold first-letter:uppercase">
-                Cobranças de{" "}
-                {format(new Date(), "MMMM", { locale: ptBR })} não geradas
-              </p>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Gere as cobranças mensais para seus {metrics.ativos} aluno
-                {metrics.ativos !== 1 ? "s" : ""} ativo
-                {metrics.ativos !== 1 ? "s" : ""}.
-              </p>
-            </div>
-            <Button asChild size="sm" className="shrink-0">
-              <Link to="/financeiro">
-                Gerar agora
-                <ArrowUpRight className="h-3.5 w-3.5 ml-1" />
-              </Link>
-            </Button>
-          </div>
-        )}
 
       {/* Cards secundários: reposições, créditos, trials, bloqueios */}
       {(totalReposicoes > 0 ||
@@ -864,9 +960,10 @@ const Dashboard = () => {
           ) : (
             <div className="-mx-1">
               {alertas.map(({ aluno, motivos }) => (
-                <div
+                <Link
                   key={aluno.id}
-                  className="flex items-center gap-3 px-1 py-3 border-b border-border/40 last:border-0"
+                  to={`/alunos/${aluno.id}`}
+                  className="flex items-center gap-3 px-1 py-3 border-b border-border/40 last:border-0 transition-colors hover:bg-muted/30"
                 >
                   <div className="h-9 w-9 rounded-full bg-warning/15 flex items-center justify-center shrink-0">
                     <span className="font-mono text-xs font-semibold text-warning">
@@ -885,7 +982,7 @@ const Dashboard = () => {
                     ))}
                   </div>
                   <ArrowUpRight className="h-4 w-4 text-muted-foreground/60 shrink-0" />
-                </div>
+                </Link>
               ))}
             </div>
           )}
