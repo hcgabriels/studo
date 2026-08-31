@@ -21,6 +21,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { EmptyState } from "@/components/shared/EmptyState";
 import { formatCurrency, parseCurrencyInput } from "@/lib/masks";
 import { fmtBRL } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -402,13 +403,12 @@ export const PacotesTab = ({
             Carregando...
           </p>
         ) : !pacotes || pacotes.length === 0 ? (
-          <div className="bg-muted/30 border border-dashed border-border rounded-xl p-6 text-center">
-            <Package className="h-8 w-8 text-muted-foreground/40 mx-auto mb-2" />
-            <p className="text-sm font-medium">Nenhum crédito ativo</p>
-            <p className="text-xs text-muted-foreground mt-1">
-              Use esta área quando o aluno comprar aulas avulsas antecipadas.
-            </p>
-          </div>
+          <EmptyState
+            tone="muted"
+            icon={Package}
+            title="Sem créditos ativos"
+            description="Use quando o aluno comprar aulas avulsas antecipadas."
+          />
         ) : (
           <div className="space-y-3">
             {pacotes.map((p) => (

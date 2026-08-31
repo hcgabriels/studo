@@ -31,6 +31,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { SectionCard } from "@/components/shared/SectionCard";
+import { EmptyState } from "@/components/shared/EmptyState";
 import { ProfileHead } from "@/components/alunos/ProfileHead";
 import { invalidateAlunos } from "@/lib/queries";
 import { PacotesTab } from "@/components/shared/PacotesTab";
@@ -156,14 +157,16 @@ const AlunoDetalhe = () => {
 
   return (
     <div className="px-4 md:px-9 lg:px-9 py-4 md:py-8 max-w-[1320px] mx-auto space-y-6 animate-fade-in-up">
-      {/* Voltar */}
-      <button
+      <Button
+        type="button"
+        variant="ghost"
+        size="sm"
         onClick={() => navigate(-1)}
-        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        className="w-fit -ml-2"
       >
         <ArrowLeft className="h-4 w-4" />
         Voltar
-      </button>
+      </Button>
 
       {/* Profile head — fiel ao handoff (.profile-head) */}
       <ProfileHead
@@ -291,19 +294,20 @@ const AlunoDetalhe = () => {
             <TabsContent value="aulas" className="mt-5">
               {!aulas || aulas.length === 0 ? (
                 <SectionCard>
-                  <div className="text-center py-8 max-w-md mx-auto">
-                    <p className="text-sm font-medium">Sem aulas registradas ainda</p>
-                    <p className="text-sm text-muted-foreground mt-1.5">
-                      Registre presença, anotações e lição de casa pela Agenda.
-                      Tudo aparece aqui no histórico do aluno.
-                    </p>
-                    <Button asChild className="mt-4">
+                  <EmptyState
+                    tone="muted"
+                    icon={CalendarPlus}
+                    title="Sem aulas registradas"
+                    description="Registre presença, anotações e lição de casa pela Agenda."
+                    action={
+                      <Button asChild>
                       <Link to="/agenda">
                         <CalendarPlus className="h-4 w-4" />
                         Ir para Agenda
                       </Link>
-                    </Button>
-                  </div>
+                      </Button>
+                    }
+                  />
                 </SectionCard>
               ) : (
                 <SectionCard
@@ -418,9 +422,12 @@ const AlunoDetalhe = () => {
 
               {!cobrancas || cobrancas.length === 0 ? (
                 <SectionCard>
-                  <p className="text-sm text-muted-foreground text-center py-6">
-                    Nenhuma cobrança registrada.
-                  </p>
+                  <EmptyState
+                    tone="muted"
+                    icon={FileText}
+                    title="Sem cobranças registradas"
+                    description="As cobranças deste aluno aparecerão aqui."
+                  />
                 </SectionCard>
               ) : (
                 <SectionCard
@@ -455,13 +462,16 @@ const AlunoDetalhe = () => {
                           </span>
                           <FinanceiroStatusBadge status={getCobrancaStatus(c)} />
                           {c.status === "pago" && (
-                            <button
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
                               onClick={() => setReciboCobranca(c)}
-                              className="text-xs text-primary hover:underline inline-flex items-center gap-1"
+                              className="h-8 px-2 text-primary"
                             >
                               <FileText className="h-3.5 w-3.5" />
                               Recibo
-                            </button>
+                            </Button>
                           )}
                         </div>
                       </div>
