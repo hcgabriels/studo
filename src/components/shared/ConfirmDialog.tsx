@@ -3,6 +3,7 @@ import {
   Dialog,
   DialogContent,
   DialogHeader,
+  DialogBody,
   DialogTitle,
   DialogDescription,
   DialogFooter,
@@ -78,7 +79,7 @@ export const ConfirmDialog = ({
           <DialogTitle>{title}</DialogTitle>
           {description && <DialogDescription>{description}</DialogDescription>}
         </DialogHeader>
-        {children && <div className="px-[26px] pb-1">{children}</div>}
+        {children && <DialogBody>{children}</DialogBody>}
         <DialogFooter>
           <Button
             variant="ghost"

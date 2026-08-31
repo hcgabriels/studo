@@ -375,10 +375,6 @@ const PresencaModal = ({
           </DialogDescription>
         </DialogHeader>
 
-        {/* DialogBody é obrigatório no variant `studoo`: o DialogContent não tem
-            padding e é `overflow-hidden`. Sem ele o conteúdo colava nas bordas
-            e, em tela baixa, o botão "Registrar" ficava fora do viewport —
-            inalcançável. */}
         {mode === "presence" ? (
           <DialogBody className="space-y-4">
             <div className="rounded-lg border border-border/70 bg-muted/20 px-3.5 py-3">
@@ -1836,8 +1832,8 @@ const Agenda = () => {
       />
 
       <Sheet open={lembretesOpen} onOpenChange={setLembretesOpen}>
-        <SheetContent className="w-full sm:max-w-md overflow-y-auto">
-          <SheetHeader className="mb-5">
+        <SheetContent className="w-full sm:max-w-md">
+          <SheetHeader>
             <SheetTitle className="flex items-center gap-2">
               <Bell className="h-5 w-5 text-primary" />
               Lembretes de hoje
@@ -1851,87 +1847,89 @@ const Agenda = () => {
             </SheetDescription>
           </SheetHeader>
 
-          {aulasDeHoje.some((s) => !s.aluno.telefone) && (
-            <div className="bg-muted/40 border border-dashed border-border rounded-lg px-3 py-2 mb-4 text-xs text-muted-foreground">
-              Alunos sem telefone cadastrado não recebem lembrete. Você pode
-              completar o cadastro depois.
-            </div>
-          )}
+          <div className="px-[26px] py-[22px] overflow-y-auto min-h-0 flex-1">
+            {aulasDeHoje.some((s) => !s.aluno.telefone) && (
+              <div className="bg-muted/40 border border-dashed border-border rounded-lg px-3 py-2 mb-4 text-xs text-muted-foreground">
+                Alunos sem telefone cadastrado não recebem lembrete. Você pode
+                completar o cadastro depois.
+              </div>
+            )}
 
-          <div className="space-y-2">
-            {aulasDeHoje.map((slot) => {
-              const semTelefone = !slot.aluno.telefone;
-              const enviadoEm = slot.aluno.id
-                ? lembretesEnviadosMap.get(slot.aluno.id)
-                : undefined;
-              const jaLembrado = !!enviadoEm;
-              return (
-                <div
-                  key={`${slot.aluno.id}-${slot.date.toISOString()}`}
-                  className={cn(
-                    "flex items-center gap-3 p-3 rounded-lg border bg-card transition-colors",
-                    jaLembrado
-                      ? "border-success/30 bg-success/5"
-                      : "border-border"
-                  )}
-                >
+            <div className="space-y-2">
+              {aulasDeHoje.map((slot) => {
+                const semTelefone = !slot.aluno.telefone;
+                const enviadoEm = slot.aluno.id
+                  ? lembretesEnviadosMap.get(slot.aluno.id)
+                  : undefined;
+                const jaLembrado = !!enviadoEm;
+                return (
                   <div
+                    key={`${slot.aluno.id}-${slot.date.toISOString()}`}
                     className={cn(
-                      "h-10 w-10 rounded-full flex items-center justify-center shrink-0",
-                      jaLembrado ? "bg-success/15" : "bg-primary/15"
+                      "flex items-center gap-3 p-3 rounded-lg border bg-card transition-colors",
+                      jaLembrado
+                        ? "border-success/30 bg-success/5"
+                        : "border-border"
                     )}
                   >
-                    {jaLembrado ? (
-                      <Check className="h-5 w-5 text-success" />
-                    ) : (
-                      <span className="font-mono text-sm font-semibold text-primary">
-                        {slot.aluno.nome.charAt(0).toUpperCase()}
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold truncate">
-                      {slot.aluno.nome}
-                    </p>
-                    <p className="text-xs text-muted-foreground flex items-center gap-1.5">
-                      <Music className="h-3 w-3 shrink-0" />
-                      <span className="truncate">
-                        {slot.aluno.instrumento || "—"}
-                      </span>
-                      <span className="text-muted-foreground/50">·</span>
-                      <span className="font-mono">
-                        {format(slot.date, "HH:mm")}
-                      </span>
-                    </p>
-                  </div>
-                  {jaLembrado ? (
-                    <div className="text-right shrink-0">
-                      <p className="text-[11px] font-semibold text-success">
-                        Lembrado
+                    <div
+                      className={cn(
+                        "h-10 w-10 rounded-full flex items-center justify-center shrink-0",
+                        jaLembrado ? "bg-success/15" : "bg-primary/15"
+                      )}
+                    >
+                      {jaLembrado ? (
+                        <Check className="h-5 w-5 text-success" />
+                      ) : (
+                        <span className="font-mono text-sm font-semibold text-primary">
+                          {slot.aluno.nome.charAt(0).toUpperCase()}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold truncate">
+                        {slot.aluno.nome}
                       </p>
-                      <p className="text-[10px] text-muted-foreground font-mono">
-                        {format(new Date(enviadoEm!), "HH:mm")}
+                      <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+                        <Music className="h-3 w-3 shrink-0" />
+                        <span className="truncate">
+                          {slot.aluno.instrumento || "—"}
+                        </span>
+                        <span className="text-muted-foreground/50">·</span>
+                        <span className="font-mono">
+                          {format(slot.date, "HH:mm")}
+                        </span>
                       </p>
                     </div>
-                  ) : (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => enviarLembrete(slot)}
-                      disabled={semTelefone}
-                      title={
-                        semTelefone
-                          ? "Aluno sem telefone cadastrado"
-                          : "Enviar WhatsApp"
-                      }
-                    >
-                      <MessageSquare className="h-3.5 w-3.5 mr-1" />
-                      Enviar
-                    </Button>
-                  )}
-                </div>
-              );
-            })}
+                    {jaLembrado ? (
+                      <div className="text-right shrink-0">
+                        <p className="text-[11px] font-semibold text-success">
+                          Lembrado
+                        </p>
+                        <p className="text-[10px] text-muted-foreground font-mono">
+                          {format(new Date(enviadoEm!), "HH:mm")}
+                        </p>
+                      </div>
+                    ) : (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => enviarLembrete(slot)}
+                        disabled={semTelefone}
+                        title={
+                          semTelefone
+                            ? "Aluno sem telefone cadastrado"
+                            : "Enviar WhatsApp"
+                        }
+                      >
+                        <MessageSquare className="h-3.5 w-3.5 mr-1" />
+                        Enviar
+                      </Button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </SheetContent>
       </Sheet>
@@ -1941,7 +1939,7 @@ const Agenda = () => {
         open={!!diaSelecionado}
         onOpenChange={(v) => !v && setDiaSelecionado(null)}
       >
-        <SheetContent className="w-full sm:max-w-md overflow-y-auto">
+        <SheetContent className="w-full sm:max-w-md">
           {diaSelecionado &&
             (() => {
               const slotsDoDia = buildSlotsForDay(
@@ -1954,7 +1952,7 @@ const Agenda = () => {
               const motivo = motivoBloqueio(diaSelecionado);
               return (
                 <>
-                  <SheetHeader className="mb-5">
+                  <SheetHeader>
                     <SheetTitle className="first-letter:uppercase">
                       {format(diaSelecionado, "EEEE, dd 'de' MMMM", {
                         locale: ptBR,
@@ -1967,116 +1965,118 @@ const Agenda = () => {
                     </SheetDescription>
                   </SheetHeader>
 
-                  {bloqueado ? (
-                    <div className="bg-muted/40 border border-dashed border-border rounded-lg p-4 text-center">
-                      <p className="text-sm text-muted-foreground">
-                        Sem aulas neste dia.
-                      </p>
-                    </div>
-                  ) : slotsDoDia.length === 0 ? (
-                    <div className="bg-muted/40 border border-dashed border-border rounded-lg p-6 text-center">
-                      <p className="text-sm text-muted-foreground">
-                        Nenhuma aula recorrente ou avulsa neste dia.
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      {slotsDoDia.map((slot) => {
-                        const status = slot.existingAula?.status;
-                        const tipo = slot.existingAula?.tipo;
-                        return (
-                          <button
-                            key={`${slot.aluno.id}-${slot.date.toISOString()}-${slot.existingAula?.id ?? "slot"}`}
-                            onClick={() => {
-                              setDiaSelecionado(null);
-                              setSelectedSlot(slot);
-                            }}
-                            className={cn(
-                              "w-full flex items-center gap-3 p-3 rounded-lg border bg-card text-left transition-colors hover:bg-accent/30",
-                              status === "reagendada" && "opacity-60"
-                            )}
-                          >
-                            <div
+                  <div className="px-[26px] py-[22px] overflow-y-auto min-h-0 flex-1">
+                    {bloqueado ? (
+                      <div className="bg-muted/40 border border-dashed border-border rounded-lg p-4 text-center">
+                        <p className="text-sm text-muted-foreground">
+                          Sem aulas neste dia.
+                        </p>
+                      </div>
+                    ) : slotsDoDia.length === 0 ? (
+                      <div className="bg-muted/40 border border-dashed border-border rounded-lg p-6 text-center">
+                        <p className="text-sm text-muted-foreground">
+                          Nenhuma aula recorrente ou avulsa neste dia.
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        {slotsDoDia.map((slot) => {
+                          const status = slot.existingAula?.status;
+                          const tipo = slot.existingAula?.tipo;
+                          return (
+                            <button
+                              key={`${slot.aluno.id}-${slot.date.toISOString()}-${slot.existingAula?.id ?? "slot"}`}
+                              onClick={() => {
+                                setDiaSelecionado(null);
+                                setSelectedSlot(slot);
+                              }}
                               className={cn(
-                                "h-10 w-10 rounded-full flex items-center justify-center shrink-0",
-                                tipo === "experimental"
-                                  ? "bg-warning/15"
-                                  : "bg-primary/15"
+                                "w-full flex items-center gap-3 p-3 rounded-lg border bg-card text-left transition-colors hover:bg-accent/30",
+                                status === "reagendada" && "opacity-60"
                               )}
                             >
-                              <span
+                              <div
                                 className={cn(
-                                  "text-sm font-bold",
+                                  "h-10 w-10 rounded-full flex items-center justify-center shrink-0",
                                   tipo === "experimental"
-                                    ? "text-warning"
-                                    : "text-primary"
+                                    ? "bg-warning/15"
+                                    : "bg-primary/15"
                                 )}
                               >
-                                {slot.aluno.nome.charAt(0).toUpperCase()}
-                              </span>
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p
-                                className={cn(
-                                  "text-sm font-semibold truncate",
-                                  status === "reagendada" && "line-through"
-                                )}
-                              >
-                                {slot.aluno.nome}
-                              </p>
-                              <div className="text-xs text-muted-foreground flex items-center gap-1.5">
-                                <Music className="h-3 w-3 shrink-0" />
-                                <span className="truncate">
-                                  {slot.aluno.instrumento || "—"}
-                                </span>
-                                {tipo === "experimental" && (
-                                  <Badge variant="warning" className="ml-1">
-                                    Trial
-                                  </Badge>
-                                )}
-                                {tipo === "avulsa" && (
-                                  <Badge variant="secondary" className="ml-1">
-                                    {slot.existingAula?.reagendada_de
-                                      ? "Reagendada"
-                                      : "Extra"}
-                                  </Badge>
-                                )}
-                              </div>
-                            </div>
-                            <div className="text-right shrink-0">
-                              <p className="text-xs font-mono font-medium">
-                                {format(slot.date, "HH:mm")}
-                              </p>
-                              {status && status !== "agendada" && (
-                                <p
+                                <span
                                   className={cn(
-                                    "text-[10px] font-medium mt-0.5",
-                                    status === "realizada"
-                                      ? "text-success"
-                                      : status === "falta_sem_aviso"
-                                      ? "text-destructive"
-                                      : status === "falta_justificada"
+                                    "text-sm font-bold",
+                                    tipo === "experimental"
                                       ? "text-warning"
-                                      : "text-muted-foreground"
+                                      : "text-primary"
                                   )}
                                 >
-                                  {status === "realizada"
-                                    ? "Presente"
-                                    : status === "falta_sem_aviso"
-                                    ? "Falta"
-                                    : status === "falta_justificada"
-                                    ? "Justificada"
-                                    : status === "reagendada"
-                                    ? "Reagendada"
-                                    : status}
+                                  {slot.aluno.nome.charAt(0).toUpperCase()}
+                                </span>
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p
+                                  className={cn(
+                                    "text-sm font-semibold truncate",
+                                    status === "reagendada" && "line-through"
+                                  )}
+                                >
+                                  {slot.aluno.nome}
                                 </p>
-                              )}
-                            </div>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  )}
+                                <div className="text-xs text-muted-foreground flex items-center gap-1.5">
+                                  <Music className="h-3 w-3 shrink-0" />
+                                  <span className="truncate">
+                                    {slot.aluno.instrumento || "—"}
+                                  </span>
+                                  {tipo === "experimental" && (
+                                    <Badge variant="warning" className="ml-1">
+                                      Trial
+                                    </Badge>
+                                  )}
+                                  {tipo === "avulsa" && (
+                                    <Badge variant="secondary" className="ml-1">
+                                      {slot.existingAula?.reagendada_de
+                                        ? "Reagendada"
+                                        : "Extra"}
+                                    </Badge>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="text-right shrink-0">
+                                <p className="text-xs font-mono font-medium">
+                                  {format(slot.date, "HH:mm")}
+                                </p>
+                                {status && status !== "agendada" && (
+                                  <p
+                                    className={cn(
+                                      "text-[10px] font-medium mt-0.5",
+                                      status === "realizada"
+                                        ? "text-success"
+                                        : status === "falta_sem_aviso"
+                                        ? "text-destructive"
+                                        : status === "falta_justificada"
+                                        ? "text-warning"
+                                        : "text-muted-foreground"
+                                    )}
+                                  >
+                                    {status === "realizada"
+                                      ? "Presente"
+                                      : status === "falta_sem_aviso"
+                                      ? "Falta"
+                                      : status === "falta_justificada"
+                                      ? "Justificada"
+                                      : status === "reagendada"
+                                      ? "Reagendada"
+                                      : status}
+                                  </p>
+                                )}
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
                 </>
               );
             })()}

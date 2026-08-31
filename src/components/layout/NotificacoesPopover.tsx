@@ -156,13 +156,10 @@ const NotificacoesPopover = () => {
           </div>
 
           {count === 0 ? (
-            <div className="px-4 py-10 flex flex-col items-center text-center gap-2">
-              <div className="h-10 w-10 rounded-full bg-muted/40 flex items-center justify-center">
-                <BellOff aria-hidden="true" className="h-4 w-4 text-muted-foreground" />
-              </div>
-              <p className="text-sm font-medium">Tudo em dia</p>
-              <p className="text-xs text-muted-foreground max-w-[220px]">
-                Sem cobranças atrasadas, faltas acumuladas ou aniversários hoje.
+            <div className="px-4 py-8 flex items-center gap-3">
+              <BellOff aria-hidden="true" className="h-4 w-4 text-muted-foreground shrink-0" />
+              <p className="text-sm text-muted-foreground">
+                Sem alertas agora.
               </p>
             </div>
           ) : (

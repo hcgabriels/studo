@@ -17,6 +17,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
+  DialogBody,
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
@@ -89,7 +90,7 @@ const NovoPacoteModal = ({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <DialogBody className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label>Quantidade de aulas</Label>
@@ -140,7 +141,7 @@ const NovoPacoteModal = ({
               rows={2}
             />
           </div>
-        </div>
+        </DialogBody>
 
         <DialogFooter>
           <Button variant="ghost" onClick={onClose}>
