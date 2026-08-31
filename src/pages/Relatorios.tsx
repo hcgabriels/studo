@@ -433,9 +433,12 @@ const Relatorios = () => {
           iconTone="info"
         >
           {distribuicao.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-6">
-              Sem alunos cadastrados ainda.
-            </p>
+            <EmptyState
+              tone="muted"
+              icon={Music}
+              title="Sem alunos cadastrados"
+              description="A distribuição por instrumento aparecerá quando houver alunos ativos."
+            />
           ) : (
             <div className="flex flex-col sm:flex-row items-center gap-6">
               <Donut

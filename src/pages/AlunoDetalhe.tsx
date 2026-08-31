@@ -519,7 +519,7 @@ const AlunoDetalhe = () => {
               {horarios.map((h, i) => (
                 <div
                   key={i}
-                  className="flex items-center justify-between bg-muted/30 rounded-lg px-3 py-2"
+                  className="flex items-center justify-between bg-muted/25 border border-border/60 rounded-lg px-3 py-2"
                 >
                   <span className="text-sm font-medium">
                     {nomeDiaSemana(h.dia_semana)}

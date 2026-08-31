@@ -80,7 +80,7 @@ const VerificarEmail = () => {
           </p>
         </div>
 
-        <div className="bg-muted/30 border border-dashed border-border rounded-lg px-4 py-3 text-xs text-muted-foreground space-y-1">
+        <div className="bg-muted/25 border border-border/70 rounded-lg px-4 py-3 text-xs text-muted-foreground space-y-1">
           <p className="font-medium text-foreground">Não recebeu?</p>
           <ul className="list-disc list-inside space-y-0.5">
             <li>Verifique a pasta de spam ou lixo eletrônico</li>

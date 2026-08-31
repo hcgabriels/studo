@@ -15,6 +15,7 @@ import {
   UserPlus,
   Bell,
   MessageSquare,
+  CalendarOff,
 } from "lucide-react";
 import {
   addDays,
@@ -1853,7 +1854,7 @@ const Agenda = () => {
 
           <div className="px-[26px] py-[22px] overflow-y-auto min-h-0 flex-1">
             {aulasDeHoje.some((s) => !s.aluno.telefone) && (
-              <div className="bg-muted/40 border border-dashed border-border rounded-lg px-3 py-2 mb-4 text-xs text-muted-foreground">
+              <div className="bg-muted/25 border border-border/70 rounded-lg px-3 py-2 mb-4 text-xs text-muted-foreground">
                 Alunos sem telefone cadastrado não recebem lembrete. Você pode
                 completar o cadastro depois.
               </div>
@@ -1971,17 +1972,19 @@ const Agenda = () => {
 
                   <div className="px-[26px] py-[22px] overflow-y-auto min-h-0 flex-1">
                     {bloqueado ? (
-                      <div className="bg-muted/40 border border-dashed border-border rounded-lg p-4 text-center">
-                        <p className="text-sm text-muted-foreground">
-                          Sem aulas neste dia.
-                        </p>
-                      </div>
+                      <EmptyState
+                        tone="muted"
+                        icon={CalendarOff}
+                        title="Dia bloqueado"
+                        description="Não há aulas previstas para esta data."
+                      />
                     ) : slotsDoDia.length === 0 ? (
-                      <div className="bg-muted/40 border border-dashed border-border rounded-lg p-6 text-center">
-                        <p className="text-sm text-muted-foreground">
-                          Nenhuma aula recorrente ou avulsa neste dia.
-                        </p>
-                      </div>
+                      <EmptyState
+                        tone="muted"
+                        icon={Clock}
+                        title="Sem aulas neste dia"
+                        description="Aulas recorrentes ou avulsas aparecerão aqui."
+                      />
                     ) : (
                       <div className="space-y-2">
                         {slotsDoDia.map((slot) => {

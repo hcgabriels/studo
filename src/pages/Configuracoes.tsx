@@ -621,7 +621,7 @@ const Configuracoes = () => {
               ))}
             </div>
           ) : (
-            <p className="text-xs text-muted-foreground border-t border-border pt-3">
+            <p className="text-xs text-muted-foreground border-t border-border/60 pt-3">
               Nenhuma data bloqueada.
             </p>
           )}
