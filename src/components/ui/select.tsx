@@ -33,10 +33,10 @@ const SelectTrigger = React.forwardRef<
         aria-describedby={describedBy ?? field?.describedBy}
         aria-invalid={invalid ?? (field?.invalid || undefined)}
         className={cn(
-          "flex h-[38px] w-full items-center justify-between whitespace-nowrap rounded-md border border-[hsl(var(--border-field))] bg-background px-3 py-0 text-[13.5px] tracking-tight ring-offset-background placeholder:text-muted-foreground transition-colors",
-          "hover:border-[hsl(var(--border-field)/0.7)]",
-          "focus:outline-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-[hsl(var(--primary)/0.28)]",
-          "aria-[invalid=true]:border-destructive",
+          "flex h-[38px] w-full items-center justify-between whitespace-nowrap rounded-md border border-[hsl(var(--border-field)/0.78)] bg-input/55 px-3 py-0 text-[13.5px] tracking-tight ring-offset-background placeholder:text-muted-foreground shadow-[inset_0_1px_0_hsl(var(--foreground)/0.03)] transition-[background-color,border-color,box-shadow]",
+          "hover:border-[hsl(var(--border-field))] hover:bg-input/75",
+          "focus:outline-none focus-visible:border-primary/70 focus-visible:bg-background focus-visible:ring-2 focus-visible:ring-[hsl(var(--primary)/0.18)]",
+          "aria-[invalid=true]:border-destructive/80",
           "disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1",
           className
         )}

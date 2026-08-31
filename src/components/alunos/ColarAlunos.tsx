@@ -154,10 +154,10 @@ export const ColarAlunos = ({
         <div className="grid gap-2 sm:grid-cols-[1fr_auto] mb-2">
           <label
             className={cn(
-              "flex min-h-10 cursor-pointer items-center gap-2 rounded-md border border-dashed border-[hsl(var(--border-field))]",
-              "bg-background px-3 py-2 text-sm text-muted-foreground transition-colors",
+              "flex min-h-10 cursor-pointer items-center gap-2 rounded-md border border-dashed border-[hsl(var(--border-field)/0.78)]",
+              "bg-input/55 px-3 py-2 text-sm text-muted-foreground transition-[background-color,border-color,box-shadow]",
               "hover:border-primary/70 hover:text-foreground",
-              "focus-within:outline-none focus-within:border-primary focus-within:ring-2 focus-within:ring-[hsl(var(--primary)/0.28)]",
+              "focus-within:outline-none focus-within:border-primary/70 focus-within:bg-background focus-within:ring-2 focus-within:ring-[hsl(var(--primary)/0.18)]",
             )}
           >
             <Upload className="h-4 w-4 shrink-0 text-primary" />
@@ -178,10 +178,10 @@ export const ColarAlunos = ({
             type="button"
             onClick={baixarModelo}
             className={cn(
-              "inline-flex h-10 items-center justify-center gap-2 rounded-md border border-[hsl(var(--border-field))]",
-              "bg-background px-3 text-sm font-medium text-foreground transition-colors",
+              "inline-flex h-10 items-center justify-center gap-2 rounded-md border border-[hsl(var(--border-field)/0.78)]",
+              "bg-input/55 px-3 text-sm font-medium text-foreground transition-[background-color,border-color,box-shadow]",
               "hover:border-primary/70 hover:bg-secondary",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--primary)/0.28)]",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--primary)/0.18)]",
             )}
           >
             <Download className="h-4 w-4" />
@@ -200,10 +200,11 @@ export const ColarAlunos = ({
             "João Alves\tPiano\t(11) 98888-7777\tTerça\t15:30\t400"
           }
           className={cn(
-            "w-full rounded-md border border-[hsl(var(--border-field))] bg-background px-3 py-2.5",
+            "w-full rounded-md border border-[hsl(var(--border-field)/0.78)] bg-input/55 px-3 py-2.5 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.03)]",
             "font-mono text-[12.5px] leading-relaxed placeholder:text-muted-foreground/70",
-            "focus-visible:outline-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-[hsl(var(--primary)/0.28)]",
-            "transition-colors resize-y",
+            "hover:border-[hsl(var(--border-field))] hover:bg-input/75",
+            "focus-visible:outline-none focus-visible:border-primary/70 focus-visible:bg-background focus-visible:ring-2 focus-visible:ring-[hsl(var(--primary)/0.18)]",
+            "transition-[background-color,border-color,box-shadow] resize-y",
           )}
         />
         <p className="text-xs text-muted-foreground mt-1.5 flex items-center gap-1.5">

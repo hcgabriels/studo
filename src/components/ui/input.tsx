@@ -25,12 +25,12 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         aria-describedby={describedBy ?? field?.describedBy}
         aria-invalid={invalid ?? (field?.invalid || undefined)}
         className={cn(
-          "flex h-[38px] w-full rounded-md border border-[hsl(var(--border-field))] bg-background px-3 py-0 text-[13.5px] tracking-tight transition-colors",
+          "flex h-[38px] w-full rounded-md border border-[hsl(var(--border-field)/0.78)] bg-input/55 px-3 py-0 text-[13.5px] tracking-tight shadow-[inset_0_1px_0_hsl(var(--foreground)/0.03)] transition-[background-color,border-color,box-shadow]",
           "file:border-0 file:bg-transparent file:text-sm file:font-medium",
           "placeholder:text-muted-foreground/70",
-          "hover:border-[hsl(var(--border)/0.7)]",
-          "focus-visible:outline-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-[hsl(var(--primary)/0.28)]",
-          "aria-[invalid=true]:border-destructive aria-[invalid=true]:focus-visible:ring-[hsl(var(--destructive)/0.28)]",
+          "hover:border-[hsl(var(--border-field))] hover:bg-input/75",
+          "focus-visible:outline-none focus-visible:border-primary/70 focus-visible:bg-background focus-visible:ring-2 focus-visible:ring-[hsl(var(--primary)/0.18)]",
+          "aria-[invalid=true]:border-destructive/80 aria-[invalid=true]:focus-visible:ring-[hsl(var(--destructive)/0.18)]",
           "disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground",
           className
         )}

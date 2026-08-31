@@ -627,7 +627,8 @@ const PrimeiroAlunoStep = ({
           />
         </Field>
         <Field
-          label={form.aluno_nome.trim() ? "Instrumento *" : "Instrumento"}
+          label="Instrumento"
+          required={Boolean(form.aluno_nome.trim())}
           error={erros.aluno_instrumento}
         >
           {/* Era texto livre: dava pra digitar "violao" e o valor não bater

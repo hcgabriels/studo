@@ -102,8 +102,7 @@
     --ease-out: cubic-bezier(0.2, 0, 0, 1);
 
     --border: 38 14% 13%;
-    /* Borda de campo: 3:1 sobre o card, como manda WCAG 1.4.11 pra UI. */
-    --border-field: 38 12% 40%;
+    --border-field: 38 10% 26%;
     --input: 38 13% 12%;
     --ring: 35 79% 57%;
 
@@ -196,9 +195,7 @@
     --destructive-soft: rgba(184, 32, 64, 0.1);
 
     --border: 38 26% 76%;
-    /* Borda de campo de formulário: WCAG 1.4.11 exige 3:1 pra componente de UI.
-       O --border decorativo de card é mais leve de propósito. */
-    --border-field: 38 20% 54%;
+    --border-field: 38 22% 74%;
     --input: 40 38% 92%;
     --ring: 33 84% 36%;
 

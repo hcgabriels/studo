@@ -563,7 +563,7 @@ const PresencaModal = ({
                   value={newDate}
                   onChange={(e) => setNewDate(e.target.value)}
                   min={format(new Date(), "yyyy-MM-dd")}
-                  className="flex h-10 w-full rounded-lg border border-border bg-input px-3 text-sm focus-visible:outline-none focus-visible:border-primary/40"
+                  className="flex h-10 w-full rounded-md border border-[hsl(var(--border-field)/0.78)] bg-input/55 px-3 text-sm shadow-[inset_0_1px_0_hsl(var(--foreground)/0.03)] transition-[background-color,border-color,box-shadow] hover:border-[hsl(var(--border-field))] hover:bg-input/75 focus-visible:outline-none focus-visible:border-primary/70 focus-visible:bg-background focus-visible:ring-2 focus-visible:ring-[hsl(var(--primary)/0.18)]"
                 />
               </div>
               <div className="space-y-1.5">
@@ -572,7 +572,7 @@ const PresencaModal = ({
                   type="time"
                   value={newTime}
                   onChange={(e) => setNewTime(e.target.value)}
-                  className="flex h-10 w-full rounded-lg border border-border bg-input px-3 text-sm focus-visible:outline-none focus-visible:border-primary/40"
+                  className="flex h-10 w-full rounded-md border border-[hsl(var(--border-field)/0.78)] bg-input/55 px-3 text-sm shadow-[inset_0_1px_0_hsl(var(--foreground)/0.03)] transition-[background-color,border-color,box-shadow] hover:border-[hsl(var(--border-field))] hover:bg-input/75 focus-visible:outline-none focus-visible:border-primary/70 focus-visible:bg-background focus-visible:ring-2 focus-visible:ring-[hsl(var(--primary)/0.18)]"
                 />
               </div>
             </div>
@@ -753,7 +753,7 @@ const ConverterTrialModal = ({
                 type="time"
                 value={horario}
                 onChange={(e) => setHorario(e.target.value)}
-                className="flex h-10 w-full rounded-lg border border-border bg-input px-3 text-sm focus-visible:outline-none focus-visible:border-primary/40"
+                className="flex h-10 w-full rounded-md border border-[hsl(var(--border-field)/0.78)] bg-input/55 px-3 text-sm shadow-[inset_0_1px_0_hsl(var(--foreground)/0.03)] transition-[background-color,border-color,box-shadow] hover:border-[hsl(var(--border-field))] hover:bg-input/75 focus-visible:outline-none focus-visible:border-primary/70 focus-visible:bg-background focus-visible:ring-2 focus-visible:ring-[hsl(var(--primary)/0.18)]"
               />
             </div>
             <div className="space-y-1.5">
@@ -960,7 +960,7 @@ const NovaAulaModal = ({
                 value={data}
                 onChange={(e) => setData(e.target.value)}
                 min={format(new Date(), "yyyy-MM-dd")}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                className="flex h-10 w-full rounded-md border border-[hsl(var(--border-field)/0.78)] bg-input/55 px-3 text-sm shadow-[inset_0_1px_0_hsl(var(--foreground)/0.03)] transition-[background-color,border-color,box-shadow] hover:border-[hsl(var(--border-field))] hover:bg-input/75 focus-visible:outline-none focus-visible:border-primary/70 focus-visible:bg-background focus-visible:ring-2 focus-visible:ring-[hsl(var(--primary)/0.18)]"
               />
             </Field>
             <Field label="Horário">
@@ -968,7 +968,7 @@ const NovaAulaModal = ({
                 type="time"
                 value={hora}
                 onChange={(e) => setHora(e.target.value)}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm font-mono focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                className="flex h-10 w-full rounded-md border border-[hsl(var(--border-field)/0.78)] bg-input/55 px-3 text-sm font-mono shadow-[inset_0_1px_0_hsl(var(--foreground)/0.03)] transition-[background-color,border-color,box-shadow] hover:border-[hsl(var(--border-field))] hover:bg-input/75 focus-visible:outline-none focus-visible:border-primary/70 focus-visible:bg-background focus-visible:ring-2 focus-visible:ring-[hsl(var(--primary)/0.18)]"
               />
             </Field>
             <Field label="Duração">

@@ -338,7 +338,7 @@ const Configuracoes = () => {
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="endereco">Endereço (opcional)</Label>
+            <Label htmlFor="endereco">Endereço</Label>
             <Input
               id="endereco"
               value={endereco}
@@ -570,14 +570,14 @@ const Configuracoes = () => {
                 setNovoBloqueio({ ...novoBloqueio, data: e.target.value })
               }
               min={format(new Date(), "yyyy-MM-dd")}
-              className="flex h-10 w-full rounded-lg border border-border bg-input px-3 text-sm focus-visible:outline-none focus-visible:border-primary/40"
+              className="flex h-10 w-full rounded-md border border-[hsl(var(--border-field)/0.78)] bg-input/55 px-3 text-sm shadow-[inset_0_1px_0_hsl(var(--foreground)/0.03)] transition-[background-color,border-color,box-shadow] hover:border-[hsl(var(--border-field))] hover:bg-input/75 focus-visible:outline-none focus-visible:border-primary/70 focus-visible:bg-background focus-visible:ring-2 focus-visible:ring-[hsl(var(--primary)/0.18)]"
             />
             <Input
               value={novoBloqueio.motivo}
               onChange={(e) =>
                 setNovoBloqueio({ ...novoBloqueio, motivo: e.target.value })
               }
-              placeholder="Motivo (opcional): férias, feriado..."
+              placeholder="Motivo: férias, feriado..."
             />
             <Button
               onClick={() => addBloqueio.mutate()}

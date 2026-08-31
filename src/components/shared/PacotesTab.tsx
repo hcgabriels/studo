@@ -124,7 +124,7 @@ const NovoPacoteModal = ({
               value={validade}
               onChange={(e) => setValidade(e.target.value)}
               min={format(new Date(), "yyyy-MM-dd")}
-              className="flex h-10 w-full rounded-lg border border-border bg-input px-3 text-sm focus-visible:outline-none focus-visible:border-primary/40"
+              className="flex h-10 w-full rounded-md border border-[hsl(var(--border-field)/0.78)] bg-input/55 px-3 text-sm shadow-[inset_0_1px_0_hsl(var(--foreground)/0.03)] transition-[background-color,border-color,box-shadow] hover:border-[hsl(var(--border-field))] hover:bg-input/75 focus-visible:outline-none focus-visible:border-primary/70 focus-visible:bg-background focus-visible:ring-2 focus-visible:ring-[hsl(var(--primary)/0.18)]"
             />
             <p className="text-xs text-muted-foreground">
               Padrão: 3 meses. Deixe vazio se não tiver prazo.
@@ -132,7 +132,7 @@ const NovoPacoteModal = ({
           </div>
 
           <div className="space-y-1.5">
-            <Label>Observação (opcional)</Label>
+            <Label>Observação</Label>
             <Textarea
               value={observacao}
               onChange={(e) => setObservacao(e.target.value)}

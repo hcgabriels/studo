@@ -54,8 +54,8 @@ const DURACOES = [30, 45, 60, 90];
 const PG_FUNCAO_INEXISTENTE = "42883";
 
 /**
- * Mesmo visual do `<Input>` do design system (altura 38px, `rounded-md`,
- * `bg-card`, borda de campo). Existe porque `<input type="date">` e
+ * Mesmo visual do `<Input>` do design system (altura 38px, `rounded-md`).
+ * Existe porque `<input type="date">` e
  * `<input type="time">` não podem ser trocados pelo Input do ui/ (o browser
  * renderiza controles próprios), e sem isso o formulário tinha três estilos
  * de campo diferentes na mesma tela.
@@ -72,10 +72,10 @@ const CampoNativo = ({
       aria-describedby={field?.describedBy}
       aria-invalid={field?.invalid || undefined}
       className={cn(
-        "flex h-[38px] w-full min-w-0 rounded-md border border-[hsl(var(--border-field))] bg-background px-3 py-0 text-[13.5px] tracking-tight transition-colors",
-        "hover:border-[hsl(var(--border)/0.7)]",
-        "focus-visible:outline-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-[hsl(var(--primary)/0.28)]",
-        "aria-[invalid=true]:border-destructive",
+        "flex h-[38px] w-full min-w-0 rounded-md border border-[hsl(var(--border-field)/0.78)] bg-input/55 px-3 py-0 text-[13.5px] tracking-tight shadow-[inset_0_1px_0_hsl(var(--foreground)/0.03)] transition-[background-color,border-color,box-shadow]",
+        "hover:border-[hsl(var(--border-field))] hover:bg-input/75",
+        "focus-visible:outline-none focus-visible:border-primary/70 focus-visible:bg-background focus-visible:ring-2 focus-visible:ring-[hsl(var(--primary)/0.18)]",
+        "aria-[invalid=true]:border-destructive/80",
         "disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground",
         className,
       )}
@@ -395,7 +395,7 @@ export const AlunoForm = ({
                 </span>
               </div>
               <FormGrid cols={1} className="gap-3.5">
-                <Field label="Nome completo" error={errors.nome}>
+                <Field label="Nome completo" required error={errors.nome}>
                   <Input
                     id="nome"
                     ref={firstRef}
@@ -439,7 +439,7 @@ export const AlunoForm = ({
                 </FormGrid>
 
                 <FormGrid cols={2}>
-                  <Field label="Instrumento" error={errors.instrumento}>
+                  <Field label="Instrumento" required error={errors.instrumento}>
                     <Select
                       value={form.instrumento}
                       onValueChange={(v) => {

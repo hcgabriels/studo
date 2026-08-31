@@ -38,6 +38,7 @@ interface FieldProps {
   hint?: ReactNode;
   error?: string;
   optional?: boolean;
+  required?: boolean;
   children: ReactNode;
   className?: string;
 }
@@ -60,7 +61,7 @@ export const Field = ({
   label,
   hint,
   error,
-  optional,
+  required,
   children,
   className,
 }: FieldProps) => {
@@ -103,10 +104,13 @@ export const Field = ({
         className="text-[13px] font-medium text-foreground/85 mb-1.5"
       >
         {label}
-        {optional && (
-          <span className="text-muted-foreground/60 font-normal ml-1">
-            (opcional)
-          </span>
+        {required && (
+          <>
+            <span className="ml-1 text-primary" aria-hidden="true">
+              *
+            </span>
+            <span className="sr-only"> obrigatório</span>
+          </>
         )}
       </label>
 
