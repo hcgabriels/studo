@@ -640,8 +640,13 @@ const Financeiro = () => {
             />
           </div>
         ) : cobrancasFiltradas.length === 0 ? (
-          <div className="p-6 text-center text-sm text-muted-foreground">
-            Nenhuma cobrança encontrada com esse filtro.
+          <div className="p-6">
+            <EmptyState
+              tone="muted"
+              icon={DollarSign}
+              title="Nenhuma cobrança encontrada"
+              description="Tente outro filtro ou ajuste a busca."
+            />
           </div>
         ) : (
           <div className="divide-y divide-border/50">

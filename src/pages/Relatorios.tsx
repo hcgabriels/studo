@@ -455,9 +455,12 @@ const Relatorios = () => {
           iconTone="success"
         >
           {topAlunos.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-6">
-              Nenhuma cobrança paga ainda este ano.
-            </p>
+            <EmptyState
+              tone="muted"
+              icon={TrendingUp}
+              title="Sem receita registrada"
+              description="As cobranças pagas do ano aparecerão aqui."
+            />
           ) : (
             <HBars items={topAlunos} />
           )}

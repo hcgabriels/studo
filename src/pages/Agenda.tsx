@@ -72,6 +72,7 @@ import {
 } from "@/lib/domain/agenda";
 import { INSTRUMENTOS } from "@/lib/constants";
 import { SectionCard } from "@/components/shared/SectionCard";
+import { EmptyState } from "@/components/shared/EmptyState";
 import { PageHead, PageHeadMobile } from "@/components/shared/PageHead";
 import { FormGrid, Field } from "@/components/shared/FormGrid";
 import { invalidateAlunos, invalidateAulas } from "@/lib/queries";
@@ -1530,8 +1531,8 @@ const Agenda = () => {
                       {!bloqueado && (
                         <>
                       {daySlots.length === 0 ? (
-                        <p className="px-4 py-3 text-sm text-muted-foreground">
-                          Sem aulas
+                        <p className="px-4 py-4 text-sm text-muted-foreground">
+                          Sem aulas neste dia
                         </p>
                       ) : (
                         <div className="divide-y divide-border/50">
@@ -1780,9 +1781,12 @@ const Agenda = () => {
 
           <SectionCard title="Próximas aulas" icon={Clock}>
             {proximas.length === 0 ? (
-              <p className="text-sm text-muted-foreground py-2">
-                Nenhuma aula pendente esta semana.
-              </p>
+              <EmptyState
+                tone="muted"
+                icon={Clock}
+                title="Sem próximas aulas"
+                description="As próximas aulas da semana aparecerão aqui."
+              />
             ) : (
               <div className="space-y-3">
                 {proximas.map((slot) => (

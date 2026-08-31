@@ -607,13 +607,16 @@ const Configuracoes = () => {
                       <p className="text-xs text-muted-foreground">{b.motivo}</p>
                     )}
                   </div>
-                  <button
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon-sm"
                     onClick={() => removeBloqueio.mutate(b.id)}
-                    className="h-8 w-8 rounded-md flex items-center justify-center text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
+                    className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
                     aria-label="Remover bloqueio"
                   >
                     <Trash2 className="h-4 w-4" />
-                  </button>
+                  </Button>
                 </div>
               ))}
             </div>
@@ -635,8 +638,8 @@ const Configuracoes = () => {
         icon={Bell}
         action={<Badge variant="secondary">Em breve</Badge>}
       >
-        <div className="bg-muted/30 border border-dashed border-border rounded-lg px-4 py-3">
-          <p className="text-sm font-medium">Em desenvolvimento 🚧</p>
+        <div className="bg-muted/25 border border-border/70 rounded-lg px-4 py-3">
+          <p className="text-sm font-medium">Em desenvolvimento</p>
           <p className="text-xs text-muted-foreground mt-1">
             Hoje o Studoo monta a mensagem e abre o WhatsApp — quem envia é você. Disparo automático ainda não existe, e a gente avisa aqui quando existir.
             Por enquanto, use o botão de WhatsApp em cada cobrança/aluno para enviar manualmente.
