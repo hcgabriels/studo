@@ -158,6 +158,12 @@ interface ExistingAluno {
   telefone: string | null;
 }
 
+export const alunoImportIdentityKey = (
+  nome: string,
+  telefone: string | null,
+) =>
+  `${nome.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "")}|${telefone ?? ""}`;
+
 export const parseAlunoRows = (
   rows: string[][],
   existentes: ExistingAluno[] = []
@@ -166,10 +172,8 @@ export const parseAlunoRows = (
   const header = rows[0];
   const colMap = detectColumns(header);
 
-  const norm = (s: string) =>
-    s.toLowerCase().trim().normalize("NFD").replace(/[̀-ͯ]/g, "");
   const existentesSet = new Set(
-    existentes.map((e) => `${norm(e.nome)}|${e.telefone ?? ""}`)
+    existentes.map((e) => alunoImportIdentityKey(e.nome, e.telefone))
   );
 
   return rows.slice(1).map((row) => {
@@ -208,8 +212,9 @@ export const parseAlunoRows = (
     if (valor_mensalidade === null || valor_mensalidade === 0)
       errors.push("valor inválido");
 
-    const key = `${norm(nome)}|${telefone ?? ""}`;
+    const key = alunoImportIdentityKey(nome, telefone);
     const duplicado = existentesSet.has(key);
+    if (nome && !duplicado) existentesSet.add(key);
 
     return {
       nome,
@@ -387,10 +392,8 @@ export const parseAlunosColados = (
     papeis = inferirPapeis(corpo);
   }
 
-  const norm = (s: string) =>
-    s.toLowerCase().trim().normalize("NFD").replace(/[̀-ͯ]/g, "");
   const existentesSet = new Set(
-    existentes.map((e) => `${norm(e.nome)}|${e.telefone ?? ""}`),
+    existentes.map((e) => alunoImportIdentityKey(e.nome, e.telefone)),
   );
 
   const valor = (linha: string[], papel: PapelColuna) => {
@@ -417,7 +420,9 @@ export const parseAlunosColados = (
 
     const telefone = parseTelefone(valor(linha, "telefone"));
     const mensalidade = parseValor(valor(linha, "valor_mensalidade")) ?? 0;
-    const key = `${norm(nome)}|${telefone ?? ""}`;
+    const key = alunoImportIdentityKey(nome, telefone);
+    const duplicado = nome ? existentesSet.has(key) : false;
+    if (nome && !duplicado) existentesSet.add(key);
 
     return {
       nome,
@@ -426,7 +431,7 @@ export const parseAlunosColados = (
       horarios,
       valor_mensalidade: mensalidade,
       errors,
-      duplicado: nome ? existentesSet.has(key) : false,
+      duplicado,
     } satisfies AlunoImportRow;
   });
 

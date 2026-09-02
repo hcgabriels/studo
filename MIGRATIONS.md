@@ -1,6 +1,8 @@
-# Migrations SQL — Studoo
+# Histórico de migrations manuais — Studoo
 
-Migrations necessárias no Supabase (SQL Editor). Rode na ordem. Todas são **idempotentes** (seguro rodar de novo).
+> **Não execute estes blocos no SQL Editor.** Eles documentam a evolução antiga
+> do produto e foram consolidados nas migrations cronológicas em
+> `supabase/migrations/`. A fonte de verdade atual é `supabase/`.
 
 ---
 

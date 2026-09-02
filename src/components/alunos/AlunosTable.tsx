@@ -95,29 +95,25 @@ export const AlunosTable = ({
           return (
             <tr
               key={aluno.id}
-              // Linha clicável precisa ser alcançável por teclado — antes era
-              // um <tr onClick> puro, então a tabela inteira era inacessível.
-              tabIndex={0}
-              role="button"
-              aria-label={`Abrir perfil de ${aluno.nome}`}
               onClick={() => onClick(aluno)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  onClick(aluno);
-                }
-              }}
               className={cn(
                 "group cursor-pointer transition-colors hover:bg-secondary/40",
-                "focus-visible:outline-none focus-visible:bg-secondary/60 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[hsl(var(--ring))]",
                 arquivado && "opacity-60",
               )}
             >
               <Td>
-                <div className="flex items-center gap-3 min-w-0">
+                <button
+                  type="button"
+                  aria-label={`Abrir perfil de ${aluno.nome}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onClick(aluno);
+                  }}
+                  className="flex items-center gap-3 min-w-0 max-w-full rounded-md text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card"
+                >
                   <Avatar name={aluno.nome} size="md" />
                   <div className="flex flex-col min-w-0">
-                    <span className="font-semibold text-foreground truncate">
+                    <span className="font-semibold text-foreground truncate hover:text-primary">
                       {aluno.nome}
                     </span>
                     {aluno.email_notificacao && (
@@ -126,7 +122,7 @@ export const AlunosTable = ({
                       </span>
                     )}
                   </div>
-                </div>
+                </button>
               </Td>
               <Td>
                 <span className="text-foreground/90">

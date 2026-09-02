@@ -8,12 +8,14 @@ import {
   BarChart3,
   Settings,
   LogOut,
+  MessageCircle,
 } from "lucide-react";
 import { StudooMark, Wordmark } from "@/components/StudooMark";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfessor } from "@/hooks/useProfessor";
 import { Button } from "@/components/ui/button";
+import { supportHref, supportUsesWhatsApp } from "@/lib/support";
 import {
   Dialog,
   DialogContent,
@@ -95,7 +97,7 @@ const Sidebar = () => {
           aria-label="Navegação principal"
           className="flex-1 px-3 pt-4 pb-2 overflow-y-auto scrollbar-thin"
         >
-          <p className="font-mono text-[9px] tracking-[0.18em] uppercase text-muted-foreground/70 px-3 mb-2">
+          <p className="font-mono text-[9px] tracking-[0.18em] uppercase text-muted-foreground px-3 mb-2">
             Menu
           </p>
           <div className="space-y-0.5">
@@ -147,6 +149,17 @@ const Sidebar = () => {
             <Settings aria-hidden="true" className="h-[15px] w-[15px] shrink-0" />
             <span className="flex-1">Ajustes</span>
           </Link>
+
+          <a
+            href={supportHref}
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center gap-3 rounded-md px-3 py-2 text-[13.5px] text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground"
+            aria-label={supportUsesWhatsApp ? "Abrir suporte no WhatsApp" : "Enviar email ao suporte"}
+          >
+            <MessageCircle aria-hidden="true" className="h-[15px] w-[15px] shrink-0" />
+            <span className="flex-1">Suporte</span>
+          </a>
 
           <button
             type="button"

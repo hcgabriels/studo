@@ -58,10 +58,10 @@ import { type AlunoImportRow } from "@/lib/csv";
 import { toCSV, downloadCSV } from "@/lib/csvExport";
 import { cn } from "@/lib/utils";
 import type { Aluno, Aula, Cobranca, AulaRecorrente } from "@/types/supabase";
-import { toDateOnly } from "@/lib/dates";
 import { track } from "@/lib/analytics";
 import { fmtBRL } from "@/lib/format";
 import { nomeDiaSemanaCurto } from "@/lib/constants";
+import { buildAlunosImportRpcPayload } from "@/lib/domain/importacaoAlunos";
 
 const AlunoCard = ({
   aluno,
@@ -271,57 +271,15 @@ const ImportarCsvModal = ({
   const mutation = useMutation({
     mutationFn: async () => {
       if (!professorId || validRows.length === 0) return;
-      const registros = validRows.map((r) => {
-        // Colagem aceita aluno sem dia/horário — o professor completa depois.
-        // As colunas legadas são NOT NULL, então entram com um default que
-        // nunca vira aula: sem `aulas_recorrentes`, não há slot na agenda.
-        const primeiro = r.horarios[0];
-        return {
-          professor_id: professorId,
-          nome: r.nome,
-          instrumento: r.instrumento,
-          telefone: r.telefone,
-          dia_semana: primeiro?.dia_semana ?? 1,
-          horario: `${primeiro?.horario ?? "09:00"}:00`,
-          duracao_minutos: primeiro?.duracao_minutos ?? 60,
-          valor_mensalidade: r.valor_mensalidade,
-          status: "ativo",
-        };
+      const alunos = buildAlunosImportRpcPayload(
+        validRows,
+        format(new Date(), "yyyy-MM-dd"),
+      );
+      const { error } = await supabase.rpc("importar_alunos", {
+        p_professor_id: professorId,
+        p_alunos: alunos,
       });
-      const { data, error } = await supabase
-        .from("alunos")
-        .insert(registros)
-        .select("id, nome");
       if (error) throw error;
-
-      // Cria N aulas_recorrentes por aluno.
-      //
-      // Casa por NOME, não por índice: o PostgREST não garante a ordem do
-      // RETURNING num INSERT multi-linha, e casar por posição embaralhava os
-      // horários entre alunos — silenciosamente, sem erro nenhum.
-      const created = data as Array<{ id: string; nome: string }>;
-      const idPorNome = new Map(created.map((c) => [c.nome, c.id]));
-      const hoje = toDateOnly(new Date());
-
-      const recRegistros = validRows.flatMap((r) => {
-        const alunoId = idPorNome.get(r.nome);
-        if (!alunoId) return [];
-        return r.horarios.map((h) => ({
-          aluno_id: alunoId,
-          professor_id: professorId,
-          dia_semana: h.dia_semana,
-          horario: `${h.horario}:00`,
-          duracao_minutos: h.duracao_minutos,
-          ativo: true,
-          data_inicio: hoje,
-        }));
-      });
-      if (recRegistros.length > 0) {
-        const { error: recError } = await supabase
-          .from("aulas_recorrentes")
-          .insert(recRegistros);
-        if (recError) throw recError;
-      }
     },
     onSuccess: () => {
       invalidateAlunos(qc);
@@ -545,8 +503,10 @@ const Alunos = () => {
         a.instrumento,
         a.telefone ?? "",
         a.email_notificacao ?? "",
-        ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"][a.dia_semana],
-        a.horario.slice(0, 5),
+        a.dia_semana === null
+          ? ""
+          : ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"][a.dia_semana],
+        a.horario?.slice(0, 5) ?? "",
         a.duracao_minutos,
         Number(a.valor_mensalidade).toFixed(2).replace(".", ","),
         a.status,

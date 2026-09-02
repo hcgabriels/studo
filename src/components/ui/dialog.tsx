@@ -51,7 +51,7 @@ const DialogContent = React.forwardRef<
       <DialogPrimitive.Content
         ref={ref}
         className={cn(
-          "fixed left-[50%] top-[50%] z-50 w-full translate-x-[-50%] translate-y-[-50%] duration-200",
+          "fixed left-[50%] top-[50%] z-50 w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] duration-200 sm:w-full",
           "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
           sizeMap[size],
           variant === "studoo"
@@ -163,7 +163,7 @@ const DialogFooter = ({
   return (
     <div
       className={cn(
-        "flex items-center gap-2.5 px-[26px] py-4 border-t border-border/60 bg-background/45",
+        "flex flex-col-reverse items-stretch gap-2.5 px-[26px] py-4 border-t border-border/60 bg-background/45 sm:flex-row sm:items-center [&_button]:w-full sm:[&_button]:w-auto",
         className,
       )}
       {...props}

@@ -3,12 +3,21 @@ import { useTheme } from "@/contexts/ThemeContext";
 
 type ToasterProps = React.ComponentProps<typeof Sonner>;
 
-const Toaster = ({ ...props }: ToasterProps) => {
+const Toaster = ({ style, ...props }: ToasterProps) => {
   const { theme } = useTheme();
   return (
     <Sonner
       theme={theme}
       className="toaster group"
+      style={
+        {
+          "--success-text": "hsl(var(--success))",
+          "--warning-text": "hsl(var(--warning))",
+          "--info-text": "hsl(var(--info))",
+          "--error-text": "hsl(var(--destructive))",
+          ...style,
+        } as React.CSSProperties
+      }
       toastOptions={{
         classNames: {
           toast: [

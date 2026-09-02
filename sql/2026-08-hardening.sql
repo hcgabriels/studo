@@ -1,6 +1,9 @@
 -- ============================================================================
 -- Studoo · Hardening pre-lancamento (agosto/2026)
 --
+-- HISTÓRICO: não execute este arquivo. Use as migrations cronológicas em
+-- supabase/migrations/, que também validam ownership cruzado e grants.
+--
 -- Objetivo:
 --   1. Tirar EXECUTE publico/anonimo das RPCs do app.
 --   2. Mover o helper de RLS para schema nao exposto pela Data API.
@@ -154,8 +157,8 @@ CREATE INDEX IF NOT EXISTS idx_pacotes_aulas_aluno_id
 CREATE INDEX IF NOT EXISTS idx_pacotes_aulas_professor_id
   ON public.pacotes_aulas (professor_id);
 
-ALTER TABLE public.cobrancas
-  DROP CONSTRAINT IF EXISTS cobrancas_aluno_mes_unique;
-
-ALTER TABLE public.professores
-  DROP CONSTRAINT IF EXISTS professores_user_id_unique;
+-- Integridade: estas constraints são dependências funcionais do app.
+-- `Financeiro` usa ON CONFLICT (aluno_id, mes_referencia) e o cadastro usa
+-- ON CONFLICT (user_id). Nunca remova os índices UNIQUE equivalentes aqui.
+-- A migração versionada `restore_integrity_constraints` audita duplicatas e
+-- restaura as invariantes em ambientes onde este hardening antigo já rodou.

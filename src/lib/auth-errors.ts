@@ -3,6 +3,8 @@
  * Para mensagens não mapeadas, retorna uma versão amigável genérica.
  */
 
+import { MIN_PASSWORD } from "@/lib/constants";
+
 interface SupabaseLikeError {
   message?: string;
   code?: string;
@@ -39,7 +41,7 @@ const PT_BR_MAP: Array<{ match: RegExp | string; pt: string }> = [
   },
   {
     match: /password should be at least/i,
-    pt: "A senha precisa ter no mínimo 6 caracteres.",
+    pt: `A senha precisa ter no mínimo ${MIN_PASSWORD} caracteres.`,
   },
   {
     match: /weak password|password is too weak/i,

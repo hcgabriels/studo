@@ -19,6 +19,7 @@ import { supabase } from "@/lib/supabase";
 import { useProfessor } from "@/hooks/useProfessor";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import {
   Select,
@@ -29,14 +30,17 @@ import {
 } from "@/components/ui/select";
 import { Field, FormGrid } from "@/components/shared/FormGrid";
 import { Avatar } from "@/components/shared/Avatar";
+import { AddressMapLink } from "@/components/shared/AddressMapLink";
 import { StudooMark, Wordmark } from "@/components/StudooMark";
 import { DIAS_SEMANA, DIAS_SEMANA_SHORT, INSTRUMENTOS } from "@/lib/constants";
 import { fmtBRL, fmtBRLCompacto } from "@/lib/format";
 import { toDateOnly } from "@/lib/dates";
-import { formatCpfCnpj } from "@/lib/masks";
+import { detectPixType, formatCpfCnpj, formatPixKey } from "@/lib/masks";
 import type { AlunoImportRow } from "@/lib/csv";
 import { ColarAlunos } from "@/components/alunos/ColarAlunos";
 import type { Professor } from "@/types/supabase";
+import { buildAlunosImportRpcPayload } from "@/lib/domain/importacaoAlunos";
+import { onboardingProfilePatch } from "@/lib/domain/onboarding";
 
 interface FormState {
   endereco: string;
@@ -78,7 +82,7 @@ type StepId = (typeof STEPS)[number]["id"];
 
 const TOTAL_STEPS = STEPS.length;
 const ULTIMO_STEP = TOTAL_STEPS - 1;
-const ONBOARDING_SHELL = "w-full max-w-5xl mx-auto px-4 md:px-8";
+const ONBOARDING_SHELL = "w-full max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8";
 
 /** Etapas sem formulário: layout centrado, CTA próprio, sem preview. */
 const SEM_FORMULARIO: readonly StepId[] = ["boas-vindas", "pronto"];
@@ -108,15 +112,6 @@ const formInicial = (p: Professor): FormState => ({
   aluno_dia: 1,
   aluno_horario: "18:00",
   aluno_duracao: 60,
-});
-
-/** Campos do professor que o wizard escreve — usados no save incremental e no final. */
-const patchPerfil = (f: FormState): Record<string, unknown> => ({
-  endereco: f.endereco.trim() || null,
-  chave_pix: f.chave_pix.trim() || null,
-  cpf_cnpj: f.cpf_cnpj.trim() || null,
-  cobrar_falta_sem_aviso: f.cobrar_falta_sem_aviso,
-  horas_antecedencia_aviso: f.horas_antecedencia_aviso,
 });
 
 const temAluno = (f: FormState) =>
@@ -185,10 +180,12 @@ const OnboardingWizard = ({ professor }: { professor: Professor }) => {
    * o `finalizarMutation` reenvia o pacote completo no fim.
    */
   const salvarParcial = useCallback(
-    (f: FormState) => {
+    (id: StepId, f: FormState) => {
+      const patch = onboardingProfilePatch(id, f);
+      if (Object.keys(patch).length === 0) return;
       void supabase
         .from("professores")
-        .update(patchPerfil(f))
+        .update(patch)
         .eq("id", professor.id)
         .then(({ error }) => {
           if (error) {
@@ -204,76 +201,58 @@ const OnboardingWizard = ({ professor }: { professor: Professor }) => {
 
   const finalizarMutation = useMutation({
     mutationFn: async ({ pular }: { pular: boolean }) => {
-      const update: Record<string, unknown> = { onboarding_completo: true };
-      if (!pular) Object.assign(update, patchPerfil(form));
+      const dataInicio = toDateOnly(new Date());
+      const alunos = pular
+        ? []
+        : temListaColada(form)
+          ? buildAlunosImportRpcPayload(form.alunos_colados, dataInicio)
+          : temAluno(form)
+            ? [
+                {
+                  nome: form.aluno_nome.trim(),
+                  instrumento: form.aluno_instrumento.trim(),
+                  telefone: null,
+                  valor_mensalidade: parseValor(form.aluno_valor),
+                  horarios: [
+                    {
+                      dia_semana: form.aluno_dia,
+                      horario: horarioParaBanco(form.aluno_horario),
+                      duracao_minutos: form.aluno_duracao,
+                      data_inicio: dataInicio,
+                    },
+                  ],
+                },
+              ]
+            : [];
 
-      // Tenta o update completo primeiro.
-      let profError = await tryUpdate(professor.id, update);
+      const { data, error } = await supabase.rpc("finalizar_onboarding", {
+        p_professor_id: professor.id,
+        p_pular: pular,
+        p_endereco: pular ? null : form.endereco.trim() || null,
+        p_chave_pix: pular ? null : form.chave_pix.trim() || null,
+        p_cpf_cnpj: pular ? null : form.cpf_cnpj.trim() || null,
+        p_cobrar_falta_sem_aviso: pular
+          ? null
+          : form.cobrar_falta_sem_aviso,
+        p_horas_antecedencia_aviso: pular
+          ? null
+          : form.horas_antecedencia_aviso,
+        p_alunos: alunos,
+      });
+      if (error) throw error;
 
-      // Se falhou por coluna inexistente, retira o campo e tenta de novo
-      // (caso a migration de onboarding_completo ainda não tenha sido rodada).
-      if (profError && isColumnMissing(profError)) {
-        const missing = extractMissingColumn(profError);
-        console.warn(
-          `[Onboarding] coluna ausente no schema: ${missing}. Retentando sem ela.`,
-        );
-        const minimal = { ...update };
-        if (missing) delete minimal[missing];
-        // Última tentativa só com os campos que existem em qualquer schema.
-        const safeFields = [
-          "chave_pix",
-          "cpf_cnpj",
-          "endereco",
-          "cobrar_falta_sem_aviso",
-          "horas_antecedencia_aviso",
-        ];
-        const safeUpdate: Record<string, unknown> = {};
-        for (const k of safeFields) {
-          if (k in minimal) safeUpdate[k] = minimal[k];
-        }
-        profError = Object.keys(safeUpdate).length
-          ? await tryUpdate(professor.id, safeUpdate)
-          : null;
-      }
-
-      if (profError) throw profError;
-
-      // Grava flag local sempre (escape hatch quando a coluna não existe).
+      return { quantos: typeof data === "number" ? data : 0 };
+    },
+    onSuccess: (res) => {
       try {
         localStorage.setItem("studoo:onboarding-done", "1");
       } catch {
         /* ignore quota errors */
       }
-
-      if (pular) return { alunoCriado: false, alunoFalhou: false, quantos: 0 };
-
-      if (temListaColada(form)) {
-        const quantos = await criarAlunosColados(
-          professor.id,
-          form.alunos_colados,
-        );
-        return {
-          alunoCriado: quantos > 0,
-          alunoFalhou: quantos === 0,
-          quantos,
-        };
-      }
-
-      if (!temAluno(form))
-        return { alunoCriado: false, alunoFalhou: false, quantos: 0 };
-
-      const alunoCriado = await criarPrimeiroAluno(professor.id, form);
-      return { alunoCriado, alunoFalhou: !alunoCriado, quantos: alunoCriado ? 1 : 0 };
-    },
-    onSuccess: (res) => {
       qc.invalidateQueries({ queryKey: ["professor"] });
       qc.invalidateQueries({ queryKey: ["alunos"] });
       qc.invalidateQueries({ queryKey: ["aulas-recorrentes"] });
-      if (res.alunoFalhou) {
-        toast.warning(
-          "Salvei suas configurações, mas não consegui cadastrar o aluno. Dá pra criar ele pelo painel em um minuto.",
-        );
-      } else if (res.quantos > 1) {
+      if (res.quantos > 1) {
         toast.success(`Pronto! ${res.quantos} alunos já estão na sua carteira.`);
       } else {
         toast.success("Pronto! Bem-vindo ao Studoo");
@@ -291,22 +270,7 @@ const OnboardingWizard = ({ professor }: { professor: Professor }) => {
   });
 
   const handlePularTudo = () => {
-    // Escape hatch: marca local imediatamente; se a mutation falhar, o gating
-    // local libera o acesso ao painel mesmo assim.
-    try {
-      localStorage.setItem("studoo:onboarding-done", "1");
-    } catch {
-      /* ignore */
-    }
-    finalizarMutation.mutate(
-      { pular: true },
-      {
-        onError: () => {
-          toast.info("Beleza, tô te levando pro painel. Dá pra ajustar tudo depois.");
-          navigate("/dashboard");
-        },
-      },
-    );
+    finalizarMutation.mutate({ pular: true });
   };
 
   const handleFinalizar = () => finalizarMutation.mutate({ pular: false });
@@ -320,7 +284,7 @@ const OnboardingWizard = ({ professor }: { professor: Professor }) => {
     setValidado(false);
     setPreviewAberto(false);
     // Boas-vindas não tem campo: não gasta request.
-    if (etapaId !== "boas-vindas") salvarParcial(form);
+    salvarParcial(etapaId, form);
     setStep((s) => Math.min(s + 1, ULTIMO_STEP));
   };
 
@@ -384,16 +348,16 @@ const OnboardingWizard = ({ professor }: { professor: Professor }) => {
       {/* Conteúdo */}
       <main
         className={cn(
-          "flex-1 py-10 md:py-16 overflow-y-auto",
+          "flex-1 py-8 sm:py-10 lg:py-14 overflow-y-auto",
           "flex items-start justify-center",
         )}
       >
         <div
           className={cn(
             ONBOARDING_SHELL,
-            semFormulario ? "max-w-2xl text-center pt-8 md:pt-14" : "max-w-5xl",
+            semFormulario ? "max-w-2xl text-center pt-5 lg:pt-10" : "max-w-[1100px]",
             temPreview &&
-              "md:grid md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] md:gap-10 lg:gap-14 md:items-center",
+              "lg:grid lg:grid-cols-[minmax(0,1.1fr)_minmax(300px,0.9fr)] lg:gap-14 lg:items-center",
           )}
         >
           <div className="animate-fade-in-up min-w-0">
@@ -431,7 +395,7 @@ const OnboardingWizard = ({ professor }: { professor: Professor }) => {
 
             {/* Preview compacto no mobile — colapsado, mas existe. */}
             {temPreview && (
-              <div className="md:hidden mt-6">
+              <div className="lg:hidden mt-6">
                 <button
                   type="button"
                   onClick={() => setPreviewAberto((v) => !v)}
@@ -459,7 +423,7 @@ const OnboardingWizard = ({ professor }: { professor: Professor }) => {
           </div>
 
           {temPreview && (
-            <div className="hidden md:flex md:justify-center">{preview}</div>
+            <div className="hidden lg:flex lg:justify-center">{preview}</div>
           )}
         </div>
       </main>
@@ -531,7 +495,7 @@ const WelcomeStep = ({
       title={`Olá, ${nome.split(" ")[0] || "professor"}. Bom te ter aqui.`}
       subtitle="Vamos configurar só o básico para você já entrar com agenda, cobranças e recibos no lugar. Depois dá pra editar tudo."
     />
-    <div className="space-y-2.5 mb-8">
+    <div className="mx-auto mb-8 max-w-md space-y-2.5 text-left">
       {[
         "Cadastrar seu primeiro aluno",
         "Configurar PIX e dados do recibo",
@@ -545,7 +509,7 @@ const WelcomeStep = ({
         </div>
       ))}
     </div>
-    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+    <div className="flex flex-col sm:flex-row items-stretch sm:items-center sm:justify-center gap-2">
       <Button onClick={onStart} disabled={pending} className="sm:w-auto">
         Começar
         <ArrowRight className="h-4 w-4 ml-1" />
@@ -722,6 +686,7 @@ const PrimeiroAlunoStep = ({
 
 const CobrancaStep = ({ form, setForm }: StepFormProps) => {
   const pixVazio = form.chave_pix.trim().length === 0;
+  const pixType = detectPixType(form.chave_pix);
   return (
     <>
       <StepTitle
@@ -730,12 +695,25 @@ const CobrancaStep = ({ form, setForm }: StepFormProps) => {
       />
       <div className="space-y-3.5">
         <Field label="Chave PIX">
-          <Input
-            placeholder="email@dominio.com, telefone, CPF ou chave aleatória"
-            value={form.chave_pix}
-            onChange={(e) => setForm((f) => ({ ...f, chave_pix: e.target.value }))}
-            autoFocus
-          />
+          <div className="relative">
+            <Input
+              placeholder="email@dominio.com, telefone, CPF ou chave aleatória"
+              value={form.chave_pix}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, chave_pix: formatPixKey(e.target.value) }))
+              }
+              className={pixType ? "pr-36" : ""}
+              autoFocus
+            />
+            {pixType && (
+              <Badge
+                variant="secondary"
+                className="absolute right-2 top-1/2 -translate-y-1/2 whitespace-nowrap"
+              >
+                {pixType}
+              </Badge>
+            )}
+          </div>
         </Field>
 
         {pixVazio && (
@@ -834,6 +812,9 @@ const EnderecoStep = ({ form, setForm }: StepFormProps) => (
         autoFocus
       />
     </Field>
+    <div className="mt-2">
+      <AddressMapLink address={form.endereco} />
+    </div>
   </>
 );
 
@@ -874,7 +855,7 @@ const ProntoStep = ({
     <div className="bg-card border border-border rounded-lg px-6 py-5 my-7 flex flex-col gap-3 text-left max-w-md w-full">
       {[
         "Cadastrar mais alunos um de cada vez ou via importação",
-        "Gerar cobranças do mês com 1 clique",
+        "Criar as cobranças pendentes do mês de uma vez",
         "Acompanhar frequência e financeiro pelo painel",
       ].map((item, i) => (
         <div
@@ -1142,148 +1123,11 @@ export default Onboarding;
 
 // ── Helpers ──────────────────────────────────────────────────────────────
 
-/**
- * Cria o primeiro aluno + a recorrência dele. As colunas legadas de `alunos`
- * (dia_semana/horario/duracao_minutos) continuam preenchidas por
- * retrocompatibilidade, mas a fonte de verdade é `aulas_recorrentes`.
- *
- * Retorna false (sem lançar) quando falha: o aluno é nice-to-have e não pode
- * travar o acesso ao painel.
- */
-async function criarPrimeiroAluno(
-  professorId: string,
-  form: FormState,
-): Promise<boolean> {
-  const horario = horarioParaBanco(form.aluno_horario);
-  const { data, error } = await supabase
-    .from("alunos")
-    .insert({
-      professor_id: professorId,
-      nome: form.aluno_nome.trim(),
-      instrumento: form.aluno_instrumento.trim(),
-      valor_mensalidade: parseValor(form.aluno_valor),
-      dia_semana: form.aluno_dia,
-      horario,
-      duracao_minutos: form.aluno_duracao,
-      status: "ativo",
-    })
-    .select("id")
-    .single();
-
-  if (error || !data) {
-    console.error("[Onboarding] erro ao criar primeiro aluno:", error);
-    return false;
-  }
-
-  const { error: recError } = await supabase.from("aulas_recorrentes").insert({
-    aluno_id: (data as { id: string }).id,
-    professor_id: professorId,
-    dia_semana: form.aluno_dia,
-    horario,
-    duracao_minutos: form.aluno_duracao,
-    ativo: true,
-    data_inicio: toDateOnly(new Date()),
-  });
-
-  // Aluno já existe; sem a recorrência a agenda cai no fallback das colunas
-  // legadas, então não é motivo pra falhar o onboarding.
-  if (recError) {
-    console.error("[Onboarding] erro ao criar recorrência do aluno:", recError);
-  }
-  return true;
-}
-
-/**
- * Cria a turma inteira vinda da colagem.
- *
- * Mesmo cuidado do import da tela de Alunos: casa o RETURNING por NOME (a
- * ordem não é garantida) e aceita aluno sem horário — quem colou só nome e
- * telefone entra assim mesmo e completa depois.
- */
-async function criarAlunosColados(
-  professorId: string,
-  linhas: AlunoImportRow[],
-): Promise<number> {
-  if (linhas.length === 0) return 0;
-
-  const registros = linhas.map((r) => {
-    const h = r.horarios[0];
-    return {
-      professor_id: professorId,
-      nome: r.nome.trim(),
-      instrumento: r.instrumento || "",
-      telefone: r.telefone,
-      dia_semana: h?.dia_semana ?? 1,
-      horario: horarioParaBanco(h?.horario ?? "09:00"),
-      duracao_minutos: h?.duracao_minutos ?? 60,
-      valor_mensalidade: r.valor_mensalidade,
-      status: "ativo",
-    };
-  });
-
-  const { data, error } = await supabase
-    .from("alunos")
-    .insert(registros)
-    .select("id, nome");
-
-  if (error || !data) {
-    console.error("[Onboarding] erro ao criar alunos colados:", error);
-    return 0;
-  }
-
-  const criados = data as Array<{ id: string; nome: string }>;
-  const idPorNome = new Map(criados.map((c) => [c.nome, c.id]));
-  const hoje = toDateOnly(new Date());
-
-  const recorrentes = linhas.flatMap((r) => {
-    const alunoId = idPorNome.get(r.nome.trim());
-    if (!alunoId) return [];
-    return r.horarios.map((h) => ({
-      aluno_id: alunoId,
-      professor_id: professorId,
-      dia_semana: h.dia_semana,
-      horario: horarioParaBanco(h.horario),
-      duracao_minutos: h.duracao_minutos,
-      ativo: true,
-      data_inicio: hoje,
-    }));
-  });
-
-  if (recorrentes.length > 0) {
-    const { error: recError } = await supabase
-      .from("aulas_recorrentes")
-      .insert(recorrentes);
-    if (recError) {
-      console.error("[Onboarding] erro nas recorrências da colagem:", recError);
-    }
-  }
-  return criados.length;
-}
-
-async function tryUpdate(
-  id: string,
-  update: Record<string, unknown>,
-): Promise<unknown | null> {
-  const { error } = await supabase
-    .from("professores")
-    .update(update)
-    .eq("id", id);
-  return error;
-}
-
 function isColumnMissing(err: unknown): boolean {
   if (!err || typeof err !== "object") return false;
   const e = err as { code?: string; message?: string };
   if (e.code === "42703") return true;
   return !!e.message && /column .* does not exist/i.test(e.message);
-}
-
-function extractMissingColumn(err: unknown): string | null {
-  if (!err || typeof err !== "object") return null;
-  const msg = (err as { message?: string }).message;
-  if (!msg) return null;
-  const m = msg.match(/column "?([\w_]+)"? .*does not exist/i);
-  return m?.[1] ?? null;
 }
 
 /**

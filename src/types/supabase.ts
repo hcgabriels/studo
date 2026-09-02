@@ -29,8 +29,8 @@ export interface Aluno {
   telefone: string | null;
   email_notificacao: string | null;
   nome_responsavel: string | null;
-  dia_semana: number;
-  horario: string;
+  dia_semana: number | null;
+  horario: string | null;
   duracao_minutos: number;
   valor_mensalidade: number;
   status: "ativo" | "inativo";
@@ -95,7 +95,13 @@ export interface MensagemEnviada {
   id: string;
   professor_id: string;
   aluno_id: string | null;
-  tipo: "saudacao" | "lembrete_aula" | "cobranca" | "parabens" | "outro";
+  tipo:
+    | "saudacao"
+    | "lembrete_aula"
+    | "cobranca"
+    | "parabens"
+    | "resumo_aula"
+    | "outro";
   texto: string;
   telefone: string;
   enviada_em: string;

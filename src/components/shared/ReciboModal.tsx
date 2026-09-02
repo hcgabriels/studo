@@ -8,6 +8,7 @@ import {
   DialogHeader,
   DialogBody,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { fmtBRL } from "@/lib/format";
 import type { Cobranca, Professor } from "@/types/supabase";
@@ -55,7 +56,11 @@ export const ReciboModal = ({
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent size="xl" aria-label="Recibo de pagamento">
+      <DialogContent
+        size="xl"
+        aria-label="Recibo de pagamento"
+        className="receipt-dialog print:!top-0 print:!left-0 print:!right-auto print:!bottom-auto"
+      >
         <DialogHeader className="no-print">
           <div className="flex items-start justify-between w-full gap-3">
             <DialogTitle>Recibo de pagamento</DialogTitle>
@@ -64,9 +69,12 @@ export const ReciboModal = ({
               Imprimir / Salvar PDF
             </Button>
           </div>
+          <DialogDescription>
+            Recibo de {alunoNome}, referente a {mesRef}.
+          </DialogDescription>
         </DialogHeader>
 
-        <DialogBody>
+        <DialogBody className="receipt-dialog-body">
         {/* Recibo (área imprimível) */}
         <div className="print-area text-foreground">
           <div className="flex items-start justify-between mb-8 border-b border-border pb-6">

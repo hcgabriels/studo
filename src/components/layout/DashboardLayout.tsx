@@ -16,6 +16,7 @@ import {
   MoreHorizontal,
   LogOut,
   X,
+  MessageCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Sidebar from "./Sidebar";
@@ -25,6 +26,7 @@ import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { GuidedTour } from "@/components/shared/GuidedTour";
 import { PageProvider } from "@/contexts/PageContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { supportHref, supportUsesWhatsApp } from "@/lib/support";
 
 const primaryNav = [
   { to: "/dashboard", label: "Início", icon: LayoutDashboard },
@@ -282,6 +284,16 @@ const DashboardLayout = () => {
                     </Link>
                   );
                 })}
+                <a
+                  href={supportHref}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-3 rounded-xl px-3 py-3 text-foreground transition-colors hover:bg-accent"
+                  aria-label={supportUsesWhatsApp ? "Abrir suporte no WhatsApp" : "Enviar email ao suporte"}
+                >
+                  <MessageCircle aria-hidden="true" className="h-[18px] w-[18px] shrink-0" />
+                  <span className="flex-1 text-sm">Suporte</span>
+                </a>
                 <div aria-hidden="true" className="h-px bg-border my-2" />
                 <button
                   type="button"

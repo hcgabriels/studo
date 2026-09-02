@@ -9,16 +9,8 @@ import { isValidEmail } from "@/lib/masks";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { GoogleSignInButton } from "@/components/shared/GoogleSignInButton";
+import { GoogleAuthOption } from "@/components/shared/GoogleSignInButton";
 import AuthLayout from "@/components/layout/AuthLayout";
-
-const trialPerks = [
-  "Grátis no beta",
-  "Sem cartão de crédito",
-  "Seus dados são seus",
-];
-
-
 
 const Cadastro = () => {
   const navigate = useNavigate();
@@ -117,15 +109,7 @@ const Cadastro = () => {
         to: "/login",
       }}
     >
-      <GoogleSignInButton />
-
-      <div className="flex items-center gap-3.5 my-[22px]">
-        <div className="flex-1 h-px bg-border" />
-        <span className="font-mono text-[10px] tracking-[0.18em] uppercase text-muted-foreground/70 whitespace-nowrap">
-          ou com email
-        </span>
-        <div className="flex-1 h-px bg-border" />
-      </div>
+      <GoogleAuthOption redirectTo="/onboarding" />
 
       <form onSubmit={handleCadastro} className="space-y-4">
         <div>
@@ -138,7 +122,7 @@ const Cadastro = () => {
             placeholder="Como seus alunos te chamam"
             value={nome}
             onChange={(e) => setNome(e.target.value)}
-            autoFocus
+            autoComplete="name"
             className="h-[46px] text-[14px]"
           />
           {errors.nome && <p className="text-xs text-destructive mt-1.5">{errors.nome}</p>}
@@ -154,6 +138,7 @@ const Cadastro = () => {
             placeholder="marina@email.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            autoComplete="email"
             className="h-[46px] text-[14px]"
           />
           {errors.email && <p className="text-xs text-destructive mt-1.5">{errors.email}</p>}
@@ -170,6 +155,7 @@ const Cadastro = () => {
               placeholder="Crie uma senha forte"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              autoComplete="new-password"
               className="h-[46px] text-[14px] pr-11"
             />
             <button
@@ -205,6 +191,7 @@ const Cadastro = () => {
             placeholder="Digite a senha novamente"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
+            autoComplete="new-password"
             className="h-[46px] text-[14px]"
           />
           {errors.confirmPassword && (
@@ -214,11 +201,11 @@ const Cadastro = () => {
 
         <p className="text-[13px] text-foreground/80 leading-[1.5] pt-1">
           Ao criar a conta, você concorda com os{" "}
-          <Link to="/termos" className="text-primary hover:opacity-80">
+          <Link to="/termos" className="text-primary underline decoration-primary/45 underline-offset-2 hover:decoration-primary">
             Termos de uso
           </Link>{" "}
           e a{" "}
-          <Link to="/privacidade" className="text-primary hover:opacity-80">
+          <Link to="/privacidade" className="text-primary underline decoration-primary/45 underline-offset-2 hover:decoration-primary">
             Política de Privacidade
           </Link>
           .
@@ -239,16 +226,9 @@ const Cadastro = () => {
           )}
         </Button>
 
-        <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 pt-1">
-          {trialPerks.map((perk) => (
-            <span
-              key={perk}
-              className="inline-flex items-center gap-1 text-[11.5px] text-muted-foreground"
-            >
-              <Check className="h-3 w-3 text-success" />
-              {perk}
-            </span>
-          ))}
+        <div className="flex items-center justify-center gap-1.5 pt-1 text-center text-[10.5px] tracking-[-0.01em] text-muted-foreground whitespace-nowrap sm:gap-2 sm:text-[11.5px]">
+          <Check className="h-3.5 w-3.5 shrink-0 text-success" />
+          <span>Beta gratuito · sem cartão · seus dados são seus</span>
         </div>
       </form>
     </AuthLayout>

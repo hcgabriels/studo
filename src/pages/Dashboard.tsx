@@ -904,12 +904,13 @@ const Dashboard = () => {
             ) : (cobrancas?.length ?? 0) === 0 ? (
               <EmptyState
                 tone="muted"
+                align="start"
                 icon={DollarSign}
                 title="Sem cobranças do mês"
-                description="Gere as cobranças com 1 clique pra todos os alunos ativos."
+                description="Crie uma cobrança pendente para cada aluno ativo. Nada é enviado ou cobrado automaticamente."
                 action={
                   <Button asChild size="sm">
-                    <Link to="/financeiro">Gerar cobranças</Link>
+                    <Link to="/financeiro">Revisar e criar</Link>
                   </Button>
                 }
               />

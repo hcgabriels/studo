@@ -111,7 +111,7 @@ export const FilterChip = ({
       "text-[12.5px] font-medium border transition-colors",
       "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
       active
-        ? "bg-primary-soft text-primary border-primary-ring"
+        ? "bg-primary-soft text-foreground border-primary-ring"
         : "bg-card text-foreground/85 border-border hover:bg-secondary hover:text-foreground hover:border-border/80",
     )}
   >

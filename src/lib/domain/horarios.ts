@@ -35,6 +35,7 @@ export const getHorariosDoAluno = (
       data_inicio: r.data_inicio ?? null,
     }));
   }
+  if (aluno.dia_semana === null || aluno.horario === null) return [];
   return [
     {
       id: null,

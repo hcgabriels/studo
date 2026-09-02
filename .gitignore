@@ -19,6 +19,8 @@ dist-ssr
 
 # Local agent/workbench files
 .claude/
+.playwright-cli/
+output/playwright/
 _handoff-code/
 _to_delete/
 

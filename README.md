@@ -16,9 +16,8 @@ npm install
 npm run dev               # http://localhost:5173
 ```
 
-Antes do primeiro acesso, rode o SQL no Supabase (próxima seção). Sem isso o
-cadastro cria o usuário mas não o perfil de professor, e o app para numa tela
-explicando o que houve.
+O backend é versionado com Supabase CLI. Consulte a próxima seção antes de
+apontar o app para um projeto existente.
 
 ### Comandos
 
@@ -27,32 +26,52 @@ explicando o que houve.
 | `npm run dev` | Servidor de desenvolvimento |
 | `npm run build` | `tsc -b` + build de produção em `dist/` |
 | `npm run lint` | ESLint |
-| `npm test` | Vitest — 48 testes da regra de negócio |
+| `npm test` | Vitest — regras de negócio e invariantes versionadas do schema |
+| `npm run test:e2e:live` | Smoke autenticado contra um projeto Supabase de teste |
 | `npm run preview` | Serve o `dist/` local |
+| `npm run db:start` | Inicia o Supabase local |
+| `npm run db:reset` | Recria o banco local e reaplica todas as migrations |
+| `npm run db:lint` | Valida funções do Postgres local |
+| `npm run db:test` | Executa testes pgTAP locais |
+
+Os comandos `db:*` locais exigem Docker Desktop em execução. O frontend pode
+usar o projeto remoto sem Docker, mas isso não substitui o `db:reset` antes de
+publicar migrations.
+
+O smoke live cria uma conta descartável, percorre onboarding, aluno, agenda,
+financeiro, relatórios e exclusão, e limpa todos os registros ao final. Execute
+somente contra um projeto de teste, com o frontend já aberto, definindo
+`SUPABASE_SERVICE_ROLE_KEY` apenas no processo e
+`E2E_ALLOW_REMOTE_MUTATION=1`. Nunca salve a service-role numa variável
+`VITE_*` ou em arquivo consumido pelo frontend. O mesmo fluxo executa axe nas
+rotas principais em desktop e 390 px e falha diante de violações sérias ou
+críticas de WCAG 2 A/AA e 2.1 A/AA.
 
 ---
 
 ## Banco de dados
 
-O schema está em `MIGRATIONS.md`, organizado por sprint (1 a 9). Rode na ordem
-num projeto Supabase novo.
+`supabase/migrations/` é a única trilha executável de mudanças. O schema
+declarativo completo fica em `supabase/schemas/`. `MIGRATIONS.md` e `sql/*.sql`
+foram preservados apenas como histórico: não os cole no SQL Editor e não os use
+para provisionar um projeto.
 
-**Depois deles, rode `sql/2026-08-lancamento.sql` — é obrigatório.** Esse arquivo:
+As migrations versionadas, aplicadas ao projeto remoto vinculado em 1º de
+setembro de 2026:
 
-- Liga **RLS** em `professores`, `alunos`, `aulas` e `cobrancas`. Sem ele, um
-  professor autenticado que descubra um UUID lê os dados de aluno de outro
-  professor. Não é opcional.
-- Cria as colunas `professores.dia_vencimento` e `aulas_recorrentes.data_inicio`.
-- Põe `ON DELETE CASCADE` nas FKs de aluno.
-- Cria as funções transacionais que o app chama: `salvar_horarios_aluno`,
-  `reagendar_aula`, `increment_reposicao`, `decrement_reposicao`,
-  `usar_aula_pacote`, `excluir_aluno`, `excluir_minha_conta`.
+- auditam um perfil por `user_id` e uma cobrança por `aluno_id + mês`;
+- permitem alunos sem horário semanal inventado;
+- reconciliam as mudanças que antes só existiam no projeto remoto;
+- aplicam grants explícitos e ownership de professor/aluno em RLS e RPCs.
 
-O app funciona sem as funções (cai em fallback e loga `console.warn`), mas aí
-perde a atomicidade — e a exclusão de conta simplesmente não roda.
+Elas não apagam nem mesclam inconsistências encontradas: abortam com um
+diagnóstico para revisão explícita. Depois do rollout, o histórico local e
+remoto ficou alinhado em quinze migrations e o novo dry-run ficou vazio. Para
+mudanças futuras, sempre execute `npm run db:reset`, `npm run db:lint` e os
+testes de isolamento antes de `db push` em produção.
 
-No fim do arquivo há três queries de verificação. A primeira é a que importa:
-todas as 8 tabelas precisam vir com `rls_ligado = true`.
+O diagnóstico completo e a ordem de implementação estão em
+`docs/AUDITORIA-INDEPENDENTE-2026-08-31.md`.
 
 ---
 
@@ -71,6 +90,7 @@ Variáveis de ambiente no host: as mesmas do `.env.example`.
 Checklist completo: `docs/LAUNCH.md`.
 Direcao de produto e IA: `docs/PRODUCT_DIRECTION.md`.
 Templates de email: `docs/EMAIL_TEMPLATES.md`.
+Login com Google: `docs/GOOGLE_OAUTH.md`.
 
 ---
 
@@ -131,6 +151,8 @@ src/
 | `analytics.ts` | `track`, `identificar`, `capturarErro` |
 | `exportarDados.ts` | Exportação LGPD (JSON com tudo do professor) |
 | `whatsapp.ts` | Templates + `openWhatsApp` (retorna a Promise do log) |
+| `support.ts` | Destino de suporte: WhatsApp configurável, com fallback por email |
+| `maps.ts` | URL segura para conferir endereços no Google Maps |
 | `csv.ts` / `csvExport.ts` | Import (arquivo e colagem) e export de alunos |
 | `domain/agenda.ts` | Slots da agenda, casamento slot↔aula, faixa de horas, política de reposição |
 | `domain/frequencia.ts` | `calcFrequencia` — o número que o professor usa pra cobrar falta |
@@ -171,7 +193,7 @@ src/
 | E-mails do produto | Nenhum envio próprio |
 | Portal do aluno | Nenhuma superfície voltada ao aluno |
 | Aulas em grupo | 1 aula = 1 aluno |
-| Testes de interface | Só a regra de negócio tem teste (48, em `lib/domain` e `lib/`). Componente e fluxo, nenhum |
+| Testes de interface locais | Não há suíte de componentes isolados; os fluxos críticos são cobertos pelo smoke Playwright contra um projeto Supabase de teste |
 
 A landing, os Termos e a Política descrevem exatamente isso — se alguma dessas
 linhas mudar, os três textos mudam junto.

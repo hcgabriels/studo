@@ -50,9 +50,6 @@ const OBSERVACOES_MAX = 200;
 
 const DURACOES = [30, 45, 60, 90];
 
-/** Código do Postgres pra "function does not exist" (migration não rodou). */
-const PG_FUNCAO_INEXISTENTE = "42883";
-
 /**
  * Mesmo visual do `<Input>` do design system (altura 38px, `rounded-md`).
  * Existe porque `<input type="date">` e
@@ -248,25 +245,7 @@ export const AlunoForm = ({
   };
 
   const mutation = useMutation({
-    mutationFn: async (data: Partial<Aluno>) => {
-      let alunoId: string;
-      if (editingAluno) {
-        const { error } = await supabase
-          .from("alunos")
-          .update(data)
-          .eq("id", editingAluno.id);
-        if (error) throw error;
-        alunoId = editingAluno.id;
-      } else {
-        const { data: novo, error } = await supabase
-          .from("alunos")
-          .insert(data)
-          .select("id")
-          .single();
-        if (error) throw error;
-        alunoId = (novo as { id: string }).id;
-      }
-
+    mutationFn: async () => {
       // Horário novo vale a partir de hoje. Sem `data_inicio` a recorrência
       // retroage e o aluno aparece com aula em toda semana passada.
       const hoje = toDateOnly(new Date());
@@ -277,40 +256,23 @@ export const AlunoForm = ({
         data_inicio: h.data_inicio || hoje,
       }));
 
-      // Transacional: se um horário falhar, nenhum é gravado — e o aluno não
-      // fica sem nenhum horário (o delete+insert antigo deixava).
-      const { error: errRpc } = await supabase.rpc("salvar_horarios_aluno", {
-        p_aluno_id: alunoId,
+      const { error } = await supabase.rpc("salvar_aluno_com_horarios", {
+        p_aluno_id: editingAluno?.id ?? null,
         p_professor_id: professorId,
+        p_nome: form.nome.trim(),
+        p_instrumento: form.instrumento,
+        p_nivel: (form.nivel as AlunoNivel) || null,
+        p_objetivo: form.objetivo.trim() || null,
+        p_telefone: form.telefone ? unformatPhone(form.telefone) : null,
+        p_email_notificacao: form.email_notificacao || null,
+        p_nome_responsavel: form.nome_responsavel || null,
+        p_data_nascimento: form.data_nascimento || null,
+        p_valor_mensalidade:
+          parseCurrencyInput(form.valor_mensalidade) / 100,
+        p_observacoes: form.observacoes || null,
         p_horarios: horarios,
       });
-
-      if (errRpc) {
-        if (errRpc.code !== PG_FUNCAO_INEXISTENTE) throw errRpc;
-        console.warn(
-          "[AlunoForm] RPC salvar_horarios_aluno indisponível (migration não rodou). Caindo no delete+insert não transacional.",
-          errRpc,
-        );
-        const { error: errDel } = await supabase
-          .from("aulas_recorrentes")
-          .delete()
-          .eq("aluno_id", alunoId);
-        if (errDel) throw errDel;
-
-        if (horarios.length > 0) {
-          const { error: errIns } = await supabase
-            .from("aulas_recorrentes")
-            .insert(
-              horarios.map((h) => ({
-                ...h,
-                aluno_id: alunoId,
-                professor_id: professorId,
-                ativo: true,
-              })),
-            );
-          if (errIns) throw errIns;
-        }
-      }
+      if (error) throw error;
     },
     onSuccess: () => {
       invalidateAlunos(qc);
@@ -329,24 +291,7 @@ export const AlunoForm = ({
       setErrors(errs);
       return;
     }
-    const primeiro = form.horarios[0];
-    const payload: Partial<Aluno> = {
-      professor_id: professorId,
-      nome: form.nome.trim(),
-      instrumento: form.instrumento,
-      nivel: (form.nivel as AlunoNivel) || null,
-      objetivo: form.objetivo.trim() || null,
-      telefone: form.telefone ? unformatPhone(form.telefone) : null,
-      email_notificacao: form.email_notificacao || null,
-      nome_responsavel: form.nome_responsavel || null,
-      data_nascimento: form.data_nascimento || null,
-      dia_semana: parseInt(primeiro.dia_semana),
-      horario: `${primeiro.horario}:00`,
-      duracao_minutos: parseInt(primeiro.duracao_minutos),
-      valor_mensalidade: parseCurrencyInput(form.valor_mensalidade) / 100,
-      observacoes: form.observacoes || null,
-    };
-    mutation.mutate(payload);
+    mutation.mutate();
   };
 
   const handleValorChange = (e: React.ChangeEvent<HTMLInputElement>) => {

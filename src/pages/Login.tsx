@@ -7,7 +7,7 @@ import { translateSupabaseError } from "@/lib/auth-errors";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { GoogleSignInButton } from "@/components/shared/GoogleSignInButton";
+import { GoogleAuthOption } from "@/components/shared/GoogleSignInButton";
 import AuthLayout from "@/components/layout/AuthLayout";
 
 const Login = () => {
@@ -61,15 +61,7 @@ const Login = () => {
         to: "/cadastro",
       }}
     >
-      <GoogleSignInButton />
-
-      <div className="flex items-center gap-3.5 my-[22px]">
-        <div className="flex-1 h-px bg-border" />
-        <span className="font-mono text-[10px] tracking-[0.18em] uppercase text-muted-foreground/70 whitespace-nowrap">
-          ou com email
-        </span>
-        <div className="flex-1 h-px bg-border" />
-      </div>
+      <GoogleAuthOption />
 
       <form onSubmit={handleLogin} className="space-y-4">
         <div>
@@ -82,6 +74,7 @@ const Login = () => {
             placeholder="marina@email.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            autoComplete="email"
             required
             autoFocus
             className="h-[46px] text-[14px]"
@@ -112,6 +105,7 @@ const Login = () => {
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              autoComplete="current-password"
               required
               className="h-[46px] text-[14px] pr-11"
             />

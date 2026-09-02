@@ -191,20 +191,7 @@ const PacoteCard = ({ pacote }: { pacote: PacoteAulas }) => {
       const { error } = await supabase.rpc("usar_aula_pacote", {
         p_pacote_id: pacote.id,
       });
-      if (!error) return;
-      if (error.code !== "42883") throw error;
-
-      console.warn(
-        "RPC usar_aula_pacote ausente — rode sql/2026-08-lancamento.sql. Usando fallback não-atômico.",
-      );
-      const novasUsadas = pacote.aulas_usadas + 1;
-      const novoStatus =
-        novasUsadas >= pacote.total_aulas ? "concluido" : "ativo";
-      const { error: errFallback } = await supabase
-        .from("pacotes_aulas")
-        .update({ aulas_usadas: novasUsadas, status: novoStatus })
-        .eq("id", pacote.id);
-      if (errFallback) throw errFallback;
+      if (error) throw error;
     },
     onSuccess: () => {
       invalidatePacotes(qc);

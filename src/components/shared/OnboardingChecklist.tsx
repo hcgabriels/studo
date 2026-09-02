@@ -125,7 +125,7 @@ export const OnboardingChecklist = ({ professor, alunos }: Props) => {
                   className={cn(
                     "flex items-center gap-3 px-3 py-2.5 -mx-3 rounded-lg transition-colors group",
                     step.done
-                      ? "opacity-50"
+                      ? "hover:bg-accent/30"
                       : isProxima
                         ? "hover:bg-accent/40"
                         : "hover:bg-accent/30",

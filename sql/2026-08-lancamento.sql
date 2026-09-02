@@ -1,9 +1,11 @@
 -- ============================================================================
 -- Studoo · Migration de lançamento (agosto/2026)
 --
--- Rode este arquivo INTEIRO no SQL Editor do Supabase. É idempotente: pode
--- rodar de novo sem quebrar nada — inclusive depois de uma execução que parou
--- no meio por erro.
+-- HISTÓRICO: não execute este arquivo. A versão canônica e revisada está em
+-- supabase/migrations/ e inclui o schema completo e hardening posterior.
+--
+-- Originalmente, este arquivo era colado inteiro no SQL Editor e desenhado
+-- para ser idempotente. Esse fluxo foi aposentado.
 --
 -- Conteúdo:
 --   1. RLS das 4 tabelas centrais  ← CRÍTICO, leia a nota abaixo

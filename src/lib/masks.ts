@@ -43,19 +43,43 @@ export const formatCPF = (value: string): string => {
   return `${d.slice(0, 3)}.${d.slice(3, 6)}.${d.slice(6, 9)}-${d.slice(9)}`;
 };
 
-export const detectPixType = (value: string): string | null => {
-  if (!value) return null;
+const isValidCPF = (value: string): boolean => {
   const digits = value.replace(/\D/g, "");
-  if (value.includes("@")) return "E-mail";
-  if (digits.length === 11) return "CPF / Celular";
+  if (digits.length !== 11 || /^(\d)\1{10}$/.test(digits)) return false;
+
+  const digit = (length: number) => {
+    const sum = digits
+      .slice(0, length)
+      .split("")
+      .reduce((total, current, index) => total + Number(current) * (length + 1 - index), 0);
+    const remainder = (sum * 10) % 11;
+    return remainder === 10 ? 0 : remainder;
+  };
+
+  return digit(9) === Number(digits[9]) && digit(10) === Number(digits[10]);
+};
+
+export const detectPixType = (value: string): string | null => {
+  const clean = value.trim();
+  if (!clean) return null;
+  const digits = clean.replace(/\D/g, "");
+  if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(clean)) return "E-mail";
+  if (/^[a-f0-9]{8}-?[a-f0-9]{4}-?[a-f0-9]{4}-?[a-f0-9]{4}-?[a-f0-9]{12}$/i.test(clean)) {
+    return "Chave aleatória";
+  }
   if (digits.length === 14) return "CNPJ";
-  if (/^[a-f0-9]{32}$/i.test(value.replace(/-/g, ""))) return "Chave aleatória";
+  if (digits.length === 13 && digits.startsWith("55")) return "Celular";
+  if (digits.length === 11) return isValidCPF(digits) ? "CPF" : "Celular";
   return null;
 };
 export const formatPixKey = (value: string): string => {
-  if (value.includes("@")) return value;
+  if (value.includes("@")) return value.trim().toLowerCase();
   const digits = value.replace(/\D/g, "");
-  if (digits.length === 11) return formatCPF(digits);
+  if (digits.length === 13 && digits.startsWith("55")) return formatPhone(digits.slice(2));
+  if (digits.length === 14) return formatCpfCnpj(digits);
+  if (digits.length === 11) {
+    return isValidCPF(digits) ? formatCPF(digits) : formatPhone(digits);
+  }
   return value;
 };
 

@@ -12,13 +12,13 @@
 
 ## Bloqueadores antes de convidar professores
 
-1. Revisar template dos emails de autenticação no Supabase.
-2. Melhorar entregabilidade dos emails enviados pelo Resend.
-3. Revisar onboarding inicial e estados de primeira visita.
-4. Revisar modal de novo aluno.
-5. Criar onboarding guiado com tooltips para o primeiro acesso.
-6. Ativar proteção de senha vazada no Supabase Auth, se disponível no plano.
-7. Rodar QA manual em produção.
+- [ ] Aplicar no Supabase remoto os templates versionados em `supabase/templates/`.
+- [ ] Melhorar e comprovar a entregabilidade dos emails enviados pelo Resend.
+- [x] Revisar onboarding inicial e estados de primeira visita.
+- [x] Revisar e padronizar os modais, inclusive novo aluno e registro de aula.
+- [x] Criar onboarding guiado com tooltips para o primeiro acesso.
+- [ ] Ativar proteção de senha vazada no Supabase Auth, se disponível no plano.
+- [ ] Rodar QA manual no deploy de produção.
 
 ## Supabase Auth
 
@@ -44,7 +44,7 @@ Depois de salvar, testar:
 - Cadastro com email e senha
 - Confirmação de email
 - Reset de senha
-- Login com Google, se continuar ativo
+- Login com Google, depois de ativar o provedor conforme `docs/GOOGLE_OAUTH.md`
 
 ### Templates de email
 
@@ -157,6 +157,7 @@ Environment variables:
 - `VITE_SUPABASE_ANON_KEY`
 - `VITE_POSTHOG_KEY`
 - `VITE_POSTHOG_HOST`
+- `VITE_SUPPORT_WHATSAPP` (opcional; DDI + DDD + número, apenas dígitos)
 
 ### Netlify ou Cloudflare Pages
 

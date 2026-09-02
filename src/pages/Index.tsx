@@ -159,7 +159,7 @@ const faqs = [
 ];
 
 const Eyebrow = ({ children }: { children: React.ReactNode }) => (
-  <div className="font-mono text-[11px] tracking-[0.18em] uppercase text-primary mb-4">
+  <div className="font-mono text-[11px] tracking-[0.18em] uppercase text-[hsl(33_84%_27%)] dark:text-primary mb-4">
     {children}
   </div>
 );
@@ -202,13 +202,20 @@ const Index = () => {
 
       {/* Hero */}
       <section ref={heroRef} className="relative overflow-hidden">
-        <div className="absolute inset-0 -z-10 pointer-events-none" aria-hidden>
+        <div className="absolute inset-0 z-0 pointer-events-none" aria-hidden>
+          <img
+            src="/landing/music-studio-wes-hicks.webp"
+            alt=""
+            className="absolute inset-0 h-full w-full object-cover object-center opacity-[0.3] dark:opacity-[0.38]"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-background via-background/82 to-background/30" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/35" />
           <div className="lp-blob-1 absolute top-20 -left-20 h-96 w-96 rounded-full bg-primary/10 blur-3xl" />
           <div className="lp-blob-2 absolute top-40 -right-20 h-80 w-80 rounded-full bg-primary/5 blur-3xl" />
           <div className="lp-blob-3 absolute bottom-20 left-1/3 h-72 w-72 rounded-full bg-primary/8 blur-3xl" />
         </div>
 
-        <div className="max-w-6xl mx-auto px-4 md:px-6 pt-16 md:pt-24 pb-12 md:pb-20">
+        <div className="relative z-10 max-w-6xl mx-auto px-4 md:px-6 pt-16 md:pt-24 pb-12 md:pb-20">
           <div className="grid lg:grid-cols-[1fr_1.1fr] gap-10 lg:gap-14 items-center">
             {/* Texto à esquerda */}
             <div>
@@ -446,7 +453,7 @@ const Index = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {howItWorks.map((s) => (
               <div key={s.n}>
-                <div className="font-mono text-5xl font-bold text-primary/40 mb-4">
+                <div className="font-mono text-5xl font-bold text-primary/75 mb-4">
                   {s.n}
                 </div>
                 <h3

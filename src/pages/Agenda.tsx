@@ -113,50 +113,6 @@ const STATUS_OPTIONS = [
   },
 ] as const;
 
-// Política de faltas: decide se o status concede +1 reposição ao aluno.
-// - "falta_justificada" sempre concede.
-// - "falta_sem_aviso" concede APENAS se cobrarSemAviso=false (modo flexível).
-// Default (null/undefined/true) = modo rigoroso → sem aviso não vira reposição.
-/**
- * Soma ou subtrai 1 do saldo de reposições, sem race.
- *
- * O padrão antigo (SELECT o valor → UPDATE valor±1) perdia contagem: com o app
- * aberto no celular e no desktop dentro da janela de cache, os dois liam o
- * mesmo número e gravavam o mesmo resultado. O aluno ganhava aula de graça.
- */
-const ajustarReposicao = async (alunoId: string, delta: 1 | -1) => {
-  const fn = delta > 0 ? "increment_reposicao" : "decrement_reposicao";
-  const { error } = await supabase.rpc(fn, { p_aluno_id: alunoId });
-  if (!error) return;
-
-  // Assinatura antiga da RPC (parâmetro `aluno_id_param`).
-  if (delta > 0) {
-    const { error: errLegado } = await supabase.rpc("increment_reposicao", {
-      aluno_id_param: alunoId,
-    });
-    if (!errLegado) return;
-  }
-
-  // Migration ainda não rodou: cai no caminho antigo, sujeito a race.
-  console.warn(
-    `RPC ${fn} ausente — rode sql/2026-08-lancamento.sql. Usando fallback não-atômico.`,
-  );
-  const { data: aluno } = await supabase
-    .from("alunos")
-    .select("reposicoes_disponiveis")
-    .eq("id", alunoId)
-    .single();
-  const atual =
-    (aluno as { reposicoes_disponiveis: number } | null)
-      ?.reposicoes_disponiveis ?? 0;
-  const novo = Math.max(0, atual + delta);
-  if (novo === atual) return;
-  await supabase
-    .from("alunos")
-    .update({ reposicoes_disponiveis: novo })
-    .eq("id", alunoId);
-};
-
 const PresencaModal = ({
   slot,
   onClose,
@@ -230,40 +186,17 @@ const PresencaModal = ({
   const mutation = useMutation({
     mutationFn: async () => {
       if (!slot || !professor) return;
-      const statusAnterior = existing?.status;
-      if (existing) {
-        const { error } = await supabase
-          .from("aulas")
-          .update({ status, observacao: obs || null, licao_casa: licao || null })
-          .eq("id", existing.id);
-        if (error) throw error;
-      } else {
-        const { error } = await supabase.from("aulas").insert({
-          aluno_id: slot.aluno.id,
-          professor_id: professor.id,
-          data_hora: slot.date.toISOString(),
-          duracao_minutos: slot.aluno.duracao_minutos,
-          status,
-          observacao: obs || null,
-          licao_casa: licao || null,
-        });
-        if (error) throw error;
-      }
-
-      // Reposição: usa a política configurada do professor pra decidir antes e depois.
-      const cobrarSemAviso = professor.cobrar_falta_sem_aviso;
-      const grantedBefore = grantsReposicao(statusAnterior, cobrarSemAviso);
-      const grantsNow = grantsReposicao(status, cobrarSemAviso);
-
-      // Os dois lados agora usam RPC atômica (UPDATE ... SET x = x ± 1).
-      // O read-modify-write antigo perdia contagem quando o app estava aberto
-      // em duas telas dentro da janela de cache.
-      if (slot.aluno.id && !grantedBefore && grantsNow) {
-        await ajustarReposicao(slot.aluno.id, +1);
-      }
-      if (slot.aluno.id && grantedBefore && !grantsNow) {
-        await ajustarReposicao(slot.aluno.id, -1);
-      }
+      const { error } = await supabase.rpc("registrar_aula", {
+        p_aula_id: existing?.id ?? null,
+        p_professor_id: professor.id,
+        p_aluno_id: slot.aluno.id || null,
+        p_data_hora: slot.date.toISOString(),
+        p_duracao: slot.aluno.duracao_minutos,
+        p_status: status,
+        p_observacao: obs || null,
+        p_licao_casa: licao || null,
+      });
+      if (error) throw error;
     },
     onSuccess: () => {
       invalidateAulas(qc);
@@ -284,60 +217,15 @@ const PresencaModal = ({
     mutationFn: async () => {
       if (!slot || !professor || !newDate || !newTime) return;
       const novaData = new Date(`${newDate}T${newTime}:00`);
-
-      // Materializa a aula original quando ela ainda era só um slot virtual,
-      // pra não perder o vínculo `reagendada_de`.
-      let originalId = existing?.id ?? null;
-      if (!originalId) {
-        const { data: criada, error } = await supabase
-          .from("aulas")
-          .insert({
-            aluno_id: slot.aluno.id,
-            professor_id: professor.id,
-            data_hora: slot.date.toISOString(),
-            duracao_minutos: slot.aluno.duracao_minutos,
-            status: "agendada",
-            tipo: "recorrente",
-          })
-          .select("id")
-          .single();
-        if (error) throw error;
-        originalId = (criada as { id: string }).id;
-      }
-
-      // RPC transacional: marcar a original como reagendada e criar a nova
-      // precisa ser tudo-ou-nada. Em duas requests, uma falha no meio deixava
-      // a aula original marcada e a nova inexistente — a aula sumia.
-      const { error: errRpc } = await supabase.rpc("reagendar_aula", {
-        p_aula_id: originalId,
+      const { error } = await supabase.rpc("reagendar_aula", {
+        p_aula_id: existing?.id ?? null,
         p_professor_id: professor.id,
-        p_aluno_id: slot.aluno.id,
+        p_aluno_id: slot.aluno.id || null,
+        p_data_original: slot.date.toISOString(),
         p_nova_data: novaData.toISOString(),
         p_duracao: slot.aluno.duracao_minutos,
       });
-
-      if (errRpc) {
-        if (errRpc.code !== "42883") throw errRpc;
-        // Migration ainda não rodou: cai no caminho antigo, sem atomicidade.
-        console.warn(
-          "RPC reagendar_aula ausente — rode sql/2026-08-lancamento.sql. Usando fallback não-transacional.",
-        );
-        const { error: errUp } = await supabase
-          .from("aulas")
-          .update({ status: "reagendada" })
-          .eq("id", originalId);
-        if (errUp) throw errUp;
-        const { error: errNova } = await supabase.from("aulas").insert({
-          aluno_id: slot.aluno.id,
-          professor_id: professor.id,
-          data_hora: novaData.toISOString(),
-          duracao_minutos: slot.aluno.duracao_minutos,
-          status: "agendada",
-          tipo: "avulsa",
-          reagendada_de: originalId,
-        });
-        if (errNova) throw errNova;
-      }
+      if (error) throw error;
     },
     onSuccess: () => {
       invalidateAulas(qc);
@@ -408,7 +296,7 @@ const PresencaModal = ({
               </div>
             )}
 
-            {existing?.tipo === "experimental" && (
+            {existing?.tipo === "experimental" && !existing.aluno_id && (
               <button
                 type="button"
                 onClick={() => onConverterTrial(existing)}
@@ -528,22 +416,6 @@ const PresencaModal = ({
               <span>Reagendar essa aula pra outra data</span>
             </button>
 
-            <div className="flex gap-2">
-              <Button variant="ghost" className="flex-1" onClick={onClose}>
-                Cancelar
-              </Button>
-              <Button
-                className="flex-1"
-                disabled={!podeSalvarRegistro || mutation.isPending}
-                onClick={() => mutation.mutate()}
-              >
-                {mutation.isPending
-                  ? "Salvando..."
-                  : existing
-                  ? "Atualizar"
-                  : "Registrar aula"}
-              </Button>
-            </div>
           </DialogBody>
         ) : (
           <DialogBody className="space-y-4">
@@ -575,20 +447,41 @@ const PresencaModal = ({
               </div>
             </div>
 
-            <div className="flex gap-2">
-              <Button variant="ghost" className="flex-1" onClick={() => setMode("presence")}>
+          </DialogBody>
+        )}
+        <DialogFooter>
+          {mode === "presence" ? (
+            <>
+              <Button variant="ghost" onClick={onClose}>
+                Cancelar
+              </Button>
+              <Button
+                disabled={!podeSalvarRegistro || mutation.isPending}
+                onClick={() => mutation.mutate()}
+              >
+                {mutation.isPending
+                  ? "Salvando..."
+                  : existing
+                    ? "Atualizar"
+                    : "Registrar aula"}
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button variant="ghost" onClick={() => setMode("presence")}>
                 Voltar
               </Button>
               <Button
-                className="flex-1"
                 disabled={!newDate || !newTime || reagendarMutation.isPending}
                 onClick={() => reagendarMutation.mutate()}
               >
-                {reagendarMutation.isPending ? "Reagendando..." : "Confirmar reagendamento"}
+                {reagendarMutation.isPending
+                  ? "Reagendando..."
+                  : "Confirmar reagendamento"}
               </Button>
-            </div>
-          </DialogBody>
-        )}
+            </>
+          )}
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
@@ -630,46 +523,18 @@ const ConverterTrialModal = ({
   const mutation = useMutation({
     mutationFn: async () => {
       if (!professor || !aulaExperimental) return;
-      // 1. Cria o aluno
-      const { data: novo, error: errAluno } = await supabase
-        .from("alunos")
-        .insert({
-          professor_id: professor.id,
-          nome: nome.trim(),
-          instrumento,
-          telefone: telefone ? unformatPhone(telefone) : null,
-          dia_semana: parseInt(diaSemana),
-          horario: `${horario}:00`,
-          duracao_minutos: parseInt(duracao),
-          valor_mensalidade: parseCurrencyInput(valor) / 100,
-          status: "ativo",
-        })
-        .select("id")
-        .single();
-      if (errAluno) throw errAluno;
-      const alunoId = (novo as { id: string }).id;
-
-      // 2. Cria entrada em aulas_recorrentes
-      const { error: errRec } = await supabase.from("aulas_recorrentes").insert({
-        aluno_id: alunoId,
-        professor_id: professor.id,
-        dia_semana: parseInt(diaSemana),
-        horario: `${horario}:00`,
-        duracao_minutos: parseInt(duracao),
-        ativo: true,
+      const { error } = await supabase.rpc("converter_aula_experimental", {
+        p_aula_id: aulaExperimental.id,
+        p_professor_id: professor.id,
+        p_nome: nome.trim(),
+        p_instrumento: instrumento,
+        p_telefone: telefone ? unformatPhone(telefone) : null,
+        p_dia_semana: parseInt(diaSemana),
+        p_horario: `${horario}:00`,
+        p_duracao: parseInt(duracao),
+        p_valor_mensalidade: parseCurrencyInput(valor) / 100,
       });
-      if (errRec) throw errRec;
-
-      // 3. Atualiza a aula experimental: vincula ao aluno
-      const { error: errAula } = await supabase
-        .from("aulas")
-        .update({
-          aluno_id: alunoId,
-          tipo: "avulsa",
-          aluno_experimental_nome: null,
-        })
-        .eq("id", aulaExperimental.id);
-      if (errAula) throw errAula;
+      if (error) throw error;
     },
     onSuccess: () => {
       invalidateAlunos(qc);
@@ -847,22 +712,16 @@ const NovaAulaModal = ({
     mutationFn: async () => {
       if (!professor) return;
       const dataHora = new Date(`${data}T${hora}:00`);
-      const { error } = await supabase.from("aulas").insert({
-        aluno_id: experimental ? null : alunoId,
-        professor_id: professor.id,
-        data_hora: dataHora.toISOString(),
-        duracao_minutos: parseInt(duracao),
-        status: "agendada",
-        tipo: experimental ? "experimental" : "avulsa",
-        aluno_experimental_nome: experimental ? nomeExperimental : null,
-        eh_reposicao: !experimental && ehReposicao,
+      const { error } = await supabase.rpc("criar_aula_avulsa", {
+        p_professor_id: professor.id,
+        p_aluno_id: experimental ? null : alunoId,
+        p_data_hora: dataHora.toISOString(),
+        p_duracao: parseInt(duracao),
+        p_tipo: experimental ? "experimental" : "avulsa",
+        p_aluno_experimental_nome: experimental ? nomeExperimental : null,
+        p_eh_reposicao: !experimental && ehReposicao,
       });
       if (error) throw error;
-
-      // Consome uma reposição, de forma atômica.
-      if (!experimental && ehReposicao && alunoId) {
-        await ajustarReposicao(alunoId, -1);
-      }
     },
     onSuccess: () => {
       invalidateAulas(qc);
@@ -1510,7 +1369,12 @@ const Agenda = () => {
                         <p className="font-semibold text-sm">
                           {DIAS_SEMANA_FULL[day.getDay()]}
                         </p>
-                        <p className="text-sm text-muted-foreground">
+                        <p
+                          className={cn(
+                            "text-sm",
+                            today ? "text-foreground/80" : "text-muted-foreground",
+                          )}
+                        >
                           {format(day, "dd/MM")}
                         </p>
                         {bloqueado && (
@@ -1546,7 +1410,7 @@ const Agenda = () => {
                                 key={`${slot.aluno.id}-${slot.date.toISOString()}-${slot.existingAula?.id ?? "slot"}`}
                                 className={cn(
                                   "w-full px-4 py-3 flex items-center gap-3 text-left hover:bg-muted/30 transition-colors",
-                                  isReagendada && "opacity-50"
+                                  isReagendada && "bg-muted/25"
                                 )}
                                 onClick={() => setSelectedSlot(slot)}
                               >
@@ -1713,7 +1577,7 @@ const Agenda = () => {
                                       className={cn(
                                         "w-full text-left rounded-md px-2 py-1 text-xs border transition-opacity hover:opacity-80",
                                         getStatusBg(slot.existingAula?.status),
-                                        isReagendada && "opacity-50 line-through",
+                                        isReagendada && "line-through",
                                         tipo === "avulsa" && "border-dashed",
                                         tipo === "experimental" &&
                                           "border-dashed bg-warning/10 border-warning/30 text-warning"

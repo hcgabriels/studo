@@ -32,22 +32,27 @@ const AuthLayout = ({
   topRight,
 }: AuthLayoutProps) => {
   return (
-    <div className="h-screen w-screen bg-background text-foreground grid grid-cols-1 md:grid-cols-[1.05fr_1fr] overflow-hidden">
+    <div className="min-h-screen w-full bg-background text-foreground grid grid-cols-1 lg:h-screen lg:grid-cols-[minmax(420px,1.05fr)_minmax(420px,1fr)] lg:overflow-hidden">
       {/* ── Esquerda: gradient + brand-block ────────────────────────────── */}
       <aside
-        className="relative hidden md:block overflow-hidden"
+        className="relative hidden lg:block overflow-hidden"
         style={{
           background:
             "linear-gradient(135deg, #2A1D14 0%, #1B1814 40%, #0F0D0A 100%)",
         }}
       >
+        <img
+          src="/landing/guitarist-gabriel-gurrola.webp"
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover object-[52%_center]"
+        />
         {/* Tint + vignette */}
         <div
           aria-hidden
           className="absolute inset-0 pointer-events-none"
           style={{
             background:
-              "radial-gradient(120% 80% at 30% 20%, rgba(231,161,58,0.18) 0%, transparent 55%), linear-gradient(180deg, transparent 40%, rgba(10,8,7,0.55) 75%, rgba(10,8,7,0.92) 100%)",
+              "linear-gradient(110deg, rgba(10,8,7,0.42), rgba(10,8,7,0.08) 58%), radial-gradient(120% 80% at 30% 20%, rgba(231,161,58,0.18) 0%, transparent 55%), linear-gradient(180deg, rgba(10,8,7,0.08) 28%, rgba(10,8,7,0.72) 72%, rgba(10,8,7,0.96) 100%)",
           }}
         />
         <div
@@ -55,7 +60,7 @@ const AuthLayout = ({
           className="absolute inset-0 pointer-events-none"
           style={{
             background:
-              "radial-gradient(120% 100% at 50% 50%, transparent 30%, rgba(10,8,7,0.35) 100%)",
+              "radial-gradient(120% 100% at 50% 50%, transparent 24%, rgba(10,8,7,0.48) 100%)",
           }}
         />
 
@@ -110,20 +115,20 @@ const AuthLayout = ({
       </aside>
 
       {/* ── Direita: form column ─────────────────────────────────────────── */}
-      <main className="relative flex flex-col px-6 sm:px-10 lg:px-[72px] py-8 overflow-y-auto">
+      <main className="relative flex min-h-screen flex-col px-5 py-6 sm:px-10 sm:py-8 lg:min-h-0 lg:px-12 xl:px-[72px] lg:overflow-y-auto">
         {/* Top-right contextual switcher */}
-        <div className="w-full max-w-[380px] mx-auto flex items-center justify-between h-9">
+        <div className="w-full max-w-[420px] mx-auto flex min-h-9 items-center justify-between gap-3">
           {/* Mobile: logo aparece (no desktop fica na esquerda) */}
-          <Link to="/" className="inline-flex md:hidden items-center gap-2.5">
+          <Link to="/" className="inline-flex lg:hidden items-center gap-2.5 shrink-0">
             <StudooMark size={22} />
             <Wordmark size={18} />
           </Link>
           {/* Hidden spacer pra desktop alinhar à direita */}
-          <span aria-hidden className="hidden md:block" />
+          <span aria-hidden className="hidden lg:block" />
 
           {topRight && (
-            <div className="inline-flex items-center gap-1 text-[13.5px]">
-              <span className="text-muted-foreground">{topRight.question}</span>
+            <div className="inline-flex items-center justify-end gap-1 text-[13.5px] text-right">
+              <span className="hidden sm:inline text-muted-foreground">{topRight.question}</span>
               <Link
                 to={topRight.to}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-primary font-semibold hover:bg-primary-soft transition-colors"
@@ -136,8 +141,8 @@ const AuthLayout = ({
         </div>
 
         {/* Form area centralizado verticalmente */}
-        <div className="flex-1 flex items-center justify-center py-8">
-          <div className="w-full max-w-[380px] animate-fade-in-up">
+        <div className="flex flex-1 items-center justify-center py-8">
+          <div className="w-full max-w-[420px] animate-fade-in-up">
             {eyebrow && (
               <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary-soft border border-primary-ring mb-4">
                 <span

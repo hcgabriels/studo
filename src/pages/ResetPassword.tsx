@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import { MIN_PASSWORD as MIN_SENHA } from "@/lib/constants";
@@ -8,13 +8,22 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import AuthLayout from "@/components/layout/AuthLayout";
+import { parseRecoveryUrl } from "@/lib/auth-recovery";
+
+type RecoveryState = "checking" | "ready" | "invalid";
 
 const ResetPassword = () => {
   const navigate = useNavigate();
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [loading, setLoading] = useState(false);
-  const [ready, setReady] = useState(false);
+  const [recoveryUrl] = useState(() => parseRecoveryUrl(window.location.href));
+  const [recoveryState, setRecoveryState] = useState<RecoveryState>(
+    recoveryUrl.error ? "invalid" : "checking",
+  );
+  const [recoveryError, setRecoveryError] = useState<string | null>(
+    recoveryUrl.error,
+  );
 
   useEffect(() => {
     // Só um link de recuperação libera a troca de senha.
@@ -22,24 +31,36 @@ const ResetPassword = () => {
     // Antes qualquer sessão existente liberava, então um usuário já logado que
     // abrisse /reset-password trocava a senha sem reautenticação nenhuma —
     // com uma sessão roubada isso vira takeover de conta.
+    if (recoveryUrl.error) return;
+
+    let receivedRecoveryEvent = false;
+    let cancelled = false;
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        if (event === "PASSWORD_RECOVERY" && session) setReady(true);
+        if (event === "PASSWORD_RECOVERY" && session) {
+          receivedRecoveryEvent = true;
+          setRecoveryState("ready");
+        }
       }
     );
 
     // O evento pode disparar antes do listener montar quando o link já trouxe
     // a sessão de recovery na URL — daí a checagem do tipo de sessão.
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      const veioDeRecovery =
-        typeof window !== "undefined" &&
-        (window.location.hash.includes("type=recovery") ||
-          new URLSearchParams(window.location.search).get("type") === "recovery");
-      if (session && veioDeRecovery) setReady(true);
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      if (cancelled || receivedRecoveryEvent) return;
+      if (session && recoveryUrl.isRecovery) {
+        setRecoveryState("ready");
+        return;
+      }
+      setRecoveryError(error?.message ?? null);
+      setRecoveryState("invalid");
     });
 
-    return () => subscription.unsubscribe();
-  }, []);
+    return () => {
+      cancelled = true;
+      subscription.unsubscribe();
+    };
+  }, [recoveryUrl]);
 
   const handleReset = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,10 +94,21 @@ const ResetPassword = () => {
         to: "/login",
       }}
     >
-      {!ready ? (
+      {recoveryState === "checking" ? (
         <p className="text-center text-muted-foreground text-sm py-4">
           Verificando link de recuperação...
         </p>
+      ) : recoveryState === "invalid" ? (
+        <div className="space-y-4 text-center">
+          <p role="alert" className="text-sm text-muted-foreground">
+            {recoveryError
+              ? translateSupabaseError(recoveryError, "Este link é inválido ou expirou.")
+              : "Este link é inválido ou expirou."}
+          </p>
+          <Button asChild className="w-full">
+            <Link to="/login">Solicitar novo link</Link>
+          </Button>
+        </div>
       ) : (
         <form onSubmit={handleReset} className="space-y-4">
           <div className="space-y-1.5">
@@ -84,9 +116,12 @@ const ResetPassword = () => {
             <Input
               id="password"
               type="password"
-              placeholder="Mínimo 6 caracteres"
+              placeholder={`Mínimo ${MIN_SENHA} caracteres`}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              autoComplete="new-password"
+              minLength={MIN_SENHA}
+              required
               autoFocus
             />
           </div>
@@ -99,6 +134,9 @@ const ResetPassword = () => {
               placeholder="••••••••"
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}
+              autoComplete="new-password"
+              minLength={MIN_SENHA}
+              required
             />
           </div>
 

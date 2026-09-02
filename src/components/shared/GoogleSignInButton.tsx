@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import { translateSupabaseError } from "@/lib/auth-errors";
@@ -9,6 +9,26 @@ interface Props {
   /** Para onde redirecionar após autenticar. Default: /dashboard */
   redirectTo?: string;
 }
+
+let googleAvailabilityRequest: Promise<boolean> | null = null;
+
+const googleProviderIsEnabled = () => {
+  if (!googleAvailabilityRequest) {
+    const url = `${import.meta.env.VITE_SUPABASE_URL}/auth/v1/settings`;
+    googleAvailabilityRequest = fetch(url, {
+      headers: { apikey: import.meta.env.VITE_SUPABASE_ANON_KEY },
+    })
+      .then(async (response) => {
+        if (!response.ok) return false;
+        const settings = (await response.json()) as {
+          external?: { google?: boolean };
+        };
+        return settings.external?.google === true;
+      })
+      .catch(() => false);
+  }
+  return googleAvailabilityRequest;
+};
 
 export const GoogleSignInButton = ({
   label = "Continuar com Google",
@@ -42,6 +62,40 @@ export const GoogleSignInButton = ({
       <GoogleIcon className="h-4 w-4" />
       {loading ? "Conectando..." : label}
     </Button>
+  );
+};
+
+/**
+ * A opção inteira some quando o Google está desligado no Supabase remoto.
+ * Assim a tela nunca oferece um botão que termina em "provider is not enabled";
+ * ao ativar o provedor, ele reaparece sem nova variável de ambiente.
+ */
+export const GoogleAuthOption = (props: Props) => {
+  const [available, setAvailable] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    void googleProviderIsEnabled().then((enabled) => {
+      if (active) setAvailable(enabled);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  if (!available) return null;
+
+  return (
+    <>
+      <GoogleSignInButton {...props} />
+      <div className="flex items-center gap-3.5 my-[22px]">
+        <div className="flex-1 h-px bg-border" />
+        <span className="font-mono text-[10px] tracking-[0.18em] uppercase text-muted-foreground whitespace-nowrap">
+          ou com email
+        </span>
+        <div className="flex-1 h-px bg-border" />
+      </div>
+    </>
   );
 };
 

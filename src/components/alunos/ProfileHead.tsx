@@ -62,9 +62,9 @@ export const ProfileHead = ({
     <Avatar name={name} size="xl" />
 
     <div className="flex flex-col gap-2 min-w-0">
-      <div className="text-[22px] md:text-[26px] font-bold tracking-[-0.025em] leading-[1.1]">
+      <h1 className="text-[22px] md:text-[26px] font-bold tracking-[-0.025em] leading-[1.1]">
         {name}
-      </div>
+      </h1>
 
       {badges && (
         <div className="flex items-center flex-wrap gap-2.5">{badges}</div>

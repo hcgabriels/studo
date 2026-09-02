@@ -49,6 +49,7 @@ const VerificarEmail = () => {
 
   return (
     <AuthLayout
+      eyebrow="Conta criada"
       title="Verifique seu email"
       subtitle={
         email ? (
@@ -70,11 +71,11 @@ const VerificarEmail = () => {
       }
     >
       <div className="space-y-5">
-        <div className="flex flex-col items-center text-center py-2">
+        <div className="flex flex-col items-center rounded-xl border border-primary/20 bg-primary/5 px-5 py-6 text-center">
           <div className="h-14 w-14 rounded-full bg-primary/15 flex items-center justify-center mb-3">
             <Mail className="h-6 w-6 text-primary" />
           </div>
-          <p className="text-sm text-muted-foreground leading-relaxed max-w-xs">
+          <p className="max-w-xs text-sm leading-relaxed text-muted-foreground">
             Cheque sua caixa de entrada e clique no link para ativar sua conta.
             Pode levar alguns minutos.
           </p>

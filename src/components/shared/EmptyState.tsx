@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 type EmptyTone = "default" | "muted";
+type EmptyAlign = "center" | "start";
 
 interface EmptyStateProps {
   icon?: React.ElementType;
@@ -10,6 +11,8 @@ interface EmptyStateProps {
   action?: ReactNode;
   /** "default" = box bordered (em página). "muted" = sem fundo, padding menor (dentro de cards). */
   tone?: EmptyTone;
+  /** "start" funciona melhor em cards de tarefa, onde o CTA continua o fluxo de leitura. */
+  align?: EmptyAlign;
   className?: string;
 }
 
@@ -23,11 +26,13 @@ export const EmptyState = ({
   description,
   action,
   tone = "default",
+  align = "center",
   className,
 }: EmptyStateProps) => (
   <div
     className={cn(
-      "text-center flex flex-col items-center",
+      "flex flex-col",
+      align === "center" ? "items-center text-center" : "items-start text-left",
       tone === "default"
         ? "bg-card border border-dashed border-border rounded-xl px-6 py-10 md:py-12"
         : "px-4 py-8",

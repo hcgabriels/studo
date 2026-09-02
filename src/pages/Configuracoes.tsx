@@ -27,6 +27,7 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SectionCard } from "@/components/shared/SectionCard";
+import { AddressMapLink } from "@/components/shared/AddressMapLink";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { PageHead, PageHeadMobile } from "@/components/shared/PageHead";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
@@ -306,8 +307,9 @@ const Configuracoes = () => {
             />
           </div>
           <div className="space-y-1.5">
-            <Label>Email</Label>
+            <Label htmlFor="email-conta">Email</Label>
             <Input
+              id="email-conta"
               value={professor?.email ?? ""}
               disabled
               className="opacity-60 cursor-not-allowed"
@@ -345,6 +347,7 @@ const Configuracoes = () => {
               onChange={(e) => setEndereco(e.target.value)}
               placeholder="Rua, número, bairro — Cidade/UF"
             />
+            <AddressMapLink address={endereco} />
           </div>
           <div className="flex justify-end">
             <Button onClick={saveRecibo} disabled={updateMutation.isPending} size="sm">
@@ -417,15 +420,16 @@ const Configuracoes = () => {
 
       <SectionCard
         title="Chave PIX"
-        description="Incluída nos e-mails de cobrança"
+        description="Incluída nas mensagens de cobrança do WhatsApp"
         icon={Wallet}
         iconTone="success"
       >
         <div className="space-y-3">
           <div className="space-y-1.5">
-            <Label>Chave PIX</Label>
+            <Label htmlFor="chave-pix">Chave PIX</Label>
             <div className="relative">
               <Input
+                id="chave-pix"
                 value={pixKey}
                 onChange={(e) => setPixKey(formatPixKey(e.target.value))}
                 placeholder="CPF, email, celular ou chave aleatória"
@@ -475,6 +479,7 @@ const Configuracoes = () => {
               </p>
             </div>
             <Switch
+              aria-label="Cobrar falta sem aviso"
               checked={cobrarFalta}
               onCheckedChange={async (v) => {
                 setCobrarFalta(v);
@@ -533,6 +538,7 @@ const Configuracoes = () => {
                 min={1}
                 max={72}
                 value={horasAviso}
+                aria-label="Horas de antecedência mínima para aviso de falta"
                 onChange={(e) =>
                   setHorasAviso(
                     Math.max(1, Math.min(72, Number(e.target.value) || 24)),
@@ -565,6 +571,7 @@ const Configuracoes = () => {
           <div className="grid grid-cols-1 sm:grid-cols-[160px_1fr_auto] gap-2">
             <input
               type="date"
+              aria-label="Data a bloquear na agenda"
               value={novoBloqueio.data}
               onChange={(e) =>
                 setNovoBloqueio({ ...novoBloqueio, data: e.target.value })
@@ -574,6 +581,7 @@ const Configuracoes = () => {
             />
             <Input
               value={novoBloqueio.motivo}
+              aria-label="Motivo do bloqueio da agenda"
               onChange={(e) =>
                 setNovoBloqueio({ ...novoBloqueio, motivo: e.target.value })
               }

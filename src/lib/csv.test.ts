@@ -79,6 +79,25 @@ describe("parseAlunosColados — o que a planilha realmente cola", () => {
     expect(r.linhas[1].duplicado).toBe(false);
   });
 
+  it("marca duplicata repetida dentro da própria importação", () => {
+    const r = parseAlunosColados(
+      "Ana Souza\tViolão\t(11) 99999-1234\n" +
+        "ÁNA SOUZA\tPiano\t11999991234",
+    );
+
+    expect(r.linhas[0].duplicado).toBe(false);
+    expect(r.linhas[1].duplicado).toBe(true);
+  });
+
+  it("não confunde homônimos com telefones diferentes", () => {
+    const r = parseAlunosColados(
+      "Ana Souza\tViolão\t(11) 99999-1234\n" +
+        "Ana Souza\tPiano\t(11) 98888-0000",
+    );
+
+    expect(r.linhas.every((linha) => !linha.duplicado)).toBe(true);
+  });
+
   it("ignora linhas em branco no meio da colagem", () => {
     expect(nomes("Ana Souza\n\n\nBruno Lima\n")).toEqual([
       "Ana Souza",

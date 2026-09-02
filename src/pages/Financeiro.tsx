@@ -346,11 +346,13 @@ const Financeiro = () => {
         <Button
           onClick={() => setConfirmGerar(true)}
           disabled={gerarCobrancasMutation.isPending}
-          aria-label={`Gerar ${alunosSemCobranca.length} cobranças do mês`}
+          aria-label={`Criar ${alunosSemCobranca.length} cobrança${
+            alunosSemCobranca.length !== 1 ? "s" : ""
+          } pendente${alunosSemCobranca.length !== 1 ? "s" : ""} do mês`}
         >
           <Plus className="h-4 w-4 md:mr-1.5" />
           <span className="hidden md:inline">
-            Gerar {alunosSemCobranca.length} cobrança
+            Criar {alunosSemCobranca.length} pendente
             {alunosSemCobranca.length !== 1 ? "s" : ""}
           </span>
           <span className="md:hidden tabular-nums">
@@ -425,18 +427,25 @@ const Financeiro = () => {
       <ConfirmDialog
         open={confirmGerar}
         onOpenChange={setConfirmGerar}
-        title="Gerar cobranças do mês?"
+        title="Criar cobranças pendentes?"
         description={
-          <>
-            Serão criadas <strong>{alunosSemCobranca.length}</strong> cobrança
-            {alunosSemCobranca.length !== 1 ? "s" : ""} para{" "}
-            <span className="first-letter:uppercase inline-block">{mesLabel}</span>, totalizando{" "}
-            <strong>{fmtBRL(valorTotalGerar)}</strong>. Vencimento padrão: dia{" "}
-            {diaVencimentoPadrao}.
-          </>
+          <span className="space-y-2 block">
+            <span className="block">
+              O Studoo criará <strong>{alunosSemCobranca.length}</strong> cobrança
+              {alunosSemCobranca.length !== 1 ? "s" : ""} pendente
+              {alunosSemCobranca.length !== 1 ? "s" : ""} para{" "}
+              <span className="first-letter:uppercase inline-block">{mesLabel}</span>,
+              usando a mensalidade cadastrada de cada aluno.
+            </span>
+            <span className="block">
+              Total previsto: <strong>{fmtBRL(valorTotalGerar)}</strong> · vencimento
+              no dia {diaVencimentoPadrao}. Nada será cobrado nem enviado
+              automaticamente, e cobranças já existentes serão preservadas.
+            </span>
+          </span>
         }
-        confirmLabel="Confirmar"
-        loadingLabel="Gerando…"
+        confirmLabel="Criar pendentes"
+        loadingLabel="Criando…"
         loading={gerarCobrancasMutation.isPending}
         onConfirm={() => gerarCobrancasMutation.mutate()}
       />
@@ -634,9 +643,11 @@ const Financeiro = () => {
         ) : !cobrancas || cobrancas.length === 0 ? (
           <div className="p-6">
             <EmptyState
+              tone="muted"
+              align="start"
               icon={DollarSign}
               title="Sem cobranças neste mês"
-              description='Clique em "Gerar cobranças" pra criar as mensalidades dos alunos ativos.'
+              description="Crie as mensalidades pendentes dos alunos ativos. Você revisa o total antes e nada é enviado automaticamente."
             />
           </div>
         ) : cobrancasFiltradas.length === 0 ? (
