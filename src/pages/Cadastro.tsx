@@ -64,6 +64,12 @@ const Cadastro = () => {
         return;
       }
 
+      if (data.user.identities?.length === 0) {
+        toast.info("Esse email já tem conta. Entre com sua senha para continuar.");
+        navigate("/login");
+        return;
+      }
+
       // Quando confirm email está OFF, signUp já retorna sessão.
       // Quando está ON, retorna sem sessão e o trigger SQL cria o perfil.
       if (data.session) {

@@ -78,17 +78,12 @@ const AuthLayout = ({
 
           {/* Brand-block no rodapé */}
           <div>
-            <div className="relative mb-5 min-h-10">
-              <StudooMark
-                size={34}
-                className="absolute -left-11 top-1/2 -translate-y-1/2"
+            <div className="mb-5 flex min-h-10 items-center gap-3.5">
+              <StudooMark size={34} />
+              <Wordmark
+                size={32}
+                className="text-[hsl(40_33%_94%)]"
               />
-              <span
-                className="block font-extrabold tracking-[-0.045em] leading-none"
-                style={{ fontSize: 32 }}
-              >
-                stud<em className="not-italic text-primary">oo</em>
-              </span>
             </div>
             <h2
               className="font-bold tracking-[-0.035em] leading-[1.04] m-0 max-w-[480px]"
