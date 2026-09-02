@@ -32,10 +32,10 @@ const AuthLayout = ({
   topRight,
 }: AuthLayoutProps) => {
   return (
-    <div className="min-h-screen w-full bg-background text-foreground grid grid-cols-1 lg:h-screen lg:grid-cols-[minmax(420px,1.05fr)_minmax(420px,1fr)] lg:overflow-hidden">
+    <div className="min-h-screen w-full bg-background text-foreground grid grid-cols-1 lg:h-screen lg:grid-cols-2 lg:overflow-hidden">
       {/* ── Esquerda: gradient + brand-block ────────────────────────────── */}
       <aside
-        className="relative hidden lg:block overflow-hidden"
+        className="relative hidden lg:flex min-h-0 overflow-hidden px-[clamp(64px,5vw,96px)] py-[clamp(44px,4vw,64px)]"
         style={{
           background:
             "linear-gradient(135deg, #2A1D14 0%, #1B1814 40%, #0F0D0A 100%)",
@@ -65,59 +65,70 @@ const AuthLayout = ({
         />
 
         {/* Corner badge mono com pulse */}
-        <div className="absolute top-8 left-8 z-10 inline-flex items-center gap-2 font-mono text-[10.5px] tracking-[0.18em] uppercase text-[hsl(40_33%_94%/0.55)] whitespace-nowrap">
-          <span
-            aria-hidden
-            className="relative h-1.5 w-1.5 rounded-full bg-primary"
-          >
-            <span className="absolute inset-0 rounded-full bg-primary animate-ping opacity-60" />
-          </span>
-          Studoo · 2026
-        </div>
-
-        {/* Brand-block no rodapé */}
-        <div className="absolute left-14 bottom-14 right-14 z-10 text-[hsl(40_33%_94%)]">
-          <div className="flex items-center gap-3.5 mb-5">
-            <StudooMark size={36} />
+        <div className="relative z-10 flex w-full flex-col justify-between text-[hsl(40_33%_94%)]">
+          <div className="inline-flex items-center gap-2 font-mono text-[10.5px] tracking-[0.18em] uppercase text-[hsl(40_33%_94%/0.55)] whitespace-nowrap">
             <span
-              className="font-extrabold tracking-[-0.045em] leading-none"
-              style={{ fontSize: 32 }}
+              aria-hidden
+              className="relative h-1.5 w-1.5 rounded-full bg-primary"
             >
-              stud<em className="not-italic text-primary">oo</em>
+              <span className="absolute inset-0 rounded-full bg-primary animate-ping opacity-60" />
             </span>
+            Studoo · 2026
           </div>
-          <h2
-            className="font-bold tracking-[-0.035em] leading-[1.04] m-0 max-w-[480px]"
-            style={{ fontSize: 38, textWrap: "pretty" as never }}
-          >
-            Menos administração,
-            <br />
-            <em className="not-italic text-primary">mais música.</em>
-          </h2>
-          <div className="mt-6 font-mono text-[10.5px] tracking-[0.14em] uppercase flex items-center gap-4 text-[hsl(40_33%_94%/0.42)] whitespace-nowrap">
-            <span>© {new Date().getFullYear()} Studoo</span>
-            <span
-              aria-hidden
-              className="h-[3px] w-[3px] rounded-full bg-current opacity-60"
-            />
-            <Link to="/termos" className="hover:text-[hsl(40_33%_94%)] transition-colors">
-              Termos
-            </Link>
-            <span
-              aria-hidden
-              className="h-[3px] w-[3px] rounded-full bg-current opacity-60"
-            />
-            <Link to="/privacidade" className="hover:text-[hsl(40_33%_94%)] transition-colors">
-              Privacidade
-            </Link>
+
+          {/* Brand-block no rodapé */}
+          <div>
+            <div className="relative mb-5 min-h-10">
+              <StudooMark
+                size={34}
+                className="absolute -left-11 top-1/2 -translate-y-1/2"
+              />
+              <span
+                className="block font-extrabold tracking-[-0.045em] leading-none"
+                style={{ fontSize: 32 }}
+              >
+                stud<em className="not-italic text-primary">oo</em>
+              </span>
+            </div>
+            <h2
+              className="font-bold tracking-[-0.035em] leading-[1.04] m-0 max-w-[480px]"
+              style={{ fontSize: 38, textWrap: "pretty" as never }}
+            >
+              Menos administração,
+              <br />
+              <em className="not-italic text-primary">mais música.</em>
+            </h2>
+            <div className="mt-6 font-mono text-[10.5px] tracking-[0.14em] uppercase flex items-center gap-4 text-[hsl(40_33%_94%/0.42)] whitespace-nowrap">
+              <span>© {new Date().getFullYear()} Studoo</span>
+              <span
+                aria-hidden
+                className="h-[3px] w-[3px] rounded-full bg-current opacity-60"
+              />
+              <Link
+                to="/termos"
+                className="hover:text-[hsl(40_33%_94%)] transition-colors"
+              >
+                Termos
+              </Link>
+              <span
+                aria-hidden
+                className="h-[3px] w-[3px] rounded-full bg-current opacity-60"
+              />
+              <Link
+                to="/privacidade"
+                className="hover:text-[hsl(40_33%_94%)] transition-colors"
+              >
+                Privacidade
+              </Link>
+            </div>
           </div>
         </div>
       </aside>
 
       {/* ── Direita: form column ─────────────────────────────────────────── */}
-      <main className="relative flex min-h-screen flex-col px-5 py-6 sm:px-10 sm:py-8 lg:min-h-0 lg:px-12 xl:px-[72px] lg:overflow-y-auto">
+      <main className="relative flex min-h-screen flex-col px-5 py-6 sm:px-10 sm:py-8 lg:min-h-0 lg:px-[clamp(64px,5vw,96px)] lg:overflow-y-auto">
         {/* Top-right contextual switcher */}
-        <div className="w-full max-w-[420px] mx-auto flex min-h-9 items-center justify-between gap-3">
+        <div className="w-full max-w-[460px] mx-auto flex min-h-9 items-center justify-between gap-3">
           {/* Mobile: logo aparece (no desktop fica na esquerda) */}
           <Link to="/" className="inline-flex lg:hidden items-center gap-2.5 shrink-0">
             <StudooMark size={22} />
@@ -142,7 +153,7 @@ const AuthLayout = ({
 
         {/* Form area centralizado verticalmente */}
         <div className="flex flex-1 items-center justify-center py-8">
-          <div className="w-full max-w-[420px] animate-fade-in-up">
+          <div className="w-full max-w-[460px] animate-fade-in-up">
             {eyebrow && (
               <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary-soft border border-primary-ring mb-4">
                 <span

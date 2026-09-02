@@ -176,10 +176,10 @@ const Index = () => {
       {/* Nav */}
       <nav
         className={cn(
-          "sticky top-0 z-30 border-b transition-all duration-300",
+          "sticky top-0 z-30 -mb-16 border-b transition-all duration-300",
           navScrolled
             ? "border-border/60 bg-background/90 backdrop-blur-xl shadow-sm"
-            : "border-transparent bg-background/60 backdrop-blur-md",
+            : "border-transparent bg-transparent",
         )}
       >
         <div className="max-w-6xl mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
@@ -215,7 +215,7 @@ const Index = () => {
           <div className="lp-blob-3 absolute bottom-20 left-1/3 h-72 w-72 rounded-full bg-primary/8 blur-3xl" />
         </div>
 
-        <div className="relative z-10 max-w-6xl mx-auto px-4 md:px-6 pt-16 md:pt-24 pb-12 md:pb-20">
+        <div className="relative z-10 max-w-6xl mx-auto px-4 md:px-6 pt-32 md:pt-40 pb-12 md:pb-20">
           <div className="grid lg:grid-cols-[1fr_1.1fr] gap-10 lg:gap-14 items-center">
             {/* Texto à esquerda */}
             <div>
@@ -609,8 +609,18 @@ const Index = () => {
       </section>
 
       {/* CTA final */}
-      <section className="py-20 md:py-28 border-t border-border/60 bg-gradient-to-br from-primary/5 via-card to-card">
-        <div className="max-w-3xl mx-auto px-4 md:px-6 text-center">
+      <section className="relative overflow-hidden py-20 md:py-28 border-t border-border/60">
+        <div className="absolute inset-0 pointer-events-none" aria-hidden>
+          <img
+            src="/landing/guitarist-gabriel-gurrola.webp"
+            alt=""
+            loading="lazy"
+            className="absolute inset-0 h-full w-full object-cover object-[50%_40%] opacity-35"
+          />
+          <div className="absolute inset-0 bg-background/78" />
+          <div className="absolute inset-0 bg-gradient-to-b from-background via-background/65 to-background" />
+        </div>
+        <div className="relative z-10 max-w-3xl mx-auto px-4 md:px-6 text-center">
           <h2
             className="text-4xl md:text-6xl font-extrabold mb-4 text-balance"
             style={{ letterSpacing: "-0.04em" }}
