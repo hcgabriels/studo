@@ -395,7 +395,7 @@ const Financeiro = () => {
   );
 
   return (
-    <div className="px-4 md:px-9 lg:px-9 py-4 md:py-8 max-w-[1320px] mx-auto animate-fade-in-up">
+    <div className="px-4 md:px-9 lg:px-9 py-4 md:py-8 animate-fade-in-up">
       {/* Mobile header — com as mesmas ações do desktop */}
       <PageHeadMobile
         eyebrow="Cobranças"

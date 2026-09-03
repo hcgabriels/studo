@@ -522,7 +522,7 @@ const Alunos = () => {
     : `${totalAtivos} aluno${totalAtivos !== 1 ? "s" : ""} ativo${totalAtivos !== 1 ? "s" : ""} · ${inativos} arquivado${inativos !== 1 ? "s" : ""}`;
 
   return (
-    <div className="px-4 md:px-9 lg:px-9 py-4 md:py-8 max-w-[1320px] mx-auto animate-fade-in-up">
+    <div className="px-4 md:px-9 lg:px-9 py-4 md:py-8 animate-fade-in-up">
       {/* Mobile header */}
       <div className="flex items-end justify-between mb-5 md:hidden">
         <PageHeadMobile
