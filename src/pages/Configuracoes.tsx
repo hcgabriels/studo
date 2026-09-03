@@ -99,7 +99,7 @@ const Configuracoes = () => {
     hidratado.current = true;
     // Hidratação inicial dos campos controlados.
     setNome(professor.nome);
-    setPixKey(professor.chave_pix ?? "");
+    setPixKey(professor.chave_pix ? formatPixKey(professor.chave_pix) : "");
     setCpfCnpj(professor.cpf_cnpj ? formatCpfCnpj(professor.cpf_cnpj) : "");
     setEndereco(professor.endereco ?? "");
     setHorasAviso(professor.horas_antecedencia_aviso);

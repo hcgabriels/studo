@@ -79,8 +79,8 @@ const Sidebar = () => {
     <>
       <aside className="hidden md:flex flex-col w-[240px] shrink-0 h-screen sticky top-0 bg-sidebar border-r border-sidebar-border">
         {/* Brand */}
-        <div className="px-4 pt-5 pb-4 border-b border-sidebar-border">
-          <Link to="/dashboard" className="flex items-center gap-2.5 group">
+        <div className="h-16 flex items-center px-4 border-b border-sidebar-border">
+          <Link to="/dashboard" className="flex items-center gap-2.5 group w-full">
             <StudooMark
               size={22}
               className="transition-opacity group-hover:opacity-80"

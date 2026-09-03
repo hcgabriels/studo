@@ -52,6 +52,14 @@ BEGIN
       RAISE EXCEPTION 'Aula não encontrada para o professor autenticado';
     END IF;
 
+    -- Aula reagendada não é mais "a aula" naquele horário: quem deve
+    -- receber o registro de presença é a nova ocorrência criada pelo
+    -- reagendamento. Sem essa trava, registrar aqui sobrescrevia o
+    -- status 'reagendada' e apagava o rastro do reagendamento.
+    IF previous_status = 'reagendada' THEN
+      RAISE EXCEPTION 'Esta aula foi reagendada — registre a presença na nova data.';
+    END IF;
+
     IF p_aluno_id IS DISTINCT FROM persisted_aluno_id THEN
       RAISE EXCEPTION 'Aluno informado não corresponde à aula';
     END IF;

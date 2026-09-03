@@ -133,7 +133,8 @@ const PresencaModal = ({
   const [newTime, setNewTime] = useState("");
 
   const existing = slot?.existingAula;
-  const podeSalvarRegistro = Boolean(status);
+  const isReagendadaSlot = existing?.status === "reagendada";
+  const podeSalvarRegistro = Boolean(status) && !isReagendadaSlot;
 
   const podeEnviarResumo = !!(
     slot?.aluno.id &&
@@ -296,6 +297,18 @@ const PresencaModal = ({
               </div>
             )}
 
+            {isReagendadaSlot ? (
+              <div className="flex items-start gap-2.5 rounded-lg border border-info/25 bg-info-soft px-3.5 py-3">
+                <Repeat className="h-4 w-4 text-info shrink-0 mt-0.5" />
+                <p className="text-sm text-foreground/85 leading-snug">
+                  Essa aula foi reagendada pra outra data — esse horário original
+                  fica só como histórico e não recebe mais presença, falta ou
+                  observações. Registre isso na nova aula criada pelo
+                  reagendamento.
+                </p>
+              </div>
+            ) : (
+              <>
             {existing?.tipo === "experimental" && !existing.aluno_id && (
               <button
                 type="button"
@@ -416,6 +429,8 @@ const PresencaModal = ({
               <span>Reagendar essa aula pra outra data</span>
             </button>
 
+              </>
+            )}
           </DialogBody>
         ) : (
           <DialogBody className="space-y-4">
@@ -451,6 +466,11 @@ const PresencaModal = ({
         )}
         <DialogFooter>
           {mode === "presence" ? (
+            isReagendadaSlot ? (
+              <Button variant="ghost" onClick={onClose}>
+                Fechar
+              </Button>
+            ) : (
             <>
               <Button variant="ghost" onClick={onClose}>
                 Cancelar
@@ -466,6 +486,7 @@ const PresencaModal = ({
                     : "Registrar aula"}
               </Button>
             </>
+            )
           ) : (
             <>
               <Button variant="ghost" onClick={() => setMode("presence")}>

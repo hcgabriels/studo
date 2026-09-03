@@ -50,7 +50,26 @@ export const ReciboModal = ({
     : format(new Date(), "dd 'de' MMMM 'de' yyyy", { locale: ptBR });
   const hoje = format(new Date(), "dd 'de' MMMM 'de' yyyy", { locale: ptBR });
 
+  // Nome sugerido pro PDF quando o professor salva pelo diálogo de impressão
+  // (o navegador usa o <title> da página como nome do arquivo). Ex.:
+  // "Recibo Davi - Setembro 2026 - Studoo Gestão para professores".
+  const mesArquivo = (() => {
+    const bruto = format(new Date(cobranca.mes_referencia + "T00:00:00"), "MMMM yyyy", {
+      locale: ptBR,
+    });
+    return bruto.charAt(0).toUpperCase() + bruto.slice(1);
+  })();
+
   const handlePrint = () => {
+    const tituloOriginal = document.title;
+    document.title = `Recibo ${alunoNome} - ${mesArquivo} - Studoo Gestão para professores`;
+
+    const restaurarTitulo = () => {
+      document.title = tituloOriginal;
+      window.removeEventListener("afterprint", restaurarTitulo);
+    };
+    window.addEventListener("afterprint", restaurarTitulo);
+
     window.print();
   };
 

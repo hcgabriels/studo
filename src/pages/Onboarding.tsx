@@ -82,7 +82,7 @@ type StepId = (typeof STEPS)[number]["id"];
 
 const TOTAL_STEPS = STEPS.length;
 const ULTIMO_STEP = TOTAL_STEPS - 1;
-const ONBOARDING_SHELL = "w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 xl:px-16";
+const ONBOARDING_SHELL = "w-full mx-auto px-4 sm:px-6 lg:px-10 xl:px-16";
 
 /** Etapas sem formulário: layout centrado, CTA próprio, sem preview. */
 const SEM_FORMULARIO: readonly StepId[] = ["boas-vindas", "pronto"];
@@ -355,7 +355,7 @@ const OnboardingWizard = ({ professor }: { professor: Professor }) => {
         <div
           className={cn(
             ONBOARDING_SHELL,
-            semFormulario ? "max-w-2xl text-center pt-5 lg:pt-10" : "max-w-[1400px]",
+            semFormulario ? "max-w-2xl text-center pt-5 lg:pt-10" : undefined,
             temPreview &&
               "lg:grid lg:grid-cols-[minmax(0,1.1fr)_minmax(300px,0.9fr)] lg:gap-14 lg:items-center",
           )}
