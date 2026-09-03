@@ -837,7 +837,7 @@ const ProntoStep = ({
     </h1>
     <p className="text-muted-foreground leading-relaxed max-w-md">
       {criouAluno
-        ? `Ao clicar em "Ir pro painel" eu salvo tudo e já cadastro ${nomeAluno}.`
+        ? `Ao clicar em "Ir pro painel", salvo tudo — incluindo o cadastro de ${nomeAluno}.`
         : "Seu Studoo já está configurado. Você cadastra os alunos direto no painel quando quiser."}
     </p>
 

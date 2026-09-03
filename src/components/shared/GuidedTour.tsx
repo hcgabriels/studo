@@ -9,7 +9,10 @@ type TourStep = {
 };
 
 const PADDING = 4;
-const OVERLAY_CLASS = "absolute bg-background/58";
+// Preto fixo (não `bg-background`): no tema escuro o fundo já é quase
+// preto, então tingir com a própria cor de fundo mal escurecia nada — o
+// resto da tela não ficava "borrado" como pedido, só competia com o alvo.
+const OVERLAY_CLASS = "absolute bg-black/65";
 
 const steps: TourStep[] = [
   {
@@ -101,8 +104,22 @@ export const GuidedTour = ({
         setRect(null);
         return;
       }
-      target.scrollIntoView({ block: "center", inline: "center" });
-      window.setTimeout(() => setRect(target.getBoundingClientRect()), 160);
+      const current = target.getBoundingClientRect();
+      // Um item da sidebar (sticky) já está sempre visível — chamar
+      // scrollIntoView nele mesmo assim rolava a página inteira (o conteúdo
+      // à direita) tentando "centralizar" algo que nunca se move.
+      const jaVisivel =
+        current.top >= 0 &&
+        current.left >= 0 &&
+        current.bottom <= window.innerHeight &&
+        current.right <= window.innerWidth;
+      if (!jaVisivel) {
+        target.scrollIntoView({ block: "center", inline: "center" });
+      }
+      window.setTimeout(
+        () => setRect(target.getBoundingClientRect()),
+        jaVisivel ? 0 : 160,
+      );
     };
 
     updateRect();
@@ -135,18 +152,34 @@ export const GuidedTour = ({
     }
 
     const panelWidth = Math.min(360, window.innerWidth - 32);
+    // Não temos a altura real do painel antes de renderizar — 260px é uma
+    // estimativa só pra decidir o lado, com folga suficiente pro conteúdo.
+    const estPanelHeight = 260;
     const canFitRight = rect.right + 18 + panelWidth < window.innerWidth;
     const canFitLeft = rect.left - 18 - panelWidth > 0;
-    const left = canFitRight
-      ? rect.right + 18
-      : canFitLeft
-        ? rect.left - panelWidth - 18
-        : Math.max(16, Math.min(rect.left, window.innerWidth - panelWidth - 16));
-    const top = Math.max(
-      16,
-      Math.min(rect.top, window.innerHeight - 260),
-    );
 
+    if (canFitRight || canFitLeft) {
+      const left = canFitRight ? rect.right + 18 : rect.left - panelWidth - 18;
+      const top = Math.max(16, Math.min(rect.top, window.innerHeight - estPanelHeight - 16));
+      return { left, top, width: panelWidth };
+    }
+
+    // Alvo largo demais pra caber um painel do lado (ex.: a fileira inteira
+    // de KPIs) — antes isso caía direto no clamp abaixo, que posicionava o
+    // painel colado no canto do alvo, cobrindo o que ele deveria destacar.
+    // Tenta abaixo, depois acima, antes de aceitar a sobreposição.
+    const canFitBelow = rect.bottom + 18 + estPanelHeight < window.innerHeight;
+    const canFitAbove = rect.top - 18 - estPanelHeight > 0;
+    const left = Math.max(16, Math.min(rect.left, window.innerWidth - panelWidth - 16));
+
+    if (canFitBelow) {
+      return { left, top: rect.bottom + 18, width: panelWidth };
+    }
+    if (canFitAbove) {
+      return { left, top: Math.max(16, rect.top - estPanelHeight - 18), width: panelWidth };
+    }
+
+    const top = Math.max(16, Math.min(rect.top, window.innerHeight - estPanelHeight - 16));
     return { left, top, width: panelWidth };
   }, [rect]);
 
@@ -193,7 +226,7 @@ export const GuidedTour = ({
           />
         </>
       ) : (
-        <div className="absolute inset-0 bg-background/58" />
+        <div className="absolute inset-0 bg-black/65" />
       )}
 
       {rect && (
