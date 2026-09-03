@@ -301,9 +301,9 @@ const PresencaModal = ({
               <div className="flex items-start gap-2.5 rounded-lg border border-info/25 bg-info-soft px-3.5 py-3">
                 <Repeat className="h-4 w-4 text-info shrink-0 mt-0.5" />
                 <p className="text-sm text-foreground/85 leading-snug">
-                  Essa aula foi reagendada pra outra data — esse horário original
-                  fica só como histórico e não recebe mais presença, falta ou
-                  observações. Registre isso na nova aula criada pelo
+                  Essa aula foi reagendada pra outra data. Esse horário
+                  original ficou como histórico: presença, falta e
+                  observações agora só entram na aula nova, criada pelo
                   reagendamento.
                 </p>
               </div>
