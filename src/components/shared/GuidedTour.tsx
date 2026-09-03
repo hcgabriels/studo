@@ -8,7 +8,7 @@ type TourStep = {
   description: string;
 };
 
-const PADDING = 10;
+const PADDING = 4;
 const OVERLAY_CLASS = "absolute bg-background/58";
 
 const steps: TourStep[] = [
@@ -199,7 +199,7 @@ export const GuidedTour = ({
       {rect && (
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute rounded-xl border border-primary/80 shadow-[0_0_0_1px_hsl(var(--primary)/0.24),0_0_22px_hsl(var(--primary)/0.18)] transition-all duration-200"
+          className="pointer-events-none absolute rounded-xl border border-primary/80 shadow-[0_0_0_1px_hsl(var(--primary)/0.24),0_0_10px_hsl(var(--primary)/0.16)] transition-all duration-200"
           style={{
             left: rect.left - PADDING,
             top: rect.top - PADDING,

@@ -82,7 +82,7 @@ type StepId = (typeof STEPS)[number]["id"];
 
 const TOTAL_STEPS = STEPS.length;
 const ULTIMO_STEP = TOTAL_STEPS - 1;
-const ONBOARDING_SHELL = "w-full max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8";
+const ONBOARDING_SHELL = "w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 xl:px-16";
 
 /** Etapas sem formulário: layout centrado, CTA próprio, sem preview. */
 const SEM_FORMULARIO: readonly StepId[] = ["boas-vindas", "pronto"];
@@ -355,7 +355,7 @@ const OnboardingWizard = ({ professor }: { professor: Professor }) => {
         <div
           className={cn(
             ONBOARDING_SHELL,
-            semFormulario ? "max-w-2xl text-center pt-5 lg:pt-10" : "max-w-[1100px]",
+            semFormulario ? "max-w-2xl text-center pt-5 lg:pt-10" : "max-w-[1400px]",
             temPreview &&
               "lg:grid lg:grid-cols-[minmax(0,1.1fr)_minmax(300px,0.9fr)] lg:gap-14 lg:items-center",
           )}
@@ -495,20 +495,9 @@ const WelcomeStep = ({
       title={`Olá, ${nome.split(" ")[0] || "professor"}. Bom te ter aqui.`}
       subtitle="Vamos configurar só o básico para você já entrar com agenda, cobranças e recibos no lugar. Depois dá pra editar tudo."
     />
-    <div className="mx-auto mb-8 max-w-md space-y-2.5 text-left">
-      {[
-        "Cadastrar seu primeiro aluno",
-        "Configurar PIX e dados do recibo",
-        "Definir sua política de faltas e avisos",
-      ].map((item) => (
-        <div key={item} className="flex items-center gap-3 text-sm">
-          <div className="h-5 w-5 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
-            <Check className="h-3 w-3 text-primary" />
-          </div>
-          <span className="text-foreground">{item}</span>
-        </div>
-      ))}
-    </div>
+    <p className="mb-8 text-sm text-muted-foreground">
+      Cadastrar seu primeiro aluno · Configurar PIX e dados do recibo · Definir sua política de faltas e avisos
+    </p>
     <div className="flex flex-col sm:flex-row items-stretch sm:items-center sm:justify-center gap-2">
       <Button onClick={onStart} disabled={pending} className="sm:w-auto">
         Começar
