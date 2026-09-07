@@ -36,7 +36,10 @@ export const HBars = ({ items, maxValue, className }: HBarsProps) => {
             key={`${item.label}-${i}`}
             className="grid grid-cols-[110px_1fr_70px] items-center gap-3.5"
           >
-            <span className="text-[13px] text-foreground/80 truncate">
+            <span
+              className="text-[13px] text-foreground/80 truncate"
+              title={item.label}
+            >
               {item.label}
             </span>
             <div className="h-2 rounded-full bg-secondary overflow-hidden">

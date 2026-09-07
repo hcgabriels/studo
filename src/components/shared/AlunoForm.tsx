@@ -30,9 +30,12 @@ import {
   unformatPhone,
   isValidPhone,
   isValidEmail,
-  formatCurrency,
-  parseCurrencyInput,
 } from "@/lib/masks";
+
+// Mesma leitura do campo "Mensalidade" do onboarding: reais direto, sem
+// mascara de centavos. Tratar digitos como centavos (250 -> R$2,50) confundia
+// quem digitava o valor cheio esperando R$250,00.
+const parseValorReais = (v: string) => parseFloat(v.replace(",", ".")) || 0;
 import { getHorariosDoAluno } from "@/hooks/useAulasRecorrentes";
 import { invalidateAlunos } from "@/lib/queries";
 import { DIAS_SEMANA, INSTRUMENTOS } from "@/lib/constants";
@@ -193,9 +196,9 @@ export const AlunoForm = ({
             horariosExistentes.length > 0
               ? horariosExistentes
               : [emptyHorario()],
-          valor_mensalidade: String(
-            Math.round(Number(editingAluno.valor_mensalidade) * 100),
-          ),
+          valor_mensalidade: Number(editingAluno.valor_mensalidade)
+            .toString()
+            .replace(".", ","),
           observacoes: editingAluno.observacoes ?? "",
         };
       } else {
@@ -234,7 +237,7 @@ export const AlunoForm = ({
       errs.instrumento = "Escolha o instrumento — ele aparece na lista e na agenda";
     if (
       !form.valor_mensalidade ||
-      parseCurrencyInput(form.valor_mensalidade) === 0
+      parseValorReais(form.valor_mensalidade) === 0
     )
       errs.valor_mensalidade = "Valor é obrigatório";
     if (form.telefone && !isValidPhone(form.telefone))
@@ -267,8 +270,7 @@ export const AlunoForm = ({
         p_email_notificacao: form.email_notificacao || null,
         p_nome_responsavel: form.nome_responsavel || null,
         p_data_nascimento: form.data_nascimento || null,
-        p_valor_mensalidade:
-          parseCurrencyInput(form.valor_mensalidade) / 100,
+        p_valor_mensalidade: parseValorReais(form.valor_mensalidade),
         p_observacoes: form.observacoes || null,
         p_horarios: horarios,
       });
@@ -295,7 +297,8 @@ export const AlunoForm = ({
   };
 
   const handleValorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const raw = e.target.value.replace(/\D/g, "");
+    // Sem mascara: aceita "300" ou "300,50" igual ao campo do onboarding.
+    const raw = e.target.value.replace(/[^0-9,]/g, "");
     setForm((f) => ({ ...f, valor_mensalidade: raw }));
   };
 
@@ -577,15 +580,10 @@ export const AlunoForm = ({
                   </span>
                   <Input
                     className="pl-9 font-mono tabular-nums"
-                    value={
-                      form.valor_mensalidade
-                        ? formatCurrency(
-                            parseInt(form.valor_mensalidade || "0"),
-                          )
-                        : ""
-                    }
+                    inputMode="decimal"
+                    value={form.valor_mensalidade}
                     onChange={handleValorChange}
-                    placeholder="0,00"
+                    placeholder="300"
                   />
                 </div>
               </Field>

@@ -345,7 +345,7 @@ const Configuracoes = () => {
               id="endereco"
               value={endereco}
               onChange={(e) => setEndereco(e.target.value)}
-              placeholder="Rua, número, bairro — Cidade/UF"
+              placeholder="Rua, número, bairro, Cidade/UF"
             />
             <AddressMapLink address={endereco} />
           </div>
@@ -368,7 +368,7 @@ const Configuracoes = () => {
         <div className="space-y-5">
           <p className="text-[12.5px] text-muted-foreground max-w-[62ch]">
             Os dados são seus. A lei (LGPD) garante que você pode baixar uma
-            cópia de tudo quando quiser e apagar sua conta na hora que decidir —
+            cópia de tudo quando quiser e apagar sua conta na hora que decidir,
             sem ter que pedir autorização pra gente.
           </p>
 
@@ -495,8 +495,8 @@ const Configuracoes = () => {
             <div className="min-w-0 flex-1">
               <p className="text-sm font-medium">Dia de vencimento</p>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Dia do mês usado ao gerar as mensalidades. Era fixo no 10 —
-                agora é seu. Meses curtos caem no último dia.
+                Dia do mês usado ao gerar as mensalidades. Era fixo no 10, agora é
+                seu. Meses curtos caem no último dia.
               </p>
             </div>
             <div className="flex items-center gap-1.5 shrink-0">
@@ -529,7 +529,7 @@ const Configuracoes = () => {
                 Antecedência mínima para aviso
               </p>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Seu critério pessoal: avisos que chegarem com menos de {horasAviso}h da aula devem ser marcados como "sem aviso". O app não detecta automaticamente — você marca conforme.
+                Seu critério pessoal: avisos que chegarem com menos de {horasAviso}h da aula devem ser marcados como "sem aviso". O app não detecta automaticamente, você marca conforme.
               </p>
             </div>
             <div className="flex items-center gap-1.5 shrink-0">
@@ -649,7 +649,7 @@ const Configuracoes = () => {
         <div className="bg-muted/25 border border-border/70 rounded-lg px-4 py-3">
           <p className="text-sm font-medium">Em desenvolvimento</p>
           <p className="text-xs text-muted-foreground mt-1">
-            Hoje o Studoo monta a mensagem e abre o WhatsApp — quem envia é você. Disparo automático ainda não existe, e a gente avisa aqui quando existir.
+            Hoje o Studoo monta a mensagem e abre o WhatsApp, quem envia é você. Disparo automático ainda não existe, e a gente avisa aqui quando existir.
             Por enquanto, use o botão de WhatsApp em cada cobrança/aluno para enviar manualmente.
           </p>
         </div>
@@ -683,7 +683,7 @@ const Configuracoes = () => {
             </p>
             <p className="text-xs text-muted-foreground mt-2 max-w-[46ch]">
               Sem cobrança e sem cartão. Quando o Studoo passar a ser pago, a
-              gente avisa por email antes — e você escolhe se continua.
+              gente avisa por email antes, e você escolhe se continua.
             </p>
           </div>
           <Badge variant="success">Gratuito</Badge>

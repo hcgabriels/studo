@@ -529,7 +529,7 @@ const PrimeiroAlunoStep = ({
       subtitle={
         colando
           ? "Suba um CSV ou cole da planilha. O Studoo detecta as colunas e mostra uma prévia antes de salvar."
-          : "Só o essencial — o resto dá pra completar depois no perfil dele. Se preferir, deixa em branco e cadastra pelo painel."
+          : "Só o essencial, o resto dá pra completar depois no perfil dele. Se preferir, deixa em branco e cadastra pelo painel."
       }
     />
 
@@ -709,7 +709,7 @@ const CobrancaStep = ({ form, setForm }: StepFormProps) => {
           <div className="flex items-start gap-2.5 rounded-lg border border-warning/25 bg-warning-soft px-3 py-2.5">
             <AlertTriangle className="h-4 w-4 text-warning shrink-0 mt-0.5" />
             <p className="text-[12.5px] text-foreground/85 leading-snug">
-              Sem PIX as cobranças vão sem chave — o aluno recebe o valor, mas
+              Sem PIX as cobranças vão sem chave. O aluno recebe o valor, mas
               precisa te perguntar pra onde pagar. Dá pra preencher depois em
               Configurações.
             </p>
@@ -795,7 +795,7 @@ const EnderecoStep = ({ form, setForm }: StepFormProps) => (
       hint="Será impresso no rodapé dos recibos. Não fica visível pros alunos no app."
     >
       <Input
-        placeholder="Rua, número, bairro, cidade — UF"
+        placeholder="Rua, número, bairro, cidade, UF"
         value={form.endereco}
         onChange={(e) => setForm((f) => ({ ...f, endereco: e.target.value }))}
         autoFocus
@@ -993,13 +993,13 @@ const PreviewPolitica = ({ form }: { form: FormState }) => (
       <p className="text-foreground/85 leading-relaxed">
         {form.cobrar_falta_sem_aviso
           ? `Avisos chegando depois de ${form.horas_antecedencia_aviso}h da aula são cobrados como falta sem aviso.`
-          : "Sem cobrança extra em faltas — mesmo sem aviso."}
+          : "Sem cobrança extra em faltas, mesmo sem aviso."}
       </p>
     </div>
     <div className="border-t border-border/40 my-1" />
     <p className="text-muted-foreground leading-relaxed text-[11.5px]">
       Vale como seu critério na hora de marcar a falta. O Studoo não manda
-      mensagem sozinho — quem dispara o WhatsApp é você.
+      mensagem sozinho, quem dispara o WhatsApp é você.
     </p>
   </div>
 );
@@ -1131,5 +1131,5 @@ function mensagemHumana(err: unknown): string {
   if (e?.message && /network|fetch|timeout/i.test(e.message)) {
     return "Sem conexão com o servidor. Confira sua internet e tente de novo.";
   }
-  return "Não consegui salvar agora. Tente de novo — seus dados continuam aqui.";
+  return "Não consegui salvar agora. Tente de novo, seus dados continuam aqui.";
 }

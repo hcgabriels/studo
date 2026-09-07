@@ -62,7 +62,7 @@ export const messageTemplates = {
   saudacao: (alunoNome: string, professorNome: string) =>
     `Olá ${alunoNome}! Aqui é o(a) ${professorNome}. Tudo bem?`,
   lembreteAula: (alunoNome: string, professorNome: string, quando: string) =>
-    `Oi ${alunoNome}! Passando pra lembrar da sua aula ${quando}. Qualquer coisa, é só me avisar. — ${professorNome}`,
+    `Oi ${alunoNome}! Passando pra lembrar da sua aula ${quando}. Qualquer coisa, é só me avisar.\n${professorNome}`,
   lembreteAulaHoje: (alunoNome: string, instrumento: string, horario: string) =>
     `Olá ${alunoNome}! 👋 Passando para lembrar da sua aula de ${instrumento} hoje às ${horario}. Até lá! 🎵`,
   lembreteCobranca: (
@@ -72,7 +72,7 @@ export const messageTemplates = {
     vencimento: string,
     pix?: string
   ) =>
-    `Oi ${alunoNome}! Passando pra lembrar da sua mensalidade de ${valor} com vencimento em ${vencimento}.${pix ? ` Meu PIX: ${pix}` : ""} Obrigado(a)! — ${professorNome}`,
+    `Oi ${alunoNome}! Passando pra lembrar da sua mensalidade de ${valor} com vencimento em ${vencimento}.${pix ? ` Meu PIX: ${pix}` : ""} Obrigado(a)!\n${professorNome}`,
   parabens: (alunoNome: string, professorNome: string) =>
     `Feliz aniversário, ${alunoNome}! 🎉 Que esse novo ano seja cheio de música e alegria. Um abraço, ${professorNome}.`,
   resumoAula: (
@@ -91,7 +91,7 @@ export const messageTemplates = {
       const ate = proximaAulaTexto ? `até ${proximaAulaTexto}` : "pra próxima aula";
       partes.push(`\n📝 Pra praticar ${ate}: ${licao}`);
     }
-    partes.push(`\nQualquer dúvida me chama!\n— ${professorNome}`);
+    partes.push(`\nQualquer dúvida me chama!\n${professorNome}`);
     return partes.join("\n");
   },
 };

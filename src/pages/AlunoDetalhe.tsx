@@ -279,19 +279,19 @@ const AlunoDetalhe = () => {
         }
       />
 
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6">
-        {/* Conteúdo principal: tabs */}
-        <div className="min-w-0">
-          <Tabs defaultValue="aulas">
-            <TabsList>
-              <TabsTrigger value="aulas" count={aulas?.length}>
-                Aulas
-              </TabsTrigger>
-              <TabsTrigger value="financeiro">Financeiro</TabsTrigger>
-              <TabsTrigger value="pacotes">Créditos</TabsTrigger>
-            </TabsList>
+      <Tabs defaultValue="aulas">
+        <TabsList>
+          <TabsTrigger value="aulas" count={aulas?.length}>
+            Aulas
+          </TabsTrigger>
+          <TabsTrigger value="financeiro">Financeiro</TabsTrigger>
+          <TabsTrigger value="pacotes">Créditos</TabsTrigger>
+        </TabsList>
 
-            <TabsContent value="aulas" className="mt-5">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 mt-5">
+          {/* Conteúdo principal: tabs */}
+          <div className="min-w-0">
+            <TabsContent value="aulas" className="mt-0">
               {!aulas || aulas.length === 0 ? (
                 <SectionCard>
                   <EmptyState
@@ -410,7 +410,7 @@ const AlunoDetalhe = () => {
               )}
             </TabsContent>
 
-            <TabsContent value="financeiro" className="mt-5 space-y-4">
+            <TabsContent value="financeiro" className="mt-0 space-y-4">
               <div className="bg-primary/10 rounded-xl px-5 py-4">
                 <p className="font-mono text-[10px] tracking-[0.18em] uppercase text-muted-foreground">
                   Total pago em {new Date().getFullYear()}
@@ -481,112 +481,112 @@ const AlunoDetalhe = () => {
               )}
             </TabsContent>
 
-            <TabsContent value="pacotes" className="mt-5">
+            <TabsContent value="pacotes" className="mt-0">
               {professor && (
                 <PacotesTab alunoId={aluno.id} professorId={professor.id} />
               )}
             </TabsContent>
-          </Tabs>
-        </div>
+          </div>
 
-        {/* Sidebar */}
-        <div className="space-y-4 lg:sticky lg:top-[88px] lg:self-start">
-          {(aluno.nivel || aluno.objetivo) && (
-            <SectionCard title="Perfil musical" icon={GraduationCap}>
-              <div className="space-y-3">
-                {aluno.nivel && (
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs uppercase tracking-wider text-muted-foreground">
-                      Nível
+          {/* Sidebar */}
+          <div className="space-y-4 lg:sticky lg:top-[88px] lg:self-start">
+            {(aluno.nivel || aluno.objetivo) && (
+              <SectionCard title="Perfil musical" icon={GraduationCap}>
+                <div className="space-y-3">
+                  {aluno.nivel && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs uppercase tracking-wider text-muted-foreground">
+                        Nível
+                      </span>
+                      <NivelBadge nivel={aluno.nivel} />
+                    </div>
+                  )}
+                  {aluno.objetivo && (
+                    <div>
+                      <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">
+                        Objetivo
+                      </p>
+                      <p className="text-sm leading-relaxed">{aluno.objetivo}</p>
+                    </div>
+                  )}
+                </div>
+              </SectionCard>
+            )}
+
+            <SectionCard title="Horários semanais" icon={Clock}>
+              <div className="space-y-2">
+                {horarios.map((h, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center justify-between bg-muted/25 border border-border/60 rounded-lg px-3 py-2"
+                  >
+                    <span className="text-sm font-medium">
+                      {nomeDiaSemana(h.dia_semana)}
                     </span>
-                    <NivelBadge nivel={aluno.nivel} />
+                    <span className="text-sm font-mono">
+                      {h.horario.slice(0, 5)}{" "}
+                      <span className="text-muted-foreground">
+                        · {h.duracao_minutos}min
+                      </span>
+                    </span>
                   </div>
-                )}
-                {aluno.objetivo && (
-                  <div>
-                    <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">
-                      Objetivo
-                    </p>
-                    <p className="text-sm leading-relaxed">{aluno.objetivo}</p>
-                  </div>
-                )}
+                ))}
               </div>
             </SectionCard>
-          )}
 
-          <SectionCard title="Horários semanais" icon={Clock}>
-            <div className="space-y-2">
-              {horarios.map((h, i) => (
-                <div
-                  key={i}
-                  className="flex items-center justify-between bg-muted/25 border border-border/60 rounded-lg px-3 py-2"
-                >
-                  <span className="text-sm font-medium">
-                    {nomeDiaSemana(h.dia_semana)}
-                  </span>
-                  <span className="text-sm font-mono">
-                    {h.horario.slice(0, 5)}{" "}
-                    <span className="text-muted-foreground">
-                      · {h.duracao_minutos}min
-                    </span>
-                  </span>
-                </div>
-              ))}
-            </div>
-          </SectionCard>
+            {aluno.reposicoes_disponiveis > 0 && (
+              <SectionCard
+                title="Reposições"
+                icon={Repeat}
+                iconTone="success"
+              >
+                <p className="font-mono tabular-nums text-3xl font-semibold tracking-tight text-success">
+                  {aluno.reposicoes_disponiveis}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Reposição{aluno.reposicoes_disponiveis !== 1 ? "ões" : ""} pendente
+                  {aluno.reposicoes_disponiveis !== 1 ? "s" : ""}
+                </p>
+              </SectionCard>
+            )}
 
-          {aluno.reposicoes_disponiveis > 0 && (
-            <SectionCard
-              title="Reposições"
-              icon={Repeat}
-              iconTone="success"
-            >
-              <p className="font-mono tabular-nums text-3xl font-semibold tracking-tight text-success">
-                {aluno.reposicoes_disponiveis}
-              </p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Reposição{aluno.reposicoes_disponiveis !== 1 ? "ões" : ""} pendente
-                {aluno.reposicoes_disponiveis !== 1 ? "s" : ""}
-              </p>
-            </SectionCard>
-          )}
+            {aluno.data_nascimento && (
+              <SectionCard title="Aniversário" icon={Cake} iconTone="warning">
+                <p className="text-sm font-semibold">
+                  {format(parseISO(aluno.data_nascimento), "dd 'de' MMMM", {
+                    locale: ptBR,
+                  })}
+                </p>
+              </SectionCard>
+            )}
 
-          {aluno.data_nascimento && (
-            <SectionCard title="Aniversário" icon={Cake} iconTone="warning">
-              <p className="text-sm font-semibold">
-                {format(parseISO(aluno.data_nascimento), "dd 'de' MMMM", {
-                  locale: ptBR,
-                })}
-              </p>
-            </SectionCard>
-          )}
+            {aluno.nome_responsavel && (
+              <SectionCard title="Responsável">
+                <p className="text-sm font-medium">{aluno.nome_responsavel}</p>
+              </SectionCard>
+            )}
 
-          {aluno.nome_responsavel && (
-            <SectionCard title="Responsável">
-              <p className="text-sm font-medium">{aluno.nome_responsavel}</p>
-            </SectionCard>
-          )}
+            {aluno.observacoes && (
+              <SectionCard title="Observações">
+                <p className="text-sm whitespace-pre-wrap">{aluno.observacoes}</p>
+              </SectionCard>
+            )}
 
-          {aluno.observacoes && (
-            <SectionCard title="Observações">
-              <p className="text-sm whitespace-pre-wrap">{aluno.observacoes}</p>
-            </SectionCard>
-          )}
-
-          {aluno.email_notificacao && (
-            <div className="flex items-center gap-2 text-xs text-muted-foreground px-1">
-              <Mail className="h-3.5 w-3.5" />
-              <span className="truncate">{aluno.email_notificacao}</span>
-            </div>
-          )}
-          {aluno.telefone && (
-            <div className="flex items-center gap-2 text-xs text-muted-foreground px-1">
-              <Phone className="h-3.5 w-3.5" />
-              <span className="font-mono">{formatPhone(aluno.telefone)}</span>
-            </div>
-          )}
+            {aluno.email_notificacao && (
+              <div className="flex items-center gap-2 text-xs text-muted-foreground px-1">
+                <Mail className="h-3.5 w-3.5" />
+                <span className="truncate">{aluno.email_notificacao}</span>
+              </div>
+            )}
+            {aluno.telefone && (
+              <div className="flex items-center gap-2 text-xs text-muted-foreground px-1">
+                <Phone className="h-3.5 w-3.5" />
+                <span className="font-mono">{formatPhone(aluno.telefone)}</span>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      </Tabs>
 
       {professor && reciboCobranca && (
         <ReciboModal

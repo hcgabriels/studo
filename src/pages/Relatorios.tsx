@@ -261,7 +261,10 @@ const Relatorios = () => {
       .sort((a, b) => b.valor - a.valor)
       .slice(0, 6)
       .map((r) => ({
-        label: r.nome.split(" ").slice(0, 2).join(" "),
+        // Nome cheio: o HBars ja trunca com reticencias, cortar aqui
+        // colidia nomes diferentes no mesmo rotulo ("Ana Paula Silva" e
+        // "Ana Paula Costa" viravam os dois "Ana Paula").
+        label: r.nome,
         value: r.valor,
         displayValue: fmtBRLCompacto(r.valor),
       }));
