@@ -28,6 +28,7 @@ const demoShots = [
 ];
 import { Button } from "@/components/ui/button";
 import { StudooMark, Wordmark } from "@/components/StudooMark";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   useMouseTilt,
   useRevealOnScroll,
@@ -166,6 +167,11 @@ const Eyebrow = ({ children }: { children: React.ReactNode }) => (
 
 const Index = () => {
   const navScrolled = useScrolled(20);
+  const { user, loading: authLoading } = useAuth();
+  const estaLogado = !authLoading && !!user;
+  const painelHref = "/dashboard";
+  const entradaHref = estaLogado ? painelHref : "/cadastro";
+  const entradaTexto = estaLogado ? "Continuar no Studoo" : "Criar conta de graça";
   const heroRef = useRef<HTMLDivElement>(null);
   const visualRef = useRef<HTMLDivElement>(null);
   useRevealOnScroll();
@@ -187,14 +193,21 @@ const Index = () => {
             <StudooMark size={24} />
             <Wordmark size={20} />
           </Link>
-          <div className="flex gap-2">
-            <Link to="/login">
+          <div className="flex items-center gap-2">
+            {estaLogado && (
+              <span className="hidden md:inline-flex items-center rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+                Você está logado
+              </span>
+            )}
+            <Link to={estaLogado ? painelHref : "/login"}>
               <Button variant="ghost" size="sm">
-                Entrar
+                {estaLogado ? "Abrir painel" : "Entrar"}
               </Button>
             </Link>
-            <Link to="/cadastro">
-              <Button size="sm">Começar grátis</Button>
+            <Link to={entradaHref}>
+              <Button size="sm">
+                {estaLogado ? "Minha agenda" : "Começar grátis"}
+              </Button>
             </Link>
           </div>
         </div>
@@ -238,9 +251,9 @@ const Index = () => {
                 pular entre planilha, WhatsApp e caderno.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 mb-8">
-                <Link to="/cadastro">
+                <Link to={entradaHref}>
                   <Button size="lg" className="gap-2 w-full sm:w-auto">
-                    Criar conta de graça
+                    {entradaTexto}
                     <ArrowRight className="h-4 w-4" />
                   </Button>
                 </Link>
@@ -559,9 +572,9 @@ const Index = () => {
                 ))}
               </ul>
 
-              <Link to="/cadastro" className="block">
+              <Link to={entradaHref} className="block">
                 <Button className="w-full gap-2" size="lg">
-                  Criar conta de graça
+                  {entradaTexto}
                   <ArrowRight className="h-4 w-4" />
                 </Button>
               </Link>
@@ -631,9 +644,9 @@ const Index = () => {
             Beta gratuito. Cria a conta, joga seus alunos lá dentro e vê se
             ajuda.
           </p>
-          <Link to="/cadastro">
+          <Link to={entradaHref}>
             <Button size="lg" className="gap-2">
-              Criar conta grátis
+              {estaLogado ? "Abrir painel" : "Criar conta grátis"}
               <ArrowRight className="h-4 w-4" />
             </Button>
           </Link>

@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import ProtectedRoute from "@/components/shared/ProtectedRoute";
+import PublicOnlyRoute from "@/components/shared/PublicOnlyRoute";
 import { ErrorBoundary } from "@/components/shared/ErrorBoundary";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 
@@ -46,8 +47,22 @@ const App = () => (
           <Suspense fallback={<RouteFallback />}>
             <Routes>
               <Route path="/" element={<Index />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/cadastro" element={<Cadastro />} />
+              <Route
+                path="/login"
+                element={
+                  <PublicOnlyRoute>
+                    <Login />
+                  </PublicOnlyRoute>
+                }
+              />
+              <Route
+                path="/cadastro"
+                element={
+                  <PublicOnlyRoute>
+                    <Cadastro />
+                  </PublicOnlyRoute>
+                }
+              />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/verificar-email" element={<VerificarEmail />} />
               <Route path="/termos" element={<Termos />} />

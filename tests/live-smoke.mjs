@@ -223,6 +223,22 @@ try {
   await assertNoSeriousA11yViolations(page, "dashboard desktop");
   stage("onboarding transacional com primeiro aluno");
 
+  await page.goto(`${baseUrl}/`, { waitUntil: "networkidle" });
+  const landingNav = page.getByRole("navigation");
+  await landingNav.getByRole("button", { name: "Abrir painel" }).waitFor({
+    timeout: 15_000,
+  });
+  await landingNav.getByRole("button", { name: "Minha agenda" }).waitFor();
+  await landingNav.getByRole("button", { name: "Abrir painel" }).click();
+  await page.waitForURL(/\/dashboard$/, { timeout: 15_000 });
+  stage("landing reconhece sessão ativa");
+
+  await page.goto(`${baseUrl}/login`, { waitUntil: "networkidle" });
+  await page.waitForURL(/\/dashboard$/, { timeout: 15_000 });
+  await page.goto(`${baseUrl}/cadastro`, { waitUntil: "networkidle" });
+  await page.waitForURL(/\/dashboard$/, { timeout: 15_000 });
+  stage("login e cadastro ignoram formulário quando já há sessão");
+
   const { data: onboardingState, error: onboardingError } = await admin
     .from("professores")
     .select("onboarding_completo,chave_pix,endereco")
