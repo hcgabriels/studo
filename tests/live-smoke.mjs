@@ -208,7 +208,7 @@ try {
 
   await page.getByRole("heading", { name: "Onde você atende?" }).waitFor();
   await page
-    .getByPlaceholder("Rua, número, bairro, cidade — UF")
+    .getByPlaceholder("Rua, número, bairro, cidade, UF")
     .fill("Atendimento online");
   await page.getByRole("button", { name: "Continuar" }).click();
 
