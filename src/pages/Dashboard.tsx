@@ -462,6 +462,7 @@ const Dashboard = () => {
     cobrancasLoading ||
     (cobrancas?.length ?? 0) === 0 ||
     cobrancasPendentes.length > 0;
+  const checklistPronto = !!professor && !alunosLoading && !!alunos;
   const subtitleDesktop = (
     <>
       Você tem{" "}
@@ -587,9 +588,9 @@ const Dashboard = () => {
       />
 
       {/* Configuração inicial */}
-      {professor && (
+      {checklistPronto && (
         <div className="mb-6 md:mb-8">
-          <OnboardingChecklist professor={professor} alunos={alunos ?? []} />
+          <OnboardingChecklist professor={professor} alunos={alunos} />
         </div>
       )}
 

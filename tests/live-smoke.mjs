@@ -106,6 +106,11 @@ const assertNoHorizontalOverflow = async (page) => {
   assert(overflow <= 1, `Overflow horizontal de ${overflow}px em ${page.url()}`);
 };
 
+const expectHiddenText = async (page, text) => {
+  const visible = await page.getByText(text).first().isVisible().catch(() => false);
+  assert.equal(visible, false, `"${text}" apareceu em ${page.url()}`);
+};
+
 try {
   const { data: created, error: createError } =
     await admin.auth.admin.createUser({
@@ -199,6 +204,7 @@ try {
   await page
     .getByPlaceholder("email@dominio.com, telefone, CPF ou chave aleatória")
     .fill("e2e@example.invalid");
+  await page.getByPlaceholder("000.000.000-00").fill("12345678909");
   await page.getByRole("button", { name: "Continuar" }).click();
 
   await page
@@ -241,12 +247,13 @@ try {
 
   const { data: onboardingState, error: onboardingError } = await admin
     .from("professores")
-    .select("onboarding_completo,chave_pix,endereco")
+    .select("onboarding_completo,chave_pix,cpf_cnpj,endereco")
     .eq("id", professorId)
     .single();
   if (onboardingError) throw onboardingError;
   assert.equal(onboardingState.onboarding_completo, true);
   assert.equal(onboardingState.chave_pix, "e2e@example.invalid");
+  assert.equal(onboardingState.cpf_cnpj, "123.456.789-09");
   assert.equal(onboardingState.endereco, "Atendimento online");
 
   const { data: students, error: studentError } = await admin
@@ -266,6 +273,34 @@ try {
   if (scheduleError) throw scheduleError;
   assert.equal(scheduleCount, 1);
   stage("persistência do onboarding verificada no banco");
+
+  const freshContext = await browser.newContext({
+    viewport: { width: 1440, height: 1000 },
+    reducedMotion: "reduce",
+  });
+  await freshContext.addInitScript(() => {
+    localStorage.setItem("studoo:visitou-agenda", "1");
+  });
+  const freshPage = await freshContext.newPage();
+  await freshPage.route("**/rest/v1/alunos**", async (route) => {
+    if (route.request().method() === "GET") {
+      await new Promise((resolve) => setTimeout(resolve, 1_000));
+    }
+    await route.continue();
+  });
+  await freshPage.goto(`${baseUrl}/login`, { waitUntil: "networkidle" });
+  await freshPage.locator("#email").fill(email);
+  await freshPage.locator("#password").fill(password);
+  await freshPage.getByRole("button", { name: /^Entrar/ }).click();
+  await freshPage.waitForURL(/\/dashboard$/, { timeout: 15_000 });
+  await freshPage
+    .getByRole("heading", { name: /Codex\./ })
+    .first()
+    .waitFor({ timeout: 15_000 });
+  await freshPage.waitForTimeout(350);
+  await expectHiddenText(freshPage, "Complete sua configuração");
+  await freshContext.close();
+  stage("dashboard não pisca checklist durante carregamento dos alunos");
 
   await screenshot(page, "dashboard-desktop");
   await goto(page, "/alunos", "Alunos");
