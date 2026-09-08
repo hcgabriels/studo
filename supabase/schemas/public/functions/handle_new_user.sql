@@ -8,7 +8,12 @@ CREATE OR REPLACE FUNCTION public.handle_new_user()
     INSERT INTO public.professores (user_id, nome, email)
     VALUES (
       NEW.id,
-      COALESCE(NEW.raw_user_meta_data->>'nome', split_part(COALESCE(NEW.email, ''), '@', 1)),
+      COALESCE(
+        NEW.raw_user_meta_data->>'nome',
+        NEW.raw_user_meta_data->>'full_name',
+        NEW.raw_user_meta_data->>'name',
+        split_part(COALESCE(NEW.email, ''), '@', 1)
+      ),
       COALESCE(NEW.email, '')
     )
     ON CONFLICT (user_id) DO NOTHING;
