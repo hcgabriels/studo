@@ -10,6 +10,7 @@ import {
   Bell,
   Crown,
   CreditCard,
+  Loader2,
   Check,
   FileText,
   CalendarOff,
@@ -228,8 +229,9 @@ const Configuracoes = () => {
       window.location.assign(url);
     },
     onError: (err) => {
+      setBillingAction(null);
       console.error("[Configurações] erro ao abrir checkout:", err);
-      toast.error("Não foi possível abrir o checkout agora.");
+      toast.error("Não foi possível abrir o checkout. Tente novamente em alguns segundos.");
     },
   });
 
@@ -242,8 +244,9 @@ const Configuracoes = () => {
       window.location.assign(url);
     },
     onError: (err) => {
+      setBillingAction(null);
       console.error("[Configurações] erro ao abrir portal:", err);
-      toast.error("Não foi possível abrir o portal de assinatura agora.");
+      toast.error("Não foi possível abrir o portal de assinatura. Tente novamente em alguns segundos.");
     },
   });
 
@@ -260,6 +263,7 @@ const Configuracoes = () => {
   const periodoAtual = assinatura?.current_period_end
     ? format(new Date(assinatura.current_period_end), "dd/MM/yyyy")
     : null;
+  const [billingAction, setBillingAction] = useState<PlanoCheckout | "portal" | null>(null);
   const assinando = checkoutMutation.isPending || portalMutation.isPending;
 
   // ── LGPD: portabilidade (baixar) e eliminação (excluir conta) ────────────
@@ -809,35 +813,66 @@ const Configuracoes = () => {
               <Button
                 type="button"
                 size="sm"
-                onClick={() => checkoutMutation.mutate("mensal")}
+                onClick={() => {
+                  setBillingAction("mensal");
+                  checkoutMutation.mutate("mensal");
+                }}
                 disabled={assinando || !professor}
                 className="w-full sm:w-auto"
+                aria-busy={billingAction === "mensal" ? "true" : undefined}
               >
-                <CreditCard className="h-3.5 w-3.5" />
-                Assinar mensal
+                {billingAction === "mensal" ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <CreditCard className="h-3.5 w-3.5" />
+                )}
+                {billingAction === "mensal" ? "Abrindo checkout..." : "Assinar mensal"}
               </Button>
               <Button
                 type="button"
                 size="sm"
                 variant="secondary"
-                onClick={() => checkoutMutation.mutate("anual")}
+                onClick={() => {
+                  setBillingAction("anual");
+                  checkoutMutation.mutate("anual");
+                }}
                 disabled={assinando || !professor}
                 className="w-full sm:w-auto"
+                aria-busy={billingAction === "anual" ? "true" : undefined}
               >
-                Assinar anual
+                {billingAction === "anual" && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                {billingAction === "anual" ? "Abrindo checkout..." : "Assinar anual"}
               </Button>
             </div>
+            {assinando && (
+              <p className="text-[11px] text-muted-foreground text-left sm:text-center lg:text-right max-w-[32ch]">
+                Estamos criando uma sessão segura na Stripe. Isso pode levar alguns segundos.
+              </p>
+            )}
             {assinatura?.gateway_customer_id && (
               <Button
                 type="button"
                 size="sm"
                 variant="ghost"
-                onClick={() => portalMutation.mutate()}
+                onClick={() => {
+                  setBillingAction("portal");
+                  portalMutation.mutate();
+                }}
                 disabled={assinando}
                 className="w-full sm:w-auto"
+                aria-busy={billingAction === "portal" ? "true" : undefined}
               >
-                Gerenciar assinatura
-                <ExternalLink className="h-3.5 w-3.5" />
+                {billingAction === "portal" ? (
+                  <>
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    Abrindo portal...
+                  </>
+                ) : (
+                  <>
+                    Gerenciar assinatura
+                    <ExternalLink className="h-3.5 w-3.5" />
+                  </>
+                )}
               </Button>
             )}
           </div>
