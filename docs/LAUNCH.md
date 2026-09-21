@@ -9,9 +9,14 @@
 - Banco: RLS ligado nas 8 tabelas principais e hardening aplicado em `sql/2026-08-hardening.sql`
 - Deploy: pronto para Vercel via `vercel.json`; Netlify/Cloudflare Pages continuam cobertos por `public/_redirects`
 - Direcao de produto: definida em `docs/PRODUCT_DIRECTION.md`
+- Pagamentos e plano de lançamento: `docs/PAGAMENTOS-E-LANCAMENTO.md`
+- Stripe Billing: `docs/STRIPE_BILLING.md`
 
 ## Bloqueadores antes de convidar professores
 
+- [x] Decidir gateway e modelo de cobrança do Studoo conforme `docs/PAGAMENTOS-E-LANCAMENTO.md`.
+- [ ] Configurar produtos, prices, secrets e webhook da Stripe conforme `docs/STRIPE_BILLING.md`.
+- [ ] Validar checkout real em modo teste e depois em produção.
 - [ ] Aplicar no Supabase remoto os templates versionados em `supabase/templates/`.
 - [ ] Melhorar e comprovar a entregabilidade dos emails enviados pelo Resend.
 - [x] Revisar onboarding inicial e estados de primeira visita.

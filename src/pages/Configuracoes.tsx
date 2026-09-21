@@ -9,6 +9,7 @@ import {
   Calendar,
   Bell,
   Crown,
+  CreditCard,
   Check,
   FileText,
   CalendarOff,
@@ -16,9 +17,12 @@ import {
   Trash2,
   Download,
   ShieldCheck,
+  ExternalLink,
 } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { useProfessor } from "@/hooks/useProfessor";
+import { useAssinatura } from "@/hooks/useAssinatura";
 import { usePage } from "@/contexts/PageContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -43,10 +47,72 @@ const PG_FUNCAO_INEXISTENTE = "42883";
 /** Palavra que o professor precisa digitar pra liberar a exclusão da conta. */
 const PALAVRA_EXCLUSAO = "EXCLUIR";
 
+type PlanoCheckout = "mensal" | "anual";
+
+const statusPlano = {
+  beta: {
+    label: "Beta aberto",
+    badge: "Gratuito",
+    badgeVariant: "success" as const,
+    description:
+      "Sem cobrança por enquanto. Você pode iniciar uma assinatura quando quiser validar o fluxo real.",
+  },
+  trialing: {
+    label: "Trial ativo",
+    badge: "Teste",
+    badgeVariant: "secondary" as const,
+    description: "Seu período de teste está ativo.",
+  },
+  active: {
+    label: "Studoo Pro",
+    badge: "Ativo",
+    badgeVariant: "success" as const,
+    description: "Sua assinatura está ativa.",
+  },
+  past_due: {
+    label: "Pagamento pendente",
+    badge: "Atenção",
+    badgeVariant: "warning" as const,
+    description: "A Stripe não conseguiu confirmar o pagamento. Atualize a forma de pagamento.",
+  },
+  canceled: {
+    label: "Assinatura cancelada",
+    badge: "Cancelado",
+    badgeVariant: "secondary" as const,
+    description: "A assinatura foi cancelada. Você pode reativar pelo checkout.",
+  },
+  unpaid: {
+    label: "Pagamento em aberto",
+    badge: "Pendente",
+    badgeVariant: "destructive" as const,
+    description: "Há pagamentos em aberto. Atualize a forma de pagamento no portal.",
+  },
+  incomplete: {
+    label: "Checkout iniciado",
+    badge: "Incompleto",
+    badgeVariant: "secondary" as const,
+    description: "O checkout foi iniciado, mas a assinatura ainda não foi confirmada.",
+  },
+  incomplete_expired: {
+    label: "Checkout expirado",
+    badge: "Expirado",
+    badgeVariant: "secondary" as const,
+    description: "O checkout expirou. Inicie uma nova assinatura.",
+  },
+  paused: {
+    label: "Assinatura pausada",
+    badge: "Pausado",
+    badgeVariant: "secondary" as const,
+    description: "A assinatura está pausada.",
+  },
+};
+
 const Configuracoes = () => {
   const { data: professor, isLoading } = useProfessor();
+  const { data: assinatura, isLoading: assinaturaLoading } = useAssinatura(professor?.id);
   const { data: bloqueios } = useBloqueios(professor?.id);
   const qc = useQueryClient();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   usePage("Configurações", "Perfil, pagamento e preferências", "Ajustes");
 
@@ -89,6 +155,19 @@ const Configuracoes = () => {
   const [horasAviso, setHorasAviso] = useState(24);
   const [cobrarFalta, setCobrarFalta] = useState(true);
   const [diaVencimento, setDiaVencimento] = useState(10);
+
+  useEffect(() => {
+    const billing = searchParams.get("billing");
+    if (billing === "success") {
+      toast.success("Checkout concluído. A assinatura será atualizada em instantes.");
+      qc.invalidateQueries({ queryKey: ["assinatura"] });
+      setSearchParams({}, { replace: true });
+    }
+    if (billing === "cancelled") {
+      toast.info("Checkout cancelado. Você pode tentar de novo quando quiser.");
+      setSearchParams({}, { replace: true });
+    }
+  }, [qc, searchParams, setSearchParams]);
 
   // Hidrata UMA vez. Antes rodava a cada mudança de referência do `professor`
   // — e como `refetchOnWindowFocus` é true por padrão, voltar pra aba
@@ -138,6 +217,36 @@ const Configuracoes = () => {
     toast.success("Chave PIX salva!");
   };
 
+  const checkoutMutation = useMutation({
+    mutationFn: async (plano: PlanoCheckout) => {
+      const { data, error } = await supabase.functions.invoke("create-checkout-session", {
+        body: { plano },
+      });
+      if (error) throw error;
+      const url = (data as { url?: string })?.url;
+      if (!url) throw new Error("Checkout sem URL de redirecionamento");
+      window.location.assign(url);
+    },
+    onError: (err) => {
+      console.error("[Configurações] erro ao abrir checkout:", err);
+      toast.error("Não foi possível abrir o checkout agora.");
+    },
+  });
+
+  const portalMutation = useMutation({
+    mutationFn: async () => {
+      const { data, error } = await supabase.functions.invoke("create-billing-portal-session");
+      if (error) throw error;
+      const url = (data as { url?: string })?.url;
+      if (!url) throw new Error("Portal sem URL de redirecionamento");
+      window.location.assign(url);
+    },
+    onError: (err) => {
+      console.error("[Configurações] erro ao abrir portal:", err);
+      toast.error("Não foi possível abrir o portal de assinatura agora.");
+    },
+  });
+
   const saveRecibo = async () => {
     await updateMutation.mutateAsync({
       cpf_cnpj: cpfCnpj || null,
@@ -147,6 +256,11 @@ const Configuracoes = () => {
   };
 
   const pixType = detectPixType(pixKey);
+  const planoInfo = statusPlano[assinatura?.status ?? "beta"];
+  const periodoAtual = assinatura?.current_period_end
+    ? format(new Date(assinatura.current_period_end), "dd/MM/yyyy")
+    : null;
+  const assinando = checkoutMutation.isPending || portalMutation.isPending;
 
   // ── LGPD: portabilidade (baixar) e eliminação (excluir conta) ────────────
   const [baixandoDados, setBaixandoDados] = useState(false);
@@ -667,26 +781,66 @@ const Configuracoes = () => {
         icon={Crown}
         className="bg-gradient-to-br from-primary/10 via-card to-card border-primary/30 mt-5"
       >
-        <div className="flex items-start justify-between gap-4">
-          <div>
+        <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-5">
+          <div className="min-w-0">
             <p className="font-mono text-[10px] tracking-[0.14em] uppercase text-primary">
               Plano atual
             </p>
             <p className="text-[17px] font-semibold tracking-[-0.015em] mt-1">
-              Beta aberto
+              {assinaturaLoading ? "Carregando..." : planoInfo.label}
             </p>
             <p className="font-mono text-[28px] font-bold tabular-nums tracking-[-0.025em] mt-1.5 leading-none">
-              R$ 0
+              {assinatura?.plano === "anual" ? "Anual" : assinatura?.plano === "mensal" ? "Mensal" : "R$ 0"}
               <span className="text-sm font-medium text-muted-foreground ml-1 tracking-normal">
-                /mês
+                {assinatura?.plano === "anual" ? "" : assinatura?.plano === "mensal" ? "/mês" : "/mês"}
               </span>
             </p>
             <p className="text-xs text-muted-foreground mt-2 max-w-[46ch]">
-              Sem cobrança e sem cartão. Quando o Studoo passar a ser pago, a
-              gente avisa por email antes, e você escolhe se continua.
+              {planoInfo.description}
+              {periodoAtual ? ` Período atual até ${periodoAtual}.` : ""}
+              {assinatura?.cancel_at_period_end ? " Cancelamento agendado no fim do período." : ""}
             </p>
           </div>
-          <Badge variant="success">Gratuito</Badge>
+          <div className="flex flex-col sm:flex-row lg:flex-col items-stretch sm:items-center lg:items-end gap-2 lg:min-w-[260px]">
+            <Badge variant={planoInfo.badgeVariant} className="self-start lg:self-end">
+              {planoInfo.badge}
+            </Badge>
+            <div className="flex flex-col sm:flex-row gap-2 w-full lg:justify-end">
+              <Button
+                type="button"
+                size="sm"
+                onClick={() => checkoutMutation.mutate("mensal")}
+                disabled={assinando || !professor}
+                className="w-full sm:w-auto"
+              >
+                <CreditCard className="h-3.5 w-3.5" />
+                Assinar mensal
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="secondary"
+                onClick={() => checkoutMutation.mutate("anual")}
+                disabled={assinando || !professor}
+                className="w-full sm:w-auto"
+              >
+                Assinar anual
+              </Button>
+            </div>
+            {assinatura?.gateway_customer_id && (
+              <Button
+                type="button"
+                size="sm"
+                variant="ghost"
+                onClick={() => portalMutation.mutate()}
+                disabled={assinando}
+                className="w-full sm:w-auto"
+              >
+                Gerenciar assinatura
+                <ExternalLink className="h-3.5 w-3.5" />
+              </Button>
+            )}
+          </div>
         </div>
       </SectionCard>
 

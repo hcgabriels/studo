@@ -17,6 +17,34 @@ export interface Professor {
   updated_at: string;
 }
 
+export type AssinaturaStatus =
+  | "beta"
+  | "trialing"
+  | "active"
+  | "past_due"
+  | "canceled"
+  | "unpaid"
+  | "incomplete"
+  | "incomplete_expired"
+  | "paused";
+
+export type AssinaturaPlano = "beta" | "mensal" | "anual";
+
+export interface Assinatura {
+  id: string;
+  professor_id: string;
+  gateway: "stripe";
+  gateway_customer_id: string | null;
+  gateway_subscription_id: string | null;
+  status: AssinaturaStatus;
+  plano: AssinaturaPlano;
+  trial_ends_at: string | null;
+  current_period_end: string | null;
+  cancel_at_period_end: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 export type AlunoNivel = "Iniciante" | "Intermediário" | "Avançado";
 
 export interface Aluno {
