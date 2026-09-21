@@ -25,6 +25,17 @@ Para teste, use chaves e prices de modo teste.
 
 Nunca coloque `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` ou `STRIPE_PRICE_ID_*` em `VITE_*`.
 
+## Produto criado na Stripe
+
+Conta: `ghzstudio.com.br`
+
+- Produto: `Studoo Pro`
+- Product ID: `prod_VIWdOHIm6WAduK`
+- Mensal: `R$ 39,00/mês`
+- `STRIPE_PRICE_ID_MENSAL=price_1UHvaQ1YDP6xATLv9zKYGWni`
+- Anual: `R$ 390,00/ano`
+- `STRIPE_PRICE_ID_ANUAL=price_1UHvaQ1YDP6xATLvjpI9NdXS`
+
 ## Deploy das functions
 
 ```bash
