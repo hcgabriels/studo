@@ -2,6 +2,7 @@ import { type ReactNode } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfessor } from "@/hooks/useProfessor";
+import { useAssinatura } from "@/hooks/useAssinatura";
 import { Button } from "@/components/ui/button";
 
 const LoadingScreen = () => (
@@ -18,6 +19,10 @@ const ProtectedRoute = ({ children }: { children: ReactNode }) => {
     isLoading: profLoading,
     isError: profError,
   } = useProfessor();
+  const {
+    data: assinatura,
+    isLoading: assinaturaLoading,
+  } = useAssinatura(professor?.id);
 
   if (authLoading) return <LoadingScreen />;
   if (!user) return <Navigate to="/login" replace />;
@@ -46,6 +51,7 @@ const ProtectedRoute = ({ children }: { children: ReactNode }) => {
   }
 
   const onOnboarding = location.pathname === "/onboarding";
+  const onConfiguracoes = location.pathname === "/configuracoes";
 
   // Escape hatch: se a migration de onboarding_completo ainda não rodou
   // (campo vem `undefined`), ou se o user marcou skip local, tratamos como completo.
@@ -87,6 +93,13 @@ const ProtectedRoute = ({ children }: { children: ReactNode }) => {
         </div>
       </div>
     );
+  }
+
+  const assinaturaAtiva = assinatura?.status === "active";
+  if (completo && !onConfiguracoes && assinaturaLoading) return <LoadingScreen />;
+
+  if (completo && !onConfiguracoes && !assinaturaAtiva) {
+    return <Navigate to="/configuracoes?billing=required" replace />;
   }
 
   return <>{children}</>;

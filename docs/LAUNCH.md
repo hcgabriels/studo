@@ -73,7 +73,7 @@ O HTML deve usar `{{ .ConfirmationURL }}` no botão principal. O tom precisa ser
 
 ### Entregabilidade
 
-Checar antes do beta:
+Checar antes do piloto pago:
 
 - Resend Domain: `Verified`
 - SPF/DKIM/DMARC configurados e propagados
@@ -85,7 +85,7 @@ Checar antes do beta:
 
 ### Onboarding inicial
 
-Revisar antes do beta:
+Revisar antes do piloto pago:
 
 - Alinhamento vertical e responsividade
 - Textos de boas-vindas
@@ -196,7 +196,7 @@ O arquivo `public/_redirects` garante rewrite de SPA:
 18. Testar F5 em `/agenda` e `/alunos/:id`.
 19. Testar mobile.
 
-## Critério para beta fechado
+## Critério para piloto pago controlado
 
 - CI verde no GitHub.
 - SMTP funcionando com email externo à organização Supabase.

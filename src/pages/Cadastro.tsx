@@ -92,7 +92,7 @@ const Cadastro = () => {
         }
 
         toast.success("Conta criada com sucesso!");
-        navigate("/dashboard");
+        navigate("/configuracoes?billing=required");
       } else {
         // Sem sessão = email confirmation ativo. Redireciona pra tela dedicada.
         navigate(`/verificar-email?email=${encodeURIComponent(email)}`);
@@ -107,8 +107,8 @@ const Cadastro = () => {
 
   return (
     <AuthLayout
-      title="Crie sua conta de graça."
-      subtitle="O Studoo tá em beta e não cobra nada. Sem cartão, sem cobrança escondida."
+      title="Crie sua conta."
+      subtitle="Escolha o plano depois do cadastro: R$ 39/mês ou R$ 390/ano, com 14 dias de garantia."
       topRight={{
         question: "Já tem conta?",
         cta: "Entrar",
@@ -227,14 +227,14 @@ const Cadastro = () => {
             "Criando conta..."
           ) : (
             <>
-              Criar conta de graça <ArrowRight className="h-4 w-4" />
+              Criar conta <ArrowRight className="h-4 w-4" />
             </>
           )}
         </Button>
 
         <div className="flex items-center justify-center gap-1.5 pt-1 text-center text-[10.5px] tracking-[-0.01em] text-muted-foreground whitespace-nowrap sm:gap-2 sm:text-[11.5px]">
           <Check className="h-3.5 w-3.5 shrink-0 text-success" />
-          <span>Beta gratuito · sem cartão · seus dados são seus</span>
+          <span>Pago desde o início · reembolso em 14 dias · seus dados são seus</span>
         </div>
       </form>
     </AuthLayout>

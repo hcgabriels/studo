@@ -321,7 +321,7 @@ const PresencaModal = ({
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold">Cadastrar como aluno</p>
                   <p className="text-xs text-muted-foreground">
-                    Trial aprovado? Vire este aluno em recorrente.
+                    Aula experimental aprovada? Vire este aluno em recorrente.
                   </p>
                 </div>
               </button>
@@ -561,10 +561,10 @@ const ConverterTrialModal = ({
       invalidateAlunos(qc);
       invalidateAulas(qc);
       qc.invalidateQueries({ queryKey: ["aulas-recorrentes"] });
-      toast.success("Aluno cadastrado e trial convertido!");
+      toast.success("Aluno cadastrado e aula experimental convertida!");
       onClose();
     },
-    onError: () => toast.error("Erro ao converter trial"),
+    onError: () => toast.error("Erro ao converter aula experimental"),
   });
 
   const valid = nome.trim() && instrumento && valor && parseCurrencyInput(valor) > 0;
@@ -1468,7 +1468,7 @@ const Agenda = () => {
                                     {slot.aluno.instrumento}
                                     {tipo === "experimental" && (
                                       <Badge variant="warning" className="ml-1">
-                                        Trial
+                                        Experimental
                                       </Badge>
                                     )}
                                     {tipo === "avulsa" && (
@@ -1922,7 +1922,7 @@ const Agenda = () => {
                                   </span>
                                   {tipo === "experimental" && (
                                     <Badge variant="warning" className="ml-1">
-                                      Trial
+                                      Experimental
                                     </Badge>
                                   )}
                                   {tipo === "avulsa" && (

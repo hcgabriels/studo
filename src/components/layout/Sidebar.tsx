@@ -87,7 +87,7 @@ const Sidebar = () => {
             />
             <Wordmark size={17} />
             <span className="ml-auto font-mono text-[9px] tracking-[0.14em] uppercase text-muted-foreground border border-border rounded-sm px-1.5 py-0.5">
-              Beta
+              Pro
             </span>
           </Link>
         </div>

@@ -713,7 +713,7 @@ const Dashboard = () => {
             <KpiCard
               icon={Sparkles}
               iconTone="warn"
-              label="Trials do mês"
+              label="Experimentais do mês"
               value={`${trialStats.convertidos}/${trialStats.total}`}
               hint={`${trialStats.taxa}% conversão`}
             />

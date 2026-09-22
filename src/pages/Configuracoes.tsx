@@ -51,18 +51,25 @@ const PALAVRA_EXCLUSAO = "EXCLUIR";
 type PlanoCheckout = "mensal" | "anual";
 
 const statusPlano = {
-  beta: {
-    label: "Beta aberto",
-    badge: "Gratuito",
-    badgeVariant: "success" as const,
+  sem_assinatura: {
+    label: "Assinatura necessária",
+    badge: "Pendente",
+    badgeVariant: "warning" as const,
     description:
-      "Sem cobrança por enquanto. Você pode iniciar uma assinatura quando quiser validar o fluxo real.",
+      "O Studoo é pago desde o início. Escolha mensal ou anual para liberar o uso do painel.",
+  },
+  beta: {
+    label: "Assinatura necessária",
+    badge: "Pendente",
+    badgeVariant: "warning" as const,
+    description:
+      "Este plano gratuito não está mais disponível. Assine para continuar usando o Studoo.",
   },
   trialing: {
-    label: "Trial ativo",
-    badge: "Teste",
-    badgeVariant: "secondary" as const,
-    description: "Seu período de teste está ativo.",
+    label: "Assinatura necessária",
+    badge: "Pendente",
+    badgeVariant: "warning" as const,
+    description: "Não há teste grátis no Studoo. Escolha um plano para continuar.",
   },
   active: {
     label: "Studoo Pro",
@@ -164,6 +171,10 @@ const Configuracoes = () => {
       qc.invalidateQueries({ queryKey: ["assinatura"] });
       setSearchParams({}, { replace: true });
     }
+    if (billing === "required") {
+      toast.info("Escolha um plano para liberar o uso do Studoo.");
+      setSearchParams({}, { replace: true });
+    }
     if (billing === "cancelled") {
       toast.info("Checkout cancelado. Você pode tentar de novo quando quiser.");
       setSearchParams({}, { replace: true });
@@ -259,12 +270,23 @@ const Configuracoes = () => {
   };
 
   const pixType = detectPixType(pixKey);
-  const planoInfo = statusPlano[assinatura?.status ?? "beta"];
+  const planoInfo = statusPlano[assinatura?.status ?? "sem_assinatura"];
   const periodoAtual = assinatura?.current_period_end
     ? format(new Date(assinatura.current_period_end), "dd/MM/yyyy")
     : null;
-  const [billingAction, setBillingAction] = useState<PlanoCheckout | "portal" | null>(null);
+  const [billingAction, setBillingAction] = useState<PlanoCheckout | "portal" | "cancelar" | null>(null);
   const assinando = checkoutMutation.isPending || portalMutation.isPending;
+  const assinaturaAtiva = assinatura?.status === "active";
+  const planoAtual =
+    assinatura?.plano === "anual"
+      ? "R$ 390"
+      : assinatura?.plano === "mensal"
+        ? "R$ 39"
+        : "R$ 39";
+  const cicloAtual =
+    assinatura?.plano === "anual"
+      ? "/ano"
+      : "/mês";
 
   // ── LGPD: portabilidade (baixar) e eliminação (excluir conta) ────────────
   const [baixandoDados, setBaixandoDados] = useState(false);
@@ -777,9 +799,7 @@ const Configuracoes = () => {
         </div>
       </Tabs>
 
-      {/* Plano sempre visível, fora das tabs.
-          Antes dizia "Studoo Pro · R$ 19,90 · Ativo" com botões desabilitados —
-          ninguém paga nada, então o card mentia e os botões pareciam quebrados. */}
+      {/* Plano sempre visível: produto pago desde o início. */}
       <SectionCard
         title="Seu plano"
         icon={Crown}
@@ -794,15 +814,18 @@ const Configuracoes = () => {
               {assinaturaLoading ? "Carregando..." : planoInfo.label}
             </p>
             <p className="font-mono text-[28px] font-bold tabular-nums tracking-[-0.025em] mt-1.5 leading-none">
-              {assinatura?.plano === "anual" ? "Anual" : assinatura?.plano === "mensal" ? "Mensal" : "R$ 0"}
+              {assinaturaLoading ? "..." : planoAtual}
               <span className="text-sm font-medium text-muted-foreground ml-1 tracking-normal">
-                {assinatura?.plano === "anual" ? "" : assinatura?.plano === "mensal" ? "/mês" : "/mês"}
+                {cicloAtual}
               </span>
             </p>
             <p className="text-xs text-muted-foreground mt-2 max-w-[46ch]">
               {planoInfo.description}
               {periodoAtual ? ` Período atual até ${periodoAtual}.` : ""}
               {assinatura?.cancel_at_period_end ? " Cancelamento agendado no fim do período." : ""}
+            </p>
+            <p className="text-[11px] text-muted-foreground mt-2 max-w-[48ch]">
+              Sem teste grátis e sem plano gratuito. Reembolso disponível em até 14 dias após a assinatura.
             </p>
           </div>
           <div className="flex flex-col sm:flex-row lg:flex-col items-stretch sm:items-center lg:items-end gap-2 lg:min-w-[260px]">
@@ -850,30 +873,55 @@ const Configuracoes = () => {
               </p>
             )}
             {assinatura?.gateway_customer_id && (
-              <Button
-                type="button"
-                size="sm"
-                variant="ghost"
-                onClick={() => {
-                  setBillingAction("portal");
-                  portalMutation.mutate();
-                }}
-                disabled={assinando}
-                className="w-full sm:w-auto"
-                aria-busy={billingAction === "portal" ? "true" : undefined}
-              >
-                {billingAction === "portal" ? (
-                  <>
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                    Abrindo portal...
-                  </>
-                ) : (
-                  <>
-                    Gerenciar assinatura
-                    <ExternalLink className="h-3.5 w-3.5" />
-                  </>
+              <div className="flex flex-col sm:flex-row lg:flex-col gap-2 w-full lg:items-end">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => {
+                    setBillingAction("portal");
+                    portalMutation.mutate();
+                  }}
+                  disabled={assinando}
+                  className="w-full sm:w-auto"
+                  aria-busy={billingAction === "portal" ? "true" : undefined}
+                >
+                  {billingAction === "portal" ? (
+                    <>
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      Abrindo portal...
+                    </>
+                  ) : (
+                    <>
+                      Gerenciar pagamento
+                      <ExternalLink className="h-3.5 w-3.5" />
+                    </>
+                  )}
+                </Button>
+                {assinaturaAtiva && (
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setBillingAction("cancelar");
+                      portalMutation.mutate();
+                    }}
+                    disabled={assinando}
+                    className="w-full sm:w-auto text-destructive hover:text-destructive"
+                    aria-busy={billingAction === "cancelar" ? "true" : undefined}
+                  >
+                    {billingAction === "cancelar" ? (
+                      <>
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        Abrindo cancelamento...
+                      </>
+                    ) : (
+                      "Cancelar assinatura"
+                    )}
+                  </Button>
                 )}
-              </Button>
+              </div>
             )}
           </div>
         </div>

@@ -4,7 +4,7 @@ const Privacidade = () => (
   <LegalLayout
     eyebrow="Privacidade"
     title="Política de privacidade"
-    updatedAt="agosto de 2026"
+    updatedAt="setembro de 2026"
   >
     <p>
       Esta política descreve como o <strong>Studoo</strong> coleta, usa e
@@ -12,9 +12,9 @@ const Privacidade = () => (
       alunos que você cadastra.
     </p>
     <p>
-      O Studoo está em beta e é gratuito. Escrevemos aqui o que o app{" "}
-      <strong>realmente faz hoje</strong> — não o que a gente pretende fazer.
-      Quando o produto mudar, esta página muda junto.
+      O Studoo é um produto pago por assinatura. Escrevemos aqui o que o app{" "}
+      <strong>realmente faz hoje</strong> e quais fornecedores processam os
+      dados necessários para a conta e a cobrança.
     </p>
 
     <h2>1. Quem é quem</h2>
@@ -45,6 +45,11 @@ const Privacidade = () => (
         Registros técnicos gerados pelo provedor de autenticação e pela
         hospedagem (IP, user-agent, data e hora de acesso)
       </li>
+      <li>
+        Dados de assinatura, plano, status de pagamento, identificadores de
+        cliente/assinatura e histórico de eventos de cobrança processados pela
+        Stripe
+      </li>
     </ul>
     <h3>Dos alunos, cadastrados por você</h3>
     <ul>
@@ -61,7 +66,9 @@ const Privacidade = () => (
       </li>
     </ul>
     <p>
-      Não coletamos dados de cartão de crédito, porque não há cobrança.
+      Dados completos de cartão e meios de pagamento são processados pela
+      Stripe. O Studoo não armazena número completo de cartão, CVV ou dados
+      equivalentes.
     </p>
 
     <h2>3. Como usamos</h2>
@@ -70,6 +77,7 @@ const Privacidade = () => (
       <li>
         Enviar emails de conta (confirmação de cadastro e redefinição de senha)
       </li>
+      <li>Gerenciar assinatura, pagamento, faturas, cancelamento e reembolso</li>
       <li>
         Manter o histórico de mensagens que você enviou, pra você consultar
         depois
@@ -134,6 +142,10 @@ const Privacidade = () => (
       <li>
         <strong>Provedor de hospedagem do site</strong> — entrega as páginas do
         Studoo no seu navegador e mantém registros de acesso.
+      </li>
+      <li>
+        <strong>Stripe</strong> — processamento de assinatura, pagamento,
+        faturas, portal do cliente, cancelamento e reembolso.
       </li>
     </ul>
     <p>
@@ -210,9 +222,8 @@ const Privacidade = () => (
       <li>Acesso ao banco restrito por credenciais e chaves de serviço</li>
     </ul>
     <p>
-      Nenhum sistema é 100% seguro, ainda mais um beta. Se acontecer um
-      incidente que afete dados pessoais, notificamos a ANPD e os titulares
-      afetados no prazo da LGPD.
+      Nenhum sistema é 100% seguro. Se acontecer um incidente que afete dados
+      pessoais, notificamos a ANPD e os titulares afetados no prazo da LGPD.
     </p>
 
     <h2>10. Cookies</h2>

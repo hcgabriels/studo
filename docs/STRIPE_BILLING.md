@@ -36,6 +36,13 @@ Conta: `ghzstudio.com.br`
 - Anual: `R$ 390,00/ano`
 - `STRIPE_PRICE_ID_ANUAL=price_1UHvaQ1YDP6xATLvjpI9NdXS`
 
+Modelo comercial vigente:
+
+- Produto pago desde o início.
+- Sem plano gratuito e sem teste grátis.
+- Cobrança no momento da assinatura.
+- Garantia de reembolso por 14 dias nos planos mensal e anual.
+
 ## Deploy das functions
 
 ```bash
@@ -89,12 +96,11 @@ Permitir no mínimo:
 4. Stripe redireciona para Checkout.
 5. Depois do pagamento, Stripe envia webhook.
 6. Webhook atualiza `public.assinaturas`.
-7. Card de plano passa para `active`, `trialing`, `past_due`, etc.
+7. Card de plano passa para `active`, `past_due`, etc.
+8. Usuário sem assinatura ativa fica restrito a `Configurações` para assinar ou gerenciar pagamento.
 
 ## Status tratados
 
-- `beta`
-- `trialing`
 - `active`
 - `past_due`
 - `canceled`
@@ -103,4 +109,4 @@ Permitir no mínimo:
 - `incomplete_expired`
 - `paused`
 
-Nesta primeira versão, o app ainda não bloqueia acesso automaticamente por status. Isso evita travar usuários existentes durante a ativação comercial. O bloqueio de acesso deve ser ligado depois que o webhook estiver validado em produção.
+O app bloqueia acesso às áreas principais quando não há assinatura ativa, mantendo `Configurações` acessível para assinar, trocar pagamento ou cancelar.

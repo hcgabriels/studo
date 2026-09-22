@@ -43,7 +43,7 @@ const features = [
     desc: "Cadastre alunos, controle frequência e mantenha o histórico completo num só lugar.",
     bullets: [
       "Múltiplos horários por aluno",
-      "Trial e pacotes de aulas",
+      "Aulas experimentais e pacotes",
       "Histórico de WhatsApp",
     ],
   },
@@ -70,8 +70,9 @@ const features = [
 ];
 
 const heroBadges = [
-  "Beta gratuito",
-  "Sem cartão",
+  "R$ 39/mês",
+  "R$ 390/ano",
+  "14 dias de garantia",
   "Roda no navegador do celular",
   "Seus dados são seus",
 ];
@@ -135,11 +136,19 @@ const planFeatures = [
 const faqs = [
   {
     q: "Quanto custa?",
-    a: "Hoje, nada. O Studoo tá em beta e é gratuito. Não tem cartão, não tem cobrança, não tem trial pra vencer.",
+    a: "R$ 39 por mês ou R$ 390 por ano. A cobrança acontece no momento da assinatura, sem teste grátis e sem plano gratuito.",
   },
   {
-    q: "E quando começar a cobrar?",
-    a: "A gente avisa por email antes de qualquer cobrança começar, e você decide se continua. Ninguém vai ser cobrado de surpresa.",
+    q: "Tem teste grátis?",
+    a: "Não. O Studoo é pago desde o início para manter suporte, estabilidade e evolução do produto. Você tem 14 dias de garantia de reembolso nos dois planos.",
+  },
+  {
+    q: "Como funciona o cancelamento?",
+    a: "Você pode cancelar pela área de Configurações. O cancelamento é feito pelo portal seguro da Stripe e vale para o fim do período já pago.",
+  },
+  {
+    q: "E se eu assinar e não gostar?",
+    a: "Peça o reembolso em até 14 dias após a assinatura. A garantia vale tanto para o mensal quanto para o anual.",
   },
   {
     q: "Os lembretes vão sozinhos pro aluno?",
@@ -171,7 +180,7 @@ const Index = () => {
   const estaLogado = !authLoading && !!user;
   const painelHref = "/dashboard";
   const entradaHref = estaLogado ? painelHref : "/cadastro";
-  const entradaTexto = estaLogado ? "Continuar no Studoo" : "Criar conta de graça";
+  const entradaTexto = estaLogado ? "Continuar no Studoo" : "Assinar o Studoo";
   const heroRef = useRef<HTMLDivElement>(null);
   const visualRef = useRef<HTMLDivElement>(null);
   useRevealOnScroll();
@@ -206,7 +215,7 @@ const Index = () => {
             </Link>
             <Link to={entradaHref}>
               <Button size="sm">
-                {estaLogado ? "Minha agenda" : "Começar grátis"}
+                {estaLogado ? "Minha agenda" : "Assinar agora"}
               </Button>
             </Link>
           </div>
@@ -271,8 +280,8 @@ const Index = () => {
               <div className="flex items-center gap-3 text-sm text-muted-foreground">
                 <CheckCircle className="h-4 w-4 text-primary shrink-0" />
                 <span>
-                  <b className="text-foreground">De graça enquanto tá em beta.</b>{" "}
-                  Sem cartão, sem cobrança.
+                  <b className="text-foreground">R$ 39/mês ou R$ 390/ano.</b>{" "}
+                  Assine hoje com garantia de reembolso por 14 dias.
                 </span>
               </div>
             </div>
@@ -496,7 +505,7 @@ const Index = () => {
               O que já dá pra fazer hoje.
             </h2>
             <p className="text-base text-muted-foreground mt-4 leading-relaxed">
-              O Studoo tá em beta. Em vez de prometer, aqui vai a lista do que
+              O Studoo está pronto para o uso real. Em vez de prometer, aqui vai a lista do que
               tá funcionando neste momento — e do jeito que funciona.
             </p>
           </div>
@@ -536,18 +545,18 @@ const Index = () => {
               className="text-3xl md:text-5xl font-extrabold text-balance mb-3"
               style={{ letterSpacing: "-0.03em" }}
             >
-              Enquanto tá em beta, é de graça.
+              Simples: mensal ou anual.
             </h2>
             <p className="text-base text-muted-foreground">
-              Não tem cartão, não tem cobrança e não tem trial correndo contra
-              você.
+              Produto pago desde o início, sem teste grátis e com 14 dias de
+              garantia de reembolso.
             </p>
           </div>
 
-          <div className="max-w-md mx-auto">
-            <div className="relative bg-card border border-primary/30 rounded-2xl p-8 shadow-md">
+          <div className="grid max-w-3xl mx-auto md:grid-cols-2 gap-4">
+            <div className="relative bg-card border border-border rounded-2xl p-8 shadow-md">
               <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground px-3 py-1 rounded-full font-mono text-[10px] tracking-[0.14em] uppercase font-semibold">
-                Beta aberto
+                Mensal
               </div>
 
               <div className="flex items-baseline gap-2 mb-1">
@@ -555,12 +564,12 @@ const Index = () => {
                   className="font-mono text-5xl font-bold text-primary"
                   style={{ letterSpacing: "-0.04em" }}
                 >
-                  R$ 0
+                  R$ 39
                 </div>
                 <div className="text-sm text-muted-foreground">/mês</div>
               </div>
               <p className="text-xs text-muted-foreground mb-6">
-                tudo liberado durante o beta
+                cobrança no momento da assinatura
               </p>
 
               <ul className="space-y-2.5 mb-6">
@@ -580,8 +589,45 @@ const Index = () => {
               </Link>
 
               <p className="text-xs text-muted-foreground text-center mt-4 leading-relaxed">
-                Um dia o Studoo vai ter preço. Quando isso acontecer, a gente
-                avisa por email antes e você escolhe se continua.
+                Sem teste grátis. Garantia de reembolso por 14 dias.
+              </p>
+            </div>
+            <div className="relative bg-card border border-primary/30 rounded-2xl p-8 shadow-md">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground px-3 py-1 rounded-full font-mono text-[10px] tracking-[0.14em] uppercase font-semibold">
+                Anual
+              </div>
+
+              <div className="flex items-baseline gap-2 mb-1">
+                <div
+                  className="font-mono text-5xl font-bold text-primary"
+                  style={{ letterSpacing: "-0.04em" }}
+                >
+                  R$ 390
+                </div>
+                <div className="text-sm text-muted-foreground">/ano</div>
+              </div>
+              <p className="text-xs text-muted-foreground mb-6">
+                equivalente a R$ 32,50/mês
+              </p>
+
+              <ul className="space-y-2.5 mb-6">
+                {planFeatures.map((item) => (
+                  <li key={item} className="flex items-center gap-2.5 text-sm">
+                    <CheckCircle className="h-4 w-4 text-primary shrink-0" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <Link to={entradaHref} className="block">
+                <Button className="w-full gap-2" size="lg">
+                  {entradaTexto}
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
+
+              <p className="text-xs text-muted-foreground text-center mt-4 leading-relaxed">
+                Dois meses de economia em relação ao plano mensal.
               </p>
             </div>
           </div>
@@ -641,12 +687,12 @@ const Index = () => {
             Comece hoje mesmo.
           </h2>
           <p className="text-base md:text-lg text-muted-foreground mb-8 max-w-md mx-auto">
-            Beta gratuito. Cria a conta, joga seus alunos lá dentro e vê se
-            ajuda.
+            Assine agora, organize seus alunos e, se não fizer sentido para sua rotina,
+            peça reembolso em até 14 dias.
           </p>
           <Link to={entradaHref}>
             <Button size="lg" className="gap-2">
-              {estaLogado ? "Abrir painel" : "Criar conta grátis"}
+              {estaLogado ? "Abrir painel" : "Assinar agora"}
               <ArrowRight className="h-4 w-4" />
             </Button>
           </Link>

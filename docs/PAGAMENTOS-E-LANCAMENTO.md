@@ -48,9 +48,9 @@ assinaturas
 ├─ gateway text -- stripe | asaas
 ├─ gateway_customer_id text
 ├─ gateway_subscription_id text
-├─ status text -- trialing | active | past_due | canceled | unpaid | incomplete
-├─ plano text -- mensal | anual | beta | lifetime
-├─ trial_ends_at timestamptz
+├─ status text -- active | past_due | canceled | unpaid | incomplete
+├─ plano text -- mensal | anual
+├─ trial_ends_at timestamptz -- legado/compatibilidade, sem teste grátis no produto atual
 ├─ current_period_end timestamptz
 ├─ cancel_at_period_end boolean
 ├─ created_at timestamptz
@@ -65,13 +65,12 @@ Regra sugerida:
 
 | Status | Acesso |
 |---|---|
-| `trialing` | acesso completo |
 | `active` | acesso completo |
-| `past_due` | acesso com aviso por 7 dias |
+| `past_due` | acesso bloqueado, mantendo Configurações e suporte |
 | `unpaid` | acesso bloqueado, mantendo exportação LGPD |
 | `canceled` com período vigente | acesso até `current_period_end` |
 | `canceled` vencido | bloqueado |
-| sem assinatura | mandar para checkout após trial/beta |
+| sem assinatura | mandar para Configurações/checkout |
 
 Nunca apagar dados por falta de pagamento. Bloquear uso, manter login, exportação e contato de suporte.
 
@@ -112,17 +111,17 @@ Adicionar no app:
 - Card de plano em `Configurações`.
 - CTA “Assinar agora” quando sem assinatura.
 - CTA “Gerenciar assinatura” para portal.
-- Banner discreto para `past_due`.
+- Botão “Cancelar assinatura” abrindo portal da Stripe.
+- Bloqueio de acesso quando não há assinatura ativa.
 - Tela de bloqueio para `unpaid/canceled`.
-- Badge “Beta” ou “Trial” no menu enquanto aplicável.
 
-### 5. Trial e beta
+### 5. Modelo comercial vigente
 
-Sugestão comercial:
-
-- Beta fechado: usuários convidados ficam em plano `beta` gratuito.
-- Público novo: 14 dias grátis sem cartão ou checkout com trial.
-- Quando cobrar oficialmente, evitar prometer “sem cartão” se o gateway exigir cartão/PIX no checkout.
+- Produto pago desde o início.
+- Sem teste grátis e sem plano gratuito.
+- R$ 39/mês ou R$ 390/ano.
+- Cobrança no momento da assinatura.
+- Garantia de reembolso por 14 dias nos dois planos.
 
 ## Cobranças dos alunos — fase posterior
 
@@ -150,9 +149,9 @@ Somente se houver razão estratégica forte. Exige KYC, termos específicos, rep
 
 ### Operação
 
-- Definir preço mensal/anual.
-- Definir política de beta: quem entra grátis e até quando.
-- Criar termos comerciais: reembolso, cancelamento, inadimplência.
+- Preço mensal/anual definido: R$ 39/mês ou R$ 390/ano. ✅
+- Política comercial definida: sem teste grátis, sem plano gratuito, reembolso em 14 dias. ✅
+- Criar processo operacional de reembolso no suporte.
 - Criar canal de suporte oficial.
 - Criar página curta de status/contato.
 
@@ -193,7 +192,7 @@ Resultado esperado:
 
 - gateway escolhido;
 - preço definido;
-- trial/beta decidido;
+- política de acesso pago decidida;
 - plano mensal/anual criado no gateway.
 
 ### Fase 1 — billing SaaS

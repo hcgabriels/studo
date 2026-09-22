@@ -21,7 +21,7 @@ const MobileTopBar = () => {
         <StudooMark size={22} />
         <Wordmark size={17} />
         <span className="font-mono text-[9px] tracking-[0.14em] uppercase text-muted-foreground border border-border rounded-sm px-1.5 py-0.5 ml-1">
-          Beta
+          Pro
         </span>
       </Link>
 

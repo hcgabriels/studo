@@ -362,7 +362,7 @@ const AlunoDetalhe = () => {
                                   <Badge variant="success">Reposição</Badge>
                                 )}
                                 {aula.tipo === "experimental" && (
-                                  <Badge variant="warning">Trial</Badge>
+                                  <Badge variant="warning">Experimental</Badge>
                                 )}
                                 {aula.tipo === "avulsa" && (
                                   <Badge variant="secondary">Extra</Badge>
