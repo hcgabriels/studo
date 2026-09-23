@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Calendar,
@@ -133,6 +133,37 @@ const planFeatures = [
   "Suporte por email",
 ];
 
+type BillingCycle = "mensal" | "anual";
+
+const planCopy: Record<
+  BillingCycle,
+  {
+    label: string;
+    price: string;
+    suffix: string;
+    note: string;
+    cta: string;
+    badge: string;
+  }
+> = {
+  mensal: {
+    label: "Mensal",
+    price: "R$ 39",
+    suffix: "/mês",
+    note: "Cobrança mensal no momento da assinatura.",
+    cta: "Assinar mensal",
+    badge: "Flexível",
+  },
+  anual: {
+    label: "Anual",
+    price: "R$ 390",
+    suffix: "/ano",
+    note: "Equivale a R$ 32,50/mês. Economia de R$ 78 por ano.",
+    cta: "Assinar anual",
+    badge: "Melhor valor",
+  },
+};
+
 const faqs = [
   {
     q: "Quanto custa?",
@@ -177,10 +208,12 @@ const Eyebrow = ({ children }: { children: React.ReactNode }) => (
 const Index = () => {
   const navScrolled = useScrolled(20);
   const { user, loading: authLoading } = useAuth();
+  const [billingCycle, setBillingCycle] = useState<BillingCycle>("anual");
   const estaLogado = !authLoading && !!user;
   const painelHref = "/dashboard";
   const entradaHref = estaLogado ? painelHref : "/cadastro";
   const entradaTexto = estaLogado ? "Continuar no Studoo" : "Assinar o Studoo";
+  const selectedPlan = planCopy[billingCycle];
   const heroRef = useRef<HTMLDivElement>(null);
   const visualRef = useRef<HTMLDivElement>(null);
   useRevealOnScroll();
@@ -553,10 +586,37 @@ const Index = () => {
             </p>
           </div>
 
-          <div className="grid max-w-3xl mx-auto md:grid-cols-2 gap-4">
-            <div className="relative bg-card border border-border rounded-2xl p-8 shadow-md">
+          <div className="max-w-md mx-auto">
+            <div className="relative bg-card border border-primary/30 rounded-2xl p-8 shadow-md">
               <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground px-3 py-1 rounded-full font-mono text-[10px] tracking-[0.14em] uppercase font-semibold">
-                Mensal
+                {selectedPlan.badge}
+              </div>
+
+              <div
+                className="grid grid-cols-2 gap-1 rounded-xl border border-border bg-background/60 p-1 mb-7"
+                role="tablist"
+                aria-label="Escolha o ciclo de cobrança"
+              >
+                {(["mensal", "anual"] as const).map((cycle) => {
+                  const selected = billingCycle === cycle;
+                  return (
+                    <button
+                      key={cycle}
+                      type="button"
+                      role="tab"
+                      aria-selected={selected}
+                      onClick={() => setBillingCycle(cycle)}
+                      className={cn(
+                        "h-9 rounded-lg text-sm font-semibold transition-colors",
+                        selected
+                          ? "bg-primary text-primary-foreground shadow-sm"
+                          : "text-muted-foreground hover:text-foreground hover:bg-secondary",
+                      )}
+                    >
+                      {planCopy[cycle].label}
+                    </button>
+                  );
+                })}
               </div>
 
               <div className="flex items-baseline gap-2 mb-1">
@@ -564,12 +624,12 @@ const Index = () => {
                   className="font-mono text-5xl font-bold text-primary"
                   style={{ letterSpacing: "-0.04em" }}
                 >
-                  R$ 39
+                  {selectedPlan.price}
                 </div>
-                <div className="text-sm text-muted-foreground">/mês</div>
+                <div className="text-sm text-muted-foreground">{selectedPlan.suffix}</div>
               </div>
               <p className="text-xs text-muted-foreground mb-6">
-                cobrança no momento da assinatura
+                {selectedPlan.note}
               </p>
 
               <ul className="space-y-2.5 mb-6">
@@ -583,51 +643,13 @@ const Index = () => {
 
               <Link to={entradaHref} className="block">
                 <Button className="w-full gap-2" size="lg">
-                  {entradaTexto}
+                  {estaLogado ? entradaTexto : selectedPlan.cta}
                   <ArrowRight className="h-4 w-4" />
                 </Button>
               </Link>
 
               <p className="text-xs text-muted-foreground text-center mt-4 leading-relaxed">
                 Sem teste grátis. Garantia de reembolso por 14 dias.
-              </p>
-            </div>
-            <div className="relative bg-card border border-primary/30 rounded-2xl p-8 shadow-md">
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground px-3 py-1 rounded-full font-mono text-[10px] tracking-[0.14em] uppercase font-semibold">
-                Anual
-              </div>
-
-              <div className="flex items-baseline gap-2 mb-1">
-                <div
-                  className="font-mono text-5xl font-bold text-primary"
-                  style={{ letterSpacing: "-0.04em" }}
-                >
-                  R$ 390
-                </div>
-                <div className="text-sm text-muted-foreground">/ano</div>
-              </div>
-              <p className="text-xs text-muted-foreground mb-6">
-                equivalente a R$ 32,50/mês
-              </p>
-
-              <ul className="space-y-2.5 mb-6">
-                {planFeatures.map((item) => (
-                  <li key={item} className="flex items-center gap-2.5 text-sm">
-                    <CheckCircle className="h-4 w-4 text-primary shrink-0" />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-
-              <Link to={entradaHref} className="block">
-                <Button className="w-full gap-2" size="lg">
-                  {entradaTexto}
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </Link>
-
-              <p className="text-xs text-muted-foreground text-center mt-4 leading-relaxed">
-                Dois meses de economia em relação ao plano mensal.
               </p>
             </div>
           </div>
