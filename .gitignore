@@ -34,3 +34,4 @@ _to_delete/
 *.njsproj
 *.sln
 *.sw?
+.vercel

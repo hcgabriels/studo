@@ -21,6 +21,40 @@
     <meta name="theme-color" content="#E7A13A" />
     <meta name="application-name" content="Studoo" />
 
+    <!-- SEO -->
+    <title>Studoo | Gestão para professores particulares</title>
+    <meta
+      name="description"
+      content="Organize alunos, agenda, registros de aula, cobranças e relatórios em um só lugar. Software de gestão para professores particulares."
+    />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="googlebot" content="index, follow, max-image-preview:large" />
+    <link rel="canonical" href="https://studoo.com.br/" />
+
+    <!-- Compartilhamento social -->
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:site_name" content="Studoo" />
+    <meta property="og:url" content="https://studoo.com.br/" />
+    <meta property="og:title" content="Studoo | Gestão para professores particulares" />
+    <meta
+      property="og:description"
+      content="Alunos, agenda, registros de aula, cobranças e relatórios em um só lugar."
+    />
+    <meta property="og:image" content="https://studoo.com.br/landing/dashboard.png" />
+    <meta property="og:image:width" content="1430" />
+    <meta property="og:image:height" content="900" />
+    <meta property="og:image:alt" content="Painel do Studoo para professores particulares" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Studoo | Gestão para professores particulares" />
+    <meta
+      name="twitter:description"
+      content="Alunos, agenda, registros de aula, cobranças e relatórios em um só lugar."
+    />
+    <meta name="twitter:image" content="https://studoo.com.br/landing/dashboard.png" />
+    <meta name="twitter:image:alt" content="Painel do Studoo para professores particulares" />
+
     <!-- Pré-conecta nos CDNs de fonte -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -36,7 +70,59 @@
       href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
     />
 
-    <title>Studoo · Gestão pra professores</title>
+    <script id="studoo-structured-data" type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "Organization",
+            "@id": "https://studoo.com.br/#organization",
+            "name": "Studoo",
+            "url": "https://studoo.com.br/",
+            "logo": "https://studoo.com.br/favicon-512.png"
+          },
+          {
+            "@type": "WebSite",
+            "@id": "https://studoo.com.br/#website",
+            "name": "Studoo",
+            "url": "https://studoo.com.br/",
+            "inLanguage": "pt-BR",
+            "publisher": { "@id": "https://studoo.com.br/#organization" }
+          },
+          {
+            "@type": "SoftwareApplication",
+            "@id": "https://studoo.com.br/#software",
+            "name": "Studoo",
+            "url": "https://studoo.com.br/",
+            "description": "Software de gestão para professores particulares organizarem alunos, agenda, registros de aula, cobranças e relatórios.",
+            "applicationCategory": "BusinessApplication",
+            "applicationSubCategory": "Gestão para professores particulares",
+            "operatingSystem": "Web",
+            "inLanguage": "pt-BR",
+            "image": "https://studoo.com.br/landing/dashboard.png",
+            "publisher": { "@id": "https://studoo.com.br/#organization" },
+            "offers": [
+              {
+                "@type": "Offer",
+                "name": "Studoo mensal",
+                "price": "39.00",
+                "priceCurrency": "BRL",
+                "availability": "https://schema.org/InStock",
+                "url": "https://studoo.com.br/#pricing"
+              },
+              {
+                "@type": "Offer",
+                "name": "Studoo anual",
+                "price": "390.00",
+                "priceCurrency": "BRL",
+                "availability": "https://schema.org/InStock",
+                "url": "https://studoo.com.br/#pricing"
+              }
+            ]
+          }
+        ]
+      }
+    </script>
 
     <!-- Anti-FOUC: aplica tema (dark/light) antes do bundle React rodar -->
     <script>

@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import ProtectedRoute from "@/components/shared/ProtectedRoute";
 import PublicOnlyRoute from "@/components/shared/PublicOnlyRoute";
 import { ErrorBoundary } from "@/components/shared/ErrorBoundary";
+import SeoManager from "@/components/shared/SeoManager";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 
 const Index = lazy(() => import("./pages/Index"));
@@ -44,6 +45,7 @@ const App = () => (
       <AuthProvider>
         <Toaster richColors position="top-right" />
         <BrowserRouter>
+          <SeoManager />
           <Suspense fallback={<RouteFallback />}>
             <Routes>
               <Route path="/" element={<Index />} />

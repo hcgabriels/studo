@@ -276,7 +276,7 @@ const Index = () => {
             <div>
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-medium mb-6">
                 <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
-                Pra professor independente
+                Para professores particulares
               </div>
               <h1
                 className="text-5xl md:text-6xl lg:text-7xl font-extrabold leading-[1.02] mb-6 text-balance"
@@ -284,13 +284,14 @@ const Index = () => {
               >
                 Menos administração,
                 <br />
-                <em className="not-italic text-primary">mais música.</em>
+                <em className="not-italic text-primary">mais tempo para ensinar.</em>
               </h1>
               <p className="text-base md:text-lg text-muted-foreground mb-8 max-w-xl leading-relaxed">
-                Studoo organiza suas <b className="text-foreground">aulas</b>,{" "}
-                <b className="text-foreground">cobranças</b> e{" "}
-                <b className="text-foreground">alunos</b> num lugar só. Pare de
-                pular entre planilha, WhatsApp e caderno.
+                O Studoo é o software de gestão para professores particulares
+                que organiza <b className="text-foreground">alunos</b>,{" "}
+                <b className="text-foreground">agenda</b>, registros de aula e{" "}
+                <b className="text-foreground">cobranças</b> num lugar só. Pare
+                de pular entre planilha, WhatsApp e caderno.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 mb-8">
                 <Link to={entradaHref}>
@@ -729,7 +730,7 @@ const Index = () => {
             <Wordmark size={16} />
           </div>
           <p className="font-mono text-[10px] tracking-[0.14em] uppercase text-muted-foreground">
-            © {new Date().getFullYear()} Studoo · Gestão pra professores
+            © {new Date().getFullYear()} Studoo · Gestão para professores particulares
           </p>
           <div className="flex items-center gap-5">
             <Link
