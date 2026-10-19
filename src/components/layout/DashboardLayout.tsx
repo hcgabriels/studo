@@ -22,6 +22,7 @@ import { cn } from "@/lib/utils";
 import Sidebar from "./Sidebar";
 import TopBar from "./TopBar";
 import MobileTopBar from "./MobileTopBar";
+import TrialBanner from "./TrialBanner";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { GuidedTour } from "@/components/shared/GuidedTour";
 import { PageProvider } from "@/contexts/PageContext";
@@ -160,6 +161,7 @@ const DashboardLayout = () => {
         <div className="flex-1 min-w-0 flex flex-col pb-24 md:pb-0">
           <MobileTopBar />
           <TopBar />
+          <TrialBanner />
           <main
             id={CONTEUDO_ID}
             tabIndex={-1}

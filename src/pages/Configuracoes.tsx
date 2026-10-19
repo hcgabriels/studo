@@ -24,6 +24,14 @@ import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { useProfessor } from "@/hooks/useProfessor";
 import { useAssinatura } from "@/hooks/useAssinatura";
+import {
+  DIAS_TESTE,
+  cobraNoFimDoTeste,
+  diasRestantesTeste,
+  emTesteGratis,
+  jaAssinou,
+  testeEncerrado,
+} from "@/lib/domain/assinatura";
 import { usePage } from "@/contexts/PageContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -50,13 +58,23 @@ const PALAVRA_EXCLUSAO = "EXCLUIR";
 
 type PlanoCheckout = "mensal" | "anual";
 
-const statusPlano = {
+type PlanoInfo = {
+  label: string;
+  badge: string;
+  badgeVariant: "warning" | "success" | "secondary" | "destructive";
+  description: string;
+};
+
+/** Depois do checkout, o webhook leva alguns segundos: consulta de 2 em 2s por até 30s. */
+const ESPERA_ATIVACAO_MS = 30_000;
+
+const statusPlano: Record<string, PlanoInfo> = {
   sem_assinatura: {
     label: "Assinatura necessária",
     badge: "Pendente",
     badgeVariant: "warning" as const,
     description:
-      "O Studoo é pago desde o início. Escolha mensal ou anual para liberar o uso do painel.",
+      "Escolha mensal ou anual para liberar o uso do painel.",
   },
   beta: {
     label: "Assinatura necessária",
@@ -66,10 +84,10 @@ const statusPlano = {
       "Este plano gratuito não está mais disponível. Assine para continuar usando o Studoo.",
   },
   trialing: {
-    label: "Assinatura necessária",
-    badge: "Pendente",
+    label: "Teste grátis",
+    badge: "Teste",
     badgeVariant: "warning" as const,
-    description: "Não há teste grátis no Studoo. Escolha um plano para continuar.",
+    description: "Você está no teste grátis.",
   },
   active: {
     label: "Studoo Pro",
@@ -117,7 +135,12 @@ const statusPlano = {
 
 const Configuracoes = () => {
   const { data: professor, isLoading } = useProfessor();
-  const { data: assinatura, isLoading: assinaturaLoading } = useAssinatura(professor?.id);
+  // Até quando consultar a assinatura de 2 em 2s depois de voltar do checkout.
+  const ativacaoAte = useRef(0);
+  const { data: assinatura, isLoading: assinaturaLoading } = useAssinatura(professor?.id, {
+    refetchInterval: (query) =>
+      !jaAssinou(query.state.data) && Date.now() < ativacaoAte.current ? 2000 : false,
+  });
   const { data: bloqueios } = useBloqueios(professor?.id);
   const qc = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -167,12 +190,17 @@ const Configuracoes = () => {
   useEffect(() => {
     const billing = searchParams.get("billing");
     if (billing === "success") {
-      toast.success("Checkout concluído. A assinatura será atualizada em instantes.");
+      toast.success("Pagamento confirmado. Sua assinatura aparece aqui em instantes.");
+      ativacaoAte.current = Date.now() + ESPERA_ATIVACAO_MS;
       qc.invalidateQueries({ queryKey: ["assinatura"] });
       setSearchParams({}, { replace: true });
     }
     if (billing === "required") {
       toast.info("Escolha um plano para liberar o uso do Studoo.");
+      setSearchParams({}, { replace: true });
+    }
+    if (billing === "trial_ended") {
+      toast.info("Seu teste grátis acabou. Seus dados continuam salvos: escolha um plano pra continuar.");
       setSearchParams({}, { replace: true });
     }
     if (billing === "cancelled") {
@@ -270,13 +298,43 @@ const Configuracoes = () => {
   };
 
   const pixType = detectPixType(pixKey);
-  const planoInfo = statusPlano[assinatura?.status ?? "sem_assinatura"];
+  const diasTeste = diasRestantesTeste(assinatura);
+  const fimTeste = assinatura?.trial_ends_at
+    ? format(new Date(assinatura.trial_ends_at), "dd/MM")
+    : null;
+  const cobrancaNoFimDoTeste = cobraNoFimDoTeste(assinatura);
+  const planoInfo: PlanoInfo = emTesteGratis(assinatura)
+    ? {
+        label: "Teste grátis",
+        badge: diasTeste === 1 ? "Último dia" : `Faltam ${diasTeste} dias`,
+        badgeVariant: "warning",
+        description: cobrancaNoFimDoTeste
+          ? `Acesso completo até ${fimTeste}. Se assinar agora, a primeira cobrança só acontece quando o teste acabar.`
+          : `Acesso completo até ${fimTeste}. Ao assinar, a cobrança é feita na hora.`,
+      }
+    : testeEncerrado(assinatura)
+      ? {
+          label: "Teste grátis encerrado",
+          badge: "Encerrado",
+          badgeVariant: "secondary",
+          description:
+            "Seus alunos e cobranças continuam salvos. Escolha um plano pra voltar a usar o painel.",
+        }
+      : assinatura?.status === "trialing"
+        ? {
+            label: "Studoo Pro",
+            badge: "Assinado",
+            badgeVariant: "success",
+            description: `Assinatura confirmada. A primeira cobrança acontece em ${fimTeste}.`,
+          }
+        : statusPlano[assinatura?.status ?? "sem_assinatura"] ?? statusPlano.sem_assinatura;
+  const podeAssinar = !jaAssinou(assinatura);
   const periodoAtual = assinatura?.current_period_end
     ? format(new Date(assinatura.current_period_end), "dd/MM/yyyy")
     : null;
   const [billingAction, setBillingAction] = useState<PlanoCheckout | "portal" | "cancelar" | null>(null);
   const assinando = checkoutMutation.isPending || portalMutation.isPending;
-  const assinaturaAtiva = assinatura?.status === "active";
+  const assinaturaAtiva = jaAssinou(assinatura);
   const planoAtual =
     assinatura?.plano === "anual"
       ? "R$ 390"
@@ -799,7 +857,7 @@ const Configuracoes = () => {
         </div>
       </Tabs>
 
-      {/* Plano sempre visível: produto pago desde o início. */}
+      {/* Plano sempre visível: teste grátis, assinatura ou pagamento pendente. */}
       <SectionCard
         title="Seu plano"
         icon={Crown}
@@ -825,13 +883,14 @@ const Configuracoes = () => {
               {assinatura?.cancel_at_period_end ? " Cancelamento agendado no fim do período." : ""}
             </p>
             <p className="text-[11px] text-muted-foreground mt-2 max-w-[48ch]">
-              Sem teste grátis e sem plano gratuito. Reembolso disponível em até 14 dias após a assinatura.
+              Contas novas têm {DIAS_TESTE} dias grátis, sem cartão. Depois do primeiro pagamento, você ainda tem 14 dias pra pedir reembolso.
             </p>
           </div>
           <div className="flex flex-col sm:flex-row lg:flex-col items-stretch sm:items-center lg:items-end gap-2 lg:min-w-[260px]">
             <Badge variant={planoInfo.badgeVariant} className="self-start lg:self-end">
               {planoInfo.badge}
             </Badge>
+            {podeAssinar && (
             <div className="flex flex-col sm:flex-row gap-2 w-full lg:justify-end">
               <Button
                 type="button"
@@ -867,6 +926,7 @@ const Configuracoes = () => {
                 {billingAction === "anual" ? "Abrindo checkout..." : "Assinar anual"}
               </Button>
             </div>
+            )}
             {assinando && (
               <p className="text-[11px] text-muted-foreground text-left sm:text-center lg:text-right max-w-[32ch]">
                 Estamos criando uma sessão segura na Stripe. Isso pode levar alguns segundos.

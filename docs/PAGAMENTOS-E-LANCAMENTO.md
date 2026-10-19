@@ -117,11 +117,11 @@ Adicionar no app:
 
 ### 5. Modelo comercial vigente
 
-- Produto pago desde o início.
-- Sem teste grátis e sem plano gratuito.
+- Teste grátis de 7 dias, sem cartão (desde 19/10/2026).
+- Sem plano gratuito permanente.
 - R$ 39/mês ou R$ 390/ano.
-- Cobrança no momento da assinatura.
-- Garantia de reembolso por 14 dias nos dois planos.
+- Cobrança no fim do teste (se assinar durante) ou na hora (se assinar depois).
+- Garantia de reembolso por 14 dias após o primeiro pagamento, nos dois planos.
 
 ## Cobranças dos alunos — fase posterior
 

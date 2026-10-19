@@ -1,8 +1,11 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, type UseQueryOptions } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import type { Assinatura } from "@/types/supabase";
 
-export const useAssinatura = (professorId?: string) =>
+export const useAssinatura = (
+  professorId?: string,
+  options?: Pick<UseQueryOptions<Assinatura | null>, "refetchInterval">,
+) =>
   useQuery({
     queryKey: ["assinatura", professorId],
     queryFn: async () => {
@@ -15,4 +18,5 @@ export const useAssinatura = (professorId?: string) =>
       return data as Assinatura | null;
     },
     enabled: !!professorId,
+    refetchInterval: options?.refetchInterval ?? false,
   });

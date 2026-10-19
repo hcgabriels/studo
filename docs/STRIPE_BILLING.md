@@ -36,12 +36,16 @@ Conta: `ghzstudio.com.br`
 - Anual: `R$ 390,00/ano`
 - `STRIPE_PRICE_ID_ANUAL=price_1UHvaQ1YDP6xATLvjpI9NdXS`
 
-Modelo comercial vigente:
+Modelo comercial vigente (desde 19/10/2026):
 
-- Produto pago desde o início.
-- Sem plano gratuito e sem teste grátis.
-- Cobrança no momento da assinatura.
-- Garantia de reembolso por 14 dias nos planos mensal e anual.
+- Teste grátis de 7 dias, sem cartão, criado pelo banco quando a conta nasce
+  (trigger `iniciar_teste_gratis`: linha em `assinaturas` com status `trialing`
+  e `trial_ends_at`, sem `gateway_subscription_id`). Não usa trial da Stripe.
+- Quem assina com 48h ou mais de teste restante recebe `trial_end` no Checkout:
+  a Stripe só cobra no fim do teste. Com menos de 48h, cobra na hora.
+- Sem plano gratuito permanente. Teste acabou sem assinatura: painel bloqueado,
+  Configurações liberada, dados mantidos.
+- Garantia de reembolso por 14 dias após o primeiro pagamento, mensal e anual.
 
 ## Deploy das functions
 

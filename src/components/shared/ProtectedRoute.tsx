@@ -3,6 +3,7 @@ import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfessor } from "@/hooks/useProfessor";
 import { useAssinatura } from "@/hooks/useAssinatura";
+import { temAcesso, testeEncerrado } from "@/lib/domain/assinatura";
 import { Button } from "@/components/ui/button";
 
 const LoadingScreen = () => (
@@ -95,11 +96,13 @@ const ProtectedRoute = ({ children }: { children: ReactNode }) => {
     );
   }
 
-  const assinaturaAtiva = assinatura?.status === "active";
+  // Libera assinatura ativa e teste grátis dentro do prazo (ver lib/domain/assinatura).
+  const liberado = temAcesso(assinatura);
   if (completo && !onConfiguracoes && assinaturaLoading) return <LoadingScreen />;
 
-  if (completo && !onConfiguracoes && !assinaturaAtiva) {
-    return <Navigate to="/configuracoes?billing=required" replace />;
+  if (completo && !onConfiguracoes && !liberado) {
+    const motivo = testeEncerrado(assinatura) ? "trial_ended" : "required";
+    return <Navigate to={`/configuracoes?billing=${motivo}`} replace />;
   }
 
   return <>{children}</>;

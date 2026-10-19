@@ -4,7 +4,7 @@ const Termos = () => (
   <LegalLayout
     eyebrow="Termos"
     title="Termos de uso"
-    updatedAt="setembro de 2026"
+    updatedAt="outubro de 2026"
   >
     <p>
       Estes termos regulam o uso do <strong>Studoo</strong>, uma ferramenta de
@@ -12,9 +12,10 @@ const Termos = () => (
       concorda com o que está escrito aqui.
     </p>
     <p>
-      Aviso curto e importante: o Studoo é um produto pago desde o início. Ao
-      assinar, você contrata uma assinatura recorrente mensal ou anual, com
-      cobrança no momento da contratação e garantia de reembolso por 14 dias.
+      Aviso curto e importante: toda conta nova tem 7 dias de teste grátis,
+      sem cartão. Depois do teste, o uso continua por assinatura recorrente,
+      mensal ou anual, com garantia de reembolso por 14 dias após o primeiro
+      pagamento.
     </p>
 
     <h2>1. Sobre o Studoo</h2>
@@ -45,8 +46,18 @@ const Termos = () => (
         <strong>R$ 390/ano</strong> no plano anual.
       </li>
       <li>
-        Não há plano gratuito nem teste grátis. A cobrança acontece no momento
-        da assinatura.
+        Toda conta nova tem <strong>7 dias de teste grátis</strong>, com
+        acesso completo e sem cadastrar cartão. Não há plano gratuito
+        permanente.
+      </li>
+      <li>
+        Se você assinar durante o teste, a primeira cobrança acontece quando ele
+        termina. Se assinar depois, a cobrança é feita na hora.
+      </li>
+      <li>
+        Se o teste acabar sem assinatura, o acesso ao painel fica bloqueado até
+        você assinar. Seus dados continuam guardados e você pode exportá-los
+        a qualquer momento.
       </li>
       <li>
         A cobrança, troca de forma de pagamento, emissão de faturas e
@@ -57,8 +68,9 @@ const Termos = () => (
 
     <h2>4. Garantia de reembolso e cancelamento</h2>
     <p>
-      Você pode pedir reembolso em até <strong>14 dias</strong> após a
-      assinatura. A garantia vale para o plano mensal e para o plano anual.
+      Você pode pedir reembolso em até <strong>14 dias</strong> após o
+      primeiro pagamento. A garantia vale para o plano mensal e para o plano
+      anual.
     </p>
     <p>
       Você pode cancelar a assinatura em Configurações. O cancelamento impede

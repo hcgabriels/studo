@@ -70,9 +70,9 @@ const features = [
 ];
 
 const heroBadges = [
-  "R$ 39/mês",
-  "R$ 390/ano",
-  "14 dias de garantia",
+  "7 dias grátis",
+  "Sem cartão no teste",
+  "Depois, R$ 39/mês",
   "Roda no navegador do celular",
   "Seus dados são seus",
 ];
@@ -150,8 +150,8 @@ const planCopy: Record<
     label: "Mensal",
     price: "R$ 39",
     suffix: "/mês",
-    note: "Cobrança mensal no momento da assinatura.",
-    cta: "Assinar mensal",
+    note: "Cobrança mensal, só depois do teste grátis.",
+    cta: "Testar 7 dias grátis",
     badge: "Flexível",
   },
   anual: {
@@ -159,7 +159,7 @@ const planCopy: Record<
     price: "R$ 390",
     suffix: "/ano",
     note: "Equivale a R$ 32,50/mês. Economia de R$ 78 por ano.",
-    cta: "Assinar anual",
+    cta: "Testar 7 dias grátis",
     badge: "Melhor valor",
   },
 };
@@ -167,11 +167,11 @@ const planCopy: Record<
 const faqs = [
   {
     q: "Quanto custa?",
-    a: "R$ 39 por mês ou R$ 390 por ano. A cobrança acontece no momento da assinatura, sem teste grátis e sem plano gratuito.",
+    a: "R$ 39 por mês ou R$ 390 por ano. Antes de pagar, você usa 7 dias de graça, sem cadastrar cartão.",
   },
   {
     q: "Tem teste grátis?",
-    a: "Não. O Studoo é pago desde o início para manter suporte, estabilidade e evolução do produto. Você tem 14 dias de garantia de reembolso nos dois planos.",
+    a: "Tem. São 7 dias com tudo liberado e sem cartão. Quando acabar, você escolhe mensal ou anual pra continuar, e seus alunos e cobranças ficam salvos.",
   },
   {
     q: "Como funciona o cancelamento?",
@@ -179,11 +179,11 @@ const faqs = [
   },
   {
     q: "E se eu assinar e não gostar?",
-    a: "Peça o reembolso em até 14 dias após a assinatura. A garantia vale tanto para o mensal quanto para o anual.",
+    a: "Você pode pedir reembolso em até 14 dias depois do primeiro pagamento, no mensal ou no anual.",
   },
   {
     q: "Os lembretes vão sozinhos pro aluno?",
-    a: "Não. O Studoo escreve a mensagem e abre o WhatsApp já com o texto. Quem aperta o enviar é você — inclusive na cobrança com a chave PIX.",
+    a: "Não. O Studoo escreve a mensagem e abre o WhatsApp já com o texto. Quem aperta enviar é você, inclusive na cobrança com a chave PIX.",
   },
   {
     q: "Funciona no celular?",
@@ -212,7 +212,7 @@ const Index = () => {
   const estaLogado = !authLoading && !!user;
   const painelHref = "/dashboard";
   const entradaHref = estaLogado ? painelHref : "/cadastro";
-  const entradaTexto = estaLogado ? "Continuar no Studoo" : "Assinar o Studoo";
+  const entradaTexto = estaLogado ? "Continuar no Studoo" : "Testar grátis";
   const selectedPlan = planCopy[billingCycle];
   const heroRef = useRef<HTMLDivElement>(null);
   const visualRef = useRef<HTMLDivElement>(null);
@@ -248,7 +248,7 @@ const Index = () => {
             </Link>
             <Link to={entradaHref}>
               <Button size="sm">
-                {estaLogado ? "Minha agenda" : "Assinar agora"}
+                {estaLogado ? "Minha agenda" : "Testar grátis"}
               </Button>
             </Link>
           </div>
@@ -314,8 +314,8 @@ const Index = () => {
               <div className="flex items-center gap-3 text-sm text-muted-foreground">
                 <CheckCircle className="h-4 w-4 text-primary shrink-0" />
                 <span>
-                  <b className="text-foreground">R$ 39/mês ou R$ 390/ano.</b>{" "}
-                  Assine hoje com garantia de reembolso por 14 dias.
+                  <b className="text-foreground">7 dias grátis, sem cartão.</b>{" "}
+                  Depois, R$ 39/mês ou R$ 390/ano.
                 </span>
               </div>
             </div>
@@ -582,8 +582,8 @@ const Index = () => {
               Simples: mensal ou anual.
             </h2>
             <p className="text-base text-muted-foreground">
-              Produto pago desde o início, sem teste grátis e com 14 dias de
-              garantia de reembolso.
+              Teste 7 dias de graça, sem cartão. Depois, escolha mensal ou
+              anual.
             </p>
           </div>
 
@@ -650,7 +650,8 @@ const Index = () => {
               </Link>
 
               <p className="text-xs text-muted-foreground text-center mt-4 leading-relaxed">
-                Sem teste grátis. Garantia de reembolso por 14 dias.
+                7 dias grátis, sem cartão. Reembolso em até 14 dias depois do
+                primeiro pagamento.
               </p>
             </div>
           </div>
@@ -710,12 +711,12 @@ const Index = () => {
             Comece hoje mesmo.
           </h2>
           <p className="text-base md:text-lg text-muted-foreground mb-8 max-w-md mx-auto">
-            Assine agora, organize seus alunos e, se não fizer sentido para sua rotina,
-            peça reembolso em até 14 dias.
+            Use 7 dias de graça com os seus alunos de verdade. Se fizer sentido pra
+            sua rotina, você assina. Se não fizer, não paga nada.
           </p>
           <Link to={entradaHref}>
             <Button size="lg" className="gap-2">
-              {estaLogado ? "Abrir painel" : "Assinar agora"}
+              {estaLogado ? "Abrir painel" : "Testar grátis"}
               <ArrowRight className="h-4 w-4" />
             </Button>
           </Link>

@@ -73,9 +73,14 @@ async function handleEvent(event: Stripe.Event) {
       break;
     case "customer.subscription.created":
     case "customer.subscription.updated":
-    case "customer.subscription.deleted":
-      await syncFromSubscription(event.data.object as Stripe.Subscription);
+    case "customer.subscription.deleted": {
+      // Eventos podem chegar fora de ordem: busca o estado atual em vez de
+      // confiar no objeto do evento, que pode ser mais velho que o último gravado.
+      const evento = event.data.object as Stripe.Subscription;
+      const atual = await stripe.subscriptions.retrieve(evento.id);
+      await syncFromSubscription(atual);
       break;
+    }
     case "invoice.payment_succeeded":
     case "invoice.payment_failed":
       await syncFromInvoice(event.data.object as Stripe.Invoice);
@@ -94,7 +99,13 @@ async function syncFromCheckoutSession(session: Stripe.Checkout.Session) {
 }
 
 async function syncFromInvoice(invoice: Stripe.Invoice) {
-  const subscriptionId = toId((invoice as Stripe.Invoice & { subscription?: unknown }).subscription);
+  // Na API nova da Stripe a assinatura da fatura fica em
+  // `parent.subscription_details.subscription`; `invoice.subscription` é da API antiga.
+  const inv = invoice as Stripe.Invoice & {
+    subscription?: unknown;
+    parent?: { subscription_details?: { subscription?: unknown } | null } | null;
+  };
+  const subscriptionId = toId(inv.parent?.subscription_details?.subscription ?? inv.subscription);
   if (!subscriptionId) return;
 
   const subscription = await stripe.subscriptions.retrieve(subscriptionId);
@@ -114,7 +125,12 @@ async function syncFromSubscription(subscription: Stripe.Subscription) {
     throw new Error(`Professor não encontrado para customer ${customerId}`);
   }
 
-  const priceId = subscription.items.data[0]?.price?.id;
+  const item = subscription.items.data[0] as
+    | (Stripe.SubscriptionItem & { current_period_end?: number })
+    | undefined;
+  const priceId = item?.price?.id;
+  // API nova: o fim do período mora no item, não mais na assinatura.
+  const periodEnd = item?.current_period_end ?? anySub.current_period_end;
   const plano = subscription.metadata?.plano || planoFromPrice(priceId);
 
   const { error } = await admin.from("assinaturas").upsert(
@@ -126,7 +142,7 @@ async function syncFromSubscription(subscription: Stripe.Subscription) {
       status: normalizeStatus(subscription.status),
       plano,
       trial_ends_at: secondsToIso(anySub.trial_end),
-      current_period_end: secondsToIso(anySub.current_period_end),
+      current_period_end: secondsToIso(periodEnd),
       cancel_at_period_end: Boolean(anySub.cancel_at_period_end),
     },
     { onConflict: "professor_id" },

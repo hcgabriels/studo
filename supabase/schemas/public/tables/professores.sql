@@ -39,3 +39,8 @@ REVOKE ALL ON TABLE "public"."professores" FROM "anon", "authenticated";
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE "public"."professores" TO "authenticated";
 
 GRANT ALL ON TABLE "public"."professores" TO "service_role";
+
+CREATE TRIGGER iniciar_teste_gratis_ao_criar_professor
+  AFTER INSERT ON public.professores
+  FOR EACH ROW
+  EXECUTE FUNCTION public.iniciar_teste_gratis();

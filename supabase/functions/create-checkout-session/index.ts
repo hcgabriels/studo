@@ -66,6 +66,24 @@ Deno.serve(async (req) => {
       .eq("professor_id", professor.id)
       .maybeSingle();
 
+    // Assinatura viva na Stripe: um segundo checkout criaria uma segunda
+    // cobrança recorrente. Troca de plano e cartão vão pelo portal.
+    if (
+      assinatura?.gateway_subscription_id &&
+      ASSINATURA_VIVA.includes(assinatura.status)
+    ) {
+      return json(
+        { error: "Você já tem uma assinatura. Use Gerenciar pagamento para mudar de plano." },
+        409,
+        cors,
+      );
+    }
+
+    // Quem assina durante o teste grátis não perde os dias que faltam: a
+    // Stripe só cobra quando o teste acaba. A Stripe exige pelo menos 48h
+    // de teste no Checkout; com menos que isso, a cobrança é na hora.
+    const trialEnd = trialEndParaStripe(assinatura);
+
     const customerId =
       assinatura?.gateway_customer_id ??
       (await createStripeCustomer({
@@ -103,6 +121,7 @@ Deno.serve(async (req) => {
         plano,
       },
       subscription_data: {
+        ...(trialEnd ? { trial_end: trialEnd } : {}),
         metadata: {
           professor_id: professor.id,
           user_id: userData.user.id,
@@ -117,6 +136,20 @@ Deno.serve(async (req) => {
     return json({ error: "Não foi possível iniciar o checkout" }, 500, cors);
   }
 });
+
+const ASSINATURA_VIVA = ["active", "trialing", "past_due", "unpaid", "paused"];
+
+const MINIMO_TESTE_STRIPE_MS = 48 * 60 * 60 * 1000;
+
+function trialEndParaStripe(
+  assinatura: { status?: string; trial_ends_at?: string | null; gateway_subscription_id?: string | null } | null,
+) {
+  if (!assinatura || assinatura.status !== "trialing" || assinatura.gateway_subscription_id) return null;
+  if (!assinatura.trial_ends_at) return null;
+  const fim = new Date(assinatura.trial_ends_at).getTime();
+  if (Number.isNaN(fim) || fim - Date.now() < MINIMO_TESTE_STRIPE_MS) return null;
+  return Math.floor(fim / 1000);
+}
 
 async function createStripeCustomer(input: {
   email?: string;

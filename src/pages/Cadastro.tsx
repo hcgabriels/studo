@@ -92,7 +92,7 @@ const Cadastro = () => {
         }
 
         toast.success("Conta criada com sucesso!");
-        navigate("/configuracoes?billing=required");
+        navigate("/onboarding");
       } else {
         // Sem sessão = email confirmation ativo. Redireciona pra tela dedicada.
         navigate(`/verificar-email?email=${encodeURIComponent(email)}`);
@@ -108,7 +108,7 @@ const Cadastro = () => {
   return (
     <AuthLayout
       title="Crie sua conta."
-      subtitle="Escolha o plano depois do cadastro: R$ 39/mês ou R$ 390/ano, com 14 dias de garantia."
+      subtitle="7 dias grátis, sem cartão. Depois, R$ 39/mês ou R$ 390/ano."
       topRight={{
         question: "Já tem conta?",
         cta: "Entrar",
@@ -234,7 +234,7 @@ const Cadastro = () => {
 
         <div className="flex items-center justify-center gap-1.5 pt-1 text-center text-[10.5px] tracking-[-0.01em] text-muted-foreground whitespace-nowrap sm:gap-2 sm:text-[11.5px]">
           <Check className="h-3.5 w-3.5 shrink-0 text-success" />
-          <span>Pago desde o início · reembolso em 14 dias · seus dados são seus</span>
+          <span>7 dias grátis · sem cartão · seus dados são seus</span>
         </div>
       </form>
     </AuthLayout>
