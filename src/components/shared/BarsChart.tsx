@@ -61,7 +61,11 @@ export const BarsChart = ({
                   "w-full rounded-t-md border transition-colors",
                   bar.active
                     ? "bg-primary border-primary"
-                    : "bg-secondary/80 border-border group-hover:bg-secondary",
+                    : bar.value > 0
+                      ? // Mês com valor: âmbar suave. O cinza escuro de antes
+                        // quase sumia no fundo do card.
+                        "bg-primary/25 border-primary/30 group-hover:bg-primary/35"
+                      : "bg-secondary/80 border-border group-hover:bg-secondary",
                 )}
                 style={{ height: `${pct}%` }}
               />

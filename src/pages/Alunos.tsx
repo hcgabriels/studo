@@ -618,7 +618,7 @@ const Alunos = () => {
       ) : (
         <>
           {/* Mobile: grid de cards (preserva pattern atual) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:hidden">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 xl:hidden">
             {filteredAlunos.map((aluno) => (
               <AlunoCard
                 key={aluno.id}
@@ -634,9 +634,9 @@ const Alunos = () => {
             ))}
           </div>
 
-          {/* Desktop: alunos-table. Só a partir de lg: entre 768px e 1024px a
+          {/* Desktop: alunos-table. Só a partir de xl: abaixo de ~1280px a
               tabela não cabia e cortava a coluna de ações; ali ficam os cards. */}
-          <div className="hidden lg:block">
+          <div className="hidden xl:block">
             <AlunosTable
               alunos={filteredAlunos}
               cobrancas={cobrancas ?? []}
