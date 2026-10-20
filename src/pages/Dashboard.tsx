@@ -677,9 +677,15 @@ const Dashboard = () => {
           label="Receita do mês"
           value={fmtBRLCompacto(metrics.recebido)}
           loading={loading}
-          delta={metrics.deltaRecebido}
+          // Sem nada recebido ainda no mês, a comparação vira "-100%" em
+          // vermelho no começo de todo mês. Só compara quando já entrou algo.
+          delta={metrics.recebido > 0 ? metrics.deltaRecebido : null}
           deltaPositiveGood
-          hint="vs. mês anterior"
+          hint={
+            metrics.recebido > 0 && metrics.deltaRecebido != null
+              ? "vs. mês anterior"
+              : "nada recebido ainda"
+          }
         />
       </div>
 

@@ -42,7 +42,7 @@ export const BarsChart = ({
         return (
           <div
             key={`${bar.label}-${i}`}
-            className="group flex-1 flex flex-col-reverse items-center gap-2"
+            className="group flex-1 h-full min-w-0 flex flex-col-reverse items-center gap-2"
           >
             <span
               className={cn(
@@ -52,15 +52,20 @@ export const BarsChart = ({
             >
               {bar.label}
             </span>
-            <div
-              className={cn(
-                "w-full rounded-t-md border transition-colors",
-                bar.active
-                  ? "bg-primary border-primary"
-                  : "bg-secondary/80 border-border group-hover:bg-secondary",
-              )}
-              style={{ height: `${pct}%` }}
-            />
+            {/* A coluna ocupa a altura toda e a barra cresce de baixo pra cima
+                dentro dessa área. Sem altura definida na coluna, o height em %
+                virava 0 e o gráfico ficava vazio. */}
+            <div className="flex-1 min-h-0 w-full flex items-end">
+              <div
+                className={cn(
+                  "w-full rounded-t-md border transition-colors",
+                  bar.active
+                    ? "bg-primary border-primary"
+                    : "bg-secondary/80 border-border group-hover:bg-secondary",
+                )}
+                style={{ height: `${pct}%` }}
+              />
+            </div>
             <span className="font-mono text-[10px] tabular-nums text-muted-foreground/70">
               {display}
             </span>

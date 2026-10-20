@@ -346,18 +346,17 @@ const Financeiro = () => {
         <Button
           onClick={() => setConfirmGerar(true)}
           disabled={gerarCobrancasMutation.isPending}
-          aria-label={`Criar ${alunosSemCobranca.length} cobrança${
+          aria-label={`Gerar ${alunosSemCobranca.length} cobrança${
             alunosSemCobranca.length !== 1 ? "s" : ""
-          } pendente${alunosSemCobranca.length !== 1 ? "s" : ""} do mês`}
+          } do mês`}
         >
-          <Plus className="h-4 w-4 md:mr-1.5" />
+          {/* No celular era só "+ 1": a ação mais importante do app sem dizer o que faz. */}
+          <Plus className="h-4 w-4 mr-1.5" />
           <span className="hidden md:inline">
-            Criar {alunosSemCobranca.length} pendente
+            Gerar {alunosSemCobranca.length} cobrança
             {alunosSemCobranca.length !== 1 ? "s" : ""}
           </span>
-          <span className="md:hidden tabular-nums">
-            {alunosSemCobranca.length}
-          </span>
+          <span className="md:hidden">Gerar cobranças</span>
         </Button>
       )}
     </>
@@ -463,13 +462,17 @@ const Financeiro = () => {
         <KpiCard
           icon={Clock}
           iconTone="warn"
-          label="A receber"
+          label="Falta receber"
           value={fmtBRL(metrics.aReceber)}
           loading={isLoading}
+          // O valor inclui mensalidades ainda não geradas (é o previsto menos o
+          // recebido). Antes a legenda dizia "nada pendente" com R$ 220 em cima.
           hint={
-            pendentesCount > 0
-              ? `${pendentesCount} aluno${pendentesCount !== 1 ? "s" : ""} pendente${pendentesCount !== 1 ? "s" : ""}`
-              : "nada pendente"
+            isMesAtual && alunosSemCobranca.length > 0
+              ? `${alunosSemCobranca.length} mensalidade${alunosSemCobranca.length !== 1 ? "s" : ""} ainda não gerada${alunosSemCobranca.length !== 1 ? "s" : ""}`
+              : pendentesCount > 0
+                ? `${pendentesCount} cobrança${pendentesCount !== 1 ? "s" : ""} pendente${pendentesCount !== 1 ? "s" : ""}`
+                : "nada pendente"
           }
         />
         <KpiCard

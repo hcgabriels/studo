@@ -1362,13 +1362,30 @@ const Agenda = () => {
             />
           ) : (
             <>
-              {/* Mobile: lista por dia */}
-              <div className="md:hidden space-y-3">
+              {/* Celular, tablet e notebook pequeno: lista por dia. Até xl, porque a grade semanal
+                  só mostrava de domingo a quarta em telas médias (precisa de ~700px). */}
+              <div className="xl:hidden space-y-3">
                 {weekDays.map((day) => {
                   const daySlots = weekSlots.filter((s) => isSameDay(s.date, day));
                   const today = isToday(day);
                   const bloqueado = isDiaBloqueado(day);
                   const motivo = motivoBloqueio(day);
+                  // Dia vazio vira uma linha fina: antes cada dia sem aula era
+                  // um card inteiro e as aulas de verdade ficavam lá embaixo.
+                  if (daySlots.length === 0 && !today && !bloqueado) {
+                    return (
+                      <div
+                        key={day.toISOString()}
+                        className="flex items-center gap-2 rounded-lg border border-border/60 px-4 py-2 text-sm"
+                      >
+                        <span className="font-medium text-foreground/70">
+                          {DIAS_SEMANA_FULL[day.getDay()]}
+                        </span>
+                        <span className="text-muted-foreground">{format(day, "dd/MM")}</span>
+                        <span className="ml-auto text-xs text-muted-foreground">Sem aulas</span>
+                      </div>
+                    );
+                  }
                   return (
                     <div
                       key={day.toISOString()}
@@ -1517,7 +1534,7 @@ const Agenda = () => {
               </div>
 
               {/* Desktop: grid semanal dentro de card */}
-              <div className="hidden md:block bg-card border border-border rounded-xl overflow-hidden">
+              <div className="hidden xl:block bg-card border border-border rounded-xl overflow-hidden">
                 <div className="overflow-x-auto">
                   <div className="min-w-[700px]">
                     {/* Header colunas (.col-head Studoo) */}

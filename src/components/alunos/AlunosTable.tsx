@@ -26,7 +26,18 @@ type CobrStatus = { variant: StatusVariant; title: string };
 const statusDaCobranca = (cobranca?: Cobranca): CobrStatus => {
   if (!cobranca) return { variant: "neutral", title: "Sem cobrança" };
   const st = getCobrancaStatus(cobranca);
-  if (st === "pago") return { variant: "ok", title: "Em dia" };
+  if (st === "pago") {
+    // A última cobrança pode ser de um mês anterior: "Em dia" sozinho dava a
+    // entender que o mês atual já estava pago.
+    const hoje = new Date();
+    const ref = parseDateOnly(cobranca.mes_referencia);
+    const doMesAtual =
+      ref.getFullYear() === hoje.getFullYear() && ref.getMonth() === hoje.getMonth();
+    return {
+      variant: "ok",
+      title: doMesAtual ? "Em dia" : "Em dia · mensalidade deste mês ainda não gerada",
+    };
+  }
   if (st === "atrasado") return { variant: "danger", title: "Atrasada" };
   return { variant: "warn", title: "Pendente" };
 };

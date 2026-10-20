@@ -58,14 +58,14 @@ export const KpiCard = ({
     <Wrapper
       {...(wrapperProps as { to: string })}
       className={cn(
-        "bg-card border border-border rounded-xl px-6 pt-[22px] pb-6",
+        "bg-card border border-border rounded-xl px-4 pt-5 pb-5 sm:px-6 sm:pt-[22px] sm:pb-6",
         "flex flex-col gap-3.5 transition-colors duration-150 hover:border-border/80",
         to && "group cursor-pointer",
         className,
       )}
     >
-      <div className="flex items-center justify-between">
-        <span className="font-mono text-[10.5px] tracking-[0.12em] uppercase text-muted-foreground whitespace-nowrap">
+      <div className="flex items-start justify-between gap-2">
+        <span className="min-w-0 pt-1 font-mono text-[10.5px] leading-snug tracking-[0.12em] uppercase text-muted-foreground">
           {label}
         </span>
         <div className="flex items-center gap-2 shrink-0">

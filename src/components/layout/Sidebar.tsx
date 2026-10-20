@@ -24,6 +24,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { PlanoBadge } from "./PlanoBadge";
 
 const menuItems = [
   { to: "/dashboard", label: "Painel", icon: LayoutDashboard },
@@ -86,9 +87,7 @@ const Sidebar = () => {
               className="transition-opacity group-hover:opacity-80"
             />
             <Wordmark size={17} />
-            <span className="ml-auto font-mono text-[9px] tracking-[0.14em] uppercase text-muted-foreground border border-border rounded-sm px-1.5 py-0.5">
-              Pro
-            </span>
+            <PlanoBadge className="ml-auto" />
           </Link>
         </div>
 

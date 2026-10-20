@@ -3,6 +3,7 @@ import { Sun, Moon } from "lucide-react";
 import { StudooMark, Wordmark } from "@/components/StudooMark";
 import { useTheme } from "@/contexts/ThemeContext";
 import NotificacoesPopover from "./NotificacoesPopover";
+import { PlanoBadge } from "./PlanoBadge";
 
 /**
  * Header sticky pro mobile (< md).
@@ -20,9 +21,7 @@ const MobileTopBar = () => {
       >
         <StudooMark size={22} />
         <Wordmark size={17} />
-        <span className="font-mono text-[9px] tracking-[0.14em] uppercase text-muted-foreground border border-border rounded-sm px-1.5 py-0.5 ml-1">
-          Pro
-        </span>
+        <PlanoBadge className="ml-1" />
       </Link>
 
       <div className="flex items-center gap-1.5">

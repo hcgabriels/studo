@@ -91,8 +91,11 @@ export const ProfileHead = ({
       {stats && stats.length > 0 && (
         <div
           className={cn(
-            "grid gap-0 mt-3 pt-[18px] border-t border-border/40",
-            stats.length === 4 && "grid-cols-2 md:grid-cols-4",
+            "grid gap-x-0 gap-y-4 mt-3 pt-[18px] border-t border-border/40",
+            // 4 colunas só com tela larga: entre 768px e 1280px a coluna do
+            // meio fica estreita (as ações ocupam a direita) e os números se
+            // sobrepunham ("Aulas no total" em cima de "Presença").
+            stats.length === 4 && "grid-cols-2 xl:grid-cols-4",
             stats.length === 3 && "grid-cols-3",
             stats.length === 2 && "grid-cols-2",
           )}
@@ -101,11 +104,17 @@ export const ProfileHead = ({
             <div
               key={i}
               className={cn(
-                "flex flex-col gap-1 pr-4 md:pr-[18px]",
-                i < stats.length - 1 && "border-r border-border/40",
+                "flex flex-col gap-1 min-w-0 pr-4 md:pr-[18px] border-border/40",
+                stats.length === 4
+                  ? cn(
+                      i % 2 === 0 ? "border-r" : "pl-4",
+                      i < stats.length - 1 ? "xl:border-r" : "xl:border-r-0",
+                      i > 0 ? "xl:pl-[18px]" : "xl:pl-0",
+                    )
+                  : i < stats.length - 1 && "border-r",
               )}
             >
-              <span className="font-mono text-[10.5px] tracking-[0.12em] uppercase text-muted-foreground whitespace-nowrap">
+              <span className="font-mono text-[10.5px] tracking-[0.12em] uppercase text-muted-foreground truncate">
                 {s.label}
               </span>
               <span
@@ -117,7 +126,7 @@ export const ProfileHead = ({
                 {s.value}
               </span>
               {s.sub && (
-                <span className="text-[11.5px] text-muted-foreground whitespace-nowrap">
+                <span className="text-[11.5px] text-muted-foreground">
                   {s.sub}
                 </span>
               )}

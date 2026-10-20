@@ -341,10 +341,10 @@ const Configuracoes = () => {
       : assinatura?.plano === "mensal"
         ? "R$ 39"
         : "R$ 39";
+  // No teste, o preço grande parecia ser o que a pessoa já está pagando.
   const cicloAtual =
-    assinatura?.plano === "anual"
-      ? "/ano"
-      : "/mês";
+    (assinatura?.plano === "anual" ? "/ano" : "/mês") +
+    (emTesteGratis(assinatura) ? " depois do teste" : "");
 
   // ── LGPD: portabilidade (baixar) e eliminação (excluir conta) ────────────
   const [baixandoDados, setBaixandoDados] = useState(false);
